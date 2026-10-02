@@ -1,6 +1,8 @@
-# Windows x64 开发包准备
+# Windows x64 开发安装包
 
-Windows x64 的 FFmpeg／ffprobe 锁定资源与安装配置已准备。当前主机是 Intel Mac，没有执行 Windows 本机编译和安装，因此还没有 Windows 安装包，发行状态为 **NOT VERIFIED**。本次只推进 Windows x64。
+Windows x64 开发安装器已通过 [GitHub Actions 原生构建](https://github.com/mailingfeng/video-editor/actions/runs/37040318798)、静默安装和安装后媒体回归。产物为 `帧序_0.1.0_x64-setup.exe`，约 56.44 MiB。主程序、媒体工具和安装器实测均未签名；用户桌面和完整发行验收仍待完成，发行状态为 **NOT VERIFIED**。本次只推进 Windows x64。
+
+Actions 页面提供 `frameshift-0.1.0-windows-x64-development-37040318798` 安装包 artifact，保留至 2026-10-16（UTC）；再次推送构建分支可重新生成。安装器 SHA-256 为 `fef279153db7f21724fb1c8f443138f80fec8f0a92a9728a825ba4ee9b746d2a`。详情见 [构建记录](evidence/windows-x64-actions-20261003.json)与[安装资源原始记录](evidence/windows-x64-installed-resources-20261003.json)。
 
 ## 锁定资源
 
@@ -12,7 +14,7 @@ Windows x64 的 FFmpeg／ffprobe 锁定资源与安装配置已准备。当前�
 | ffmpeg.exe | `3256173f3f8bffd7df12227c68adf68025edb1832273a9530688a7bb1ed8edec` |
 | ffprobe.exe | `f0d36ecbbdd3bcfac3efa078c96c7271c2e68b3810595552ac3b7f17e9a65c52` |
 
-两个 EXE 的 PE machine 均为 `0x8664`，锁定版本令牌为 `9.0.2-essentials_build-www.gyan.dev`。版本和构建参数来自 README／PE 内嵌字符串，没有冒充原生执行输出。实测记录见 [资源证据](evidence/windows-x64-resources-20261002.json)；下载链接、包内条目、工具哈希和许可材料登记于 `tools/sidecars.lock.json`。
+两个 EXE 的 PE machine 均为 `0x8664`，锁定版本令牌为 `9.0.2-essentials_build-www.gyan.dev`。此前 [静态资源证据](evidence/windows-x64-resources-20261002.json)来自 README／PE 字符串；本次 [安装资源记录](evidence/windows-x64-installed-resources-20261003.json)原生执行了 `-version`／`-buildconf`／`-L`，确认完整版本、libx264、许可输出与上述 SHA。下载链接、包内条目、工具哈希和许可材料登记于 `tools/sidecars.lock.json`。
 
 ## GitHub Actions
 
@@ -25,6 +27,10 @@ Windows x64 的 FFmpeg／ffprobe 锁定资源与安装配置已准备。当前�
 仓库是公开的，上传代码前需确保整个待推送历史没有 `.env` 凭据。若旧本地历史已有 token，应从远端安全基线创建仅含代码的构建分支；删除 HEAD 文件或增加 `.gitignore` 不能清除祖先提交中的凭据。样本视频只有在允许公开时才加入该分支。
 
 CI 的构建、静默安装和媒体回归可证明该 runner 上的行为；用户桌面启动、无开发工具环境、上传、完整发行材料和签名仍需独立验收，releaseStatus 保持 NOT VERIFIED。
+
+2026-10-03 验证运行的源提交为 `dba94158a28dfe760ef813146e0dddfe98966024`。Windows 2022 runner 上的工具／检查器测试 17 项、前端 9 项、后端 42 项通过，4 项原生媒体测试默认忽略；生成媒体回归和使用安装目录工具的回归分别单独通过。后者覆盖中文／空格／引号路径、带音频与无音频、时间偏移、全范围视频及不支持／损坏输入。
+
+提供的原视频在 Intel Mac 完成真实转换和取消回归：2713 帧、AAC 48 kHz、源文件 identity 保持不变，取消后没有正式输出。原视频仍保留本地，本次 Windows runner 使用生成样例；原视频的 Windows 验证待允许公开上传后执行。
 
 ## 原生构建环境
 
@@ -71,4 +77,4 @@ node scripts/verify-release.mjs --target x86_64-pc-windows-msvc --artifact "C:\p
 
 实测后创建安装收据，填写 `target`、前述检查得到的 `fingerprint`、`os`、`cpu` 和 ISO 时间 `testedAt`。仅对真实通过的项目，把 `cases` 中 `installedLaunch`、`noDevelopmentTools`、`conversion`、`cancel`、`unicodeAndSpaces`、`outputConflict`、`startupRecovery` 设为 `true`。然后使用 `--receipt` 提供收据并去掉 `--development`，检查完整发行条件；材料和签名缺失时应失败。
 
-GPL v3 文本与构建 README 已加入 Windows 包资源。所有对应源代码、外部库／应用依赖声明和 Authenticode 签名仍待准备；相关状态见 [第三方材料记录](third-party-notices.md)。当前资源准备证据不能替代 Windows 原生构建、安装或上传验收。
+GPL v3 文本与构建 README 已加入并在 Windows 安装资源中核对。所有对应源代码、外部库／应用依赖声明和 Authenticode 签名仍待准备；相关状态见 [第三方材料记录](third-party-notices.md)。Windows CI 的开发包检查不能替代用户桌面与平台上传验收。
