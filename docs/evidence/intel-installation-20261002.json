@@ -1,0 +1,45 @@
+{
+  "target": "x86_64-apple-darwin",
+  "fingerprint": "1fb98d61ddf2ee92158c9009dfe91c2acf949bfdb1d7b4c93ee6d89664a3dd33",
+  "os": "macOS 14.8.8 (23J620)",
+  "cpu": "Intel(R) Core(TM) i7-8750H CPU @ 2.20GHz",
+  "testedAt": "2026-10-02T11:51:47Z",
+  "applicationVersion": "0.1.0",
+  "developmentDmg": {
+    "path": ".superpowers/artifacts/帧序_0.1.0_macOS_Intel_开发版.dmg",
+    "sizeBytes": 115171297,
+    "sha256": "d43909f7e434f26579db4ee6175eb8c2d5a8e681090113c711a61675610aa902"
+  },
+  "releaseStatus": "NOT VERIFIED",
+  "cases": {
+    "installedLaunch": true,
+    "noDevelopmentTools": false,
+    "conversion": true,
+    "cancel": true,
+    "unicodeAndSpaces": true,
+    "outputConflict": true,
+    "startupRecovery": true
+  },
+  "observations": {
+    "installation": "DMG checksum verified with hdiutil, mounted read-only, app copied with ditto to an independent local installation directory, volume detached before execution.",
+    "installedLaunch": "Direct executable launch and multiple normal Finder launches after closing succeeded. First open produced a live process with no accessible window; idle event loop was sampled. The cause remains undetermined.",
+    "noDevelopmentTools": "Vite was stopped and TCP 1420 had no listener; conversion used bundled absolute tool paths. This host still has Node and Rust installed, so a clean machine without development tools has not been tested.",
+    "unicodeAndSpaces": "System file dialogs selected .superpowers/安装验证 素材/有音频 样例.mp4 and .superpowers/安装验证 输出. Conversion succeeded, and Finder selected the output.",
+    "conversion": {
+      "fixtureJobId": "bad4fc2b-3c91-47e0-b1ec-de42d37d559c",
+      "fixtureFrames": 36,
+      "sampleJobId": "1e9eb56b-b51c-4de9-981a-a9a4de250637",
+      "sampleWidth": 720,
+      "sampleHeight": 1280,
+      "sampleFrames": 2713,
+      "outputAudioSampleRate": 48000,
+      "inputSha256": "c4fd9bc7b1c8fc928848808aee0ffd7b0c961fffb449f92587f3c756211d8beb",
+      "outputSha256": "43aedb719b432614d510fc8cb1ae4517bab2a4f19edf9c64cc8bad488d441ceb"
+    },
+    "cancel": "Job 52bcf4b4-015c-4e31-ba14-69807aac585b was canceled in Running, ended canceled with cleanupPending=false and no outputPath. Source SHA was unchanged.",
+    "outputConflict": "For job 417e74c3-ff3f-4c38-b250-19da76ad9bcc, an exclusively created test marker occupied the registered final path. The installed app ended failed/output_conflict, marker SHA f335fee8193573e8a532232d708b90364bde0ddb6c83475f3fee397640e5d899 was unchanged, workspace and active record were removed.",
+    "startupRecovery": "For job 1d07afcb-cb03-49d9-8944-79fe40e269de, the installed app and its verified FFmpeg child were abruptly terminated. Owned workspace and registry existed before relaunch and were removed by startup recovery; no final path was published, unrelated conflict marker was unchanged, and both fault-test processes exited. This controlled case does not test an orphan FFmpeg still running during restart.",
+    "terminalRestore": "Reopening restores the latest terminal job. The aborted recovery job was not shown as a saved result.",
+    "uiEvidence": "intel-installed-ui-20261002.png"
+  }
+}

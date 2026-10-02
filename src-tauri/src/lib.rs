@@ -1,0 +1,8 @@
+#[cfg(feature = "desktop")]
+pub mod commands;
+pub mod contracts;
+pub mod jobs;
+pub mod media;
+pub mod native;
+pub mod output;
+pub mod presets;

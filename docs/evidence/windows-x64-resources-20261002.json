@@ -1,0 +1,93 @@
+{
+  "schemaVersion": 1,
+  "kind": "windows-x64-resource-preparation",
+  "status": "RESOURCES PREPARED",
+  "releaseStatus": "NOT VERIFIED",
+  "target": "x86_64-pc-windows-msvc",
+  "tools": {
+    "ffmpeg": {
+      "architecture": "x86_64-pc-windows-msvc",
+      "sha256": "3256173f3f8bffd7df12227c68adf68025edb1832273a9530688a7bb1ed8edec",
+      "sizeBytes": 105423872,
+      "path": "/Users/mailingfeng/projects/ai/video-editor/.worktrees/desktop-mvp/src-tauri/binaries/ffmpeg-x86_64-pc-windows-msvc.exe",
+      "existing": true
+    },
+    "ffprobe": {
+      "architecture": "x86_64-pc-windows-msvc",
+      "sha256": "f0d36ecbbdd3bcfac3efa078c96c7271c2e68b3810595552ac3b7f17e9a65c52",
+      "sizeBytes": 105221120,
+      "path": "/Users/mailingfeng/projects/ai/video-editor/.worktrees/desktop-mvp/src-tauri/binaries/ffprobe-x86_64-pc-windows-msvc.exe",
+      "existing": true
+    }
+  },
+  "checkedAt": "2026-10-02T12:59:23.245Z",
+  "host": {
+    "target": "x86_64-apple-darwin",
+    "platform": "darwin",
+    "architecture": "x64",
+    "osRelease": "23.6.0"
+  },
+  "archive": {
+    "url": "https://www.gyan.dev/ffmpeg/builds/packages/ffmpeg-9.0.2-essentials_build.zip",
+    "mirror": "https://github.com/GyanD/codexffmpeg/releases/tag/9.0.2",
+    "sha256": "60f467265b1e312373dbcd92200c2618a74850f98d3d078e94296bb3fa2047ba",
+    "sizeBytes": 114768076,
+    "publisherChecksumUrl": "https://www.gyan.dev/ffmpeg/builds/packages/ffmpeg-9.0.2-essentials_build.zip.sha256",
+    "publisherChecksumMatched": true
+  },
+  "expectedVersionToken": "9.0.2-essentials_build-www.gyan.dev",
+  "metadataSource": "Publisher README and embedded PE strings; native Windows tool execution is NOT VERIFIED",
+  "embeddedBuildconf": "--enable-gpl --enable-version3 --enable-static --disable-w32threads --disable-autodetect --enable-cairo --enable-fontconfig --enable-iconv --enable-gnutls --enable-libxml2 --enable-gmp --enable-bzlib --enable-lzma --enable-zlib --enable-libsrt --enable-libssh --enable-libzmq --enable-avisynth --enable-sdl2 --enable-libwebp --enable-libx264 --enable-libx265 --enable-libxvid --enable-libaom --enable-libopenjpeg --enable-libvpx --enable-mediafoundation --enable-libass --enable-libfreetype --enable-libfribidi --enable-libharfbuzz --enable-libvidstab --enable-libvmaf --enable-libzimg --enable-amf --enable-cuda-llvm --enable-cuvid --enable-dxva2 --enable-d3d11va --enable-d3d12va --enable-ffnvcodec --enable-libvpl --enable-nvdec --enable-nvenc --enable-vaapi --enable-openal --enable-libgme --enable-libopenmpt --enable-libopencore-amrwb --enable-libmp3lame --enable-libtheora --enable-libvo-amrwbenc --enable-libgsm --enable-libopencore-amrnb --enable-libopus --enable-libspeex --enable-libvorbis --enable-librubberband",
+  "materials": [
+    {
+      "kind": "license",
+      "path": "licenses/windows-x64/FFmpeg-GPLv3.txt",
+      "sha256": "8ceb4b9ee5adedde47b31e975c1d90c73ad27b6b165a1dcd80c7c545eb65b903",
+      "archiveEntry": "ffmpeg-9.0.2-essentials_build/LICENSE",
+      "source": "tools/licenses/ffmpeg-windows-x64-GPLv3.txt",
+      "sizeBytes": 35147,
+      "resourceMappingChecked": true
+    },
+    {
+      "kind": "notice",
+      "path": "licenses/windows-x64/FFmpeg-README.txt",
+      "sha256": "0342de6bb39dd421cbec2c00d89ad274b640d75ad3f2cab09ffd647ce2d8f949",
+      "archiveEntry": "ffmpeg-9.0.2-essentials_build/README.txt",
+      "source": "tools/licenses/ffmpeg-windows-x64-README.txt",
+      "sizeBytes": 41577,
+      "resourceMappingChecked": true
+    }
+  ],
+  "checks": {
+    "archiveHash": true,
+    "executableHashes": true,
+    "executablePEx64": true,
+    "idempotentExistingResources": true,
+    "foreignHostRejected": true,
+    "materialHashesAndResourceMapping": true
+  },
+  "nativeExecutionStatus": "NOT VERIFIED",
+  "windowsBuildStatus": "NOT VERIFIED",
+  "installationStatus": "NOT VERIFIED",
+  "signingStatus": "NOT VERIFIED",
+  "distributionStatus": "development-only; linked-library materials and corresponding source require release verification",
+  "foreignHostCheck": {
+    "exitCode": 1,
+    "status": "NOT VERIFIED",
+    "errors": [
+      "native host x86_64-apple-darwin does not match x86_64-pc-windows-msvc"
+    ],
+    "note": "Guard check only; no Windows installer has been built or inspected"
+  },
+  "tests": {
+    "host": "x86_64-apple-darwin",
+    "sidecars": 7,
+    "releaseVerifier": 10,
+    "frontend": 9,
+    "backendDefaultPassed": 43,
+    "backendDefaultIgnored": 4,
+    "typecheckAndFrontendBuild": "PASS",
+    "desktopClippy": "PASS"
+  },
+  "note": "Resources were extracted on Intel Mac. Static PE metadata and host-independent tests do not verify native Windows execution or installation."
+}

@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light"><title>帧序 · 视频处理工作台</title>
+<style>
+/* OD-LAYOUT-PRIMITIVES v1 — structure only: display, flex/grid, overflow, wrapping, ratio.
+   Put this @layer first; product CSS outside the layer always wins. */
+@layer od-layout {
+  :where(.od-stack,.od-row,.od-row-top,.od-cluster,.od-grid,.od-field,.od-stat,.od-cell,.od-tile) > :where(*) { min-width: 0; }
+  .od-stack { display:flex; flex-direction:column; gap:var(--od-gap,8px); }
+  .od-row { display:flex; align-items:center; gap:var(--od-gap,8px); }
+  .od-row-top { display:flex; align-items:flex-start; gap:var(--od-gap,8px); }
+  .od-cluster { display:flex; flex-wrap:wrap; align-items:center; gap:var(--od-gap,8px); }
+  .od-fill { flex:1 1 0; min-width:0; }
+  .od-fixed { flex:none; }
+  .od-grid { display:grid; gap:var(--od-gap,12px); grid-template-columns:repeat(var(--od-cols,3),minmax(0,1fr)); }
+  .od-stat,.od-field,.od-cell { display:grid; gap:var(--od-gap,2px); }
+  :where(.od-stat,.od-field,.od-cell)>:where(*) { display:block; }
+  .od-tile { display:grid; grid-template-rows:auto 1fr; }
+  :where(.od-tile)>:where(*) { display:block; }
+  .od-media { display:block; width:100%; height:auto; aspect-ratio:var(--od-ratio,auto); }
+  .od-media-cover { object-fit:cover; }
+  .od-truncate { display:block; max-width:100%; overflow:hidden; white-space:nowrap; text-overflow:ellipsis; }
+  .od-clamp-2,.od-clamp-3 { display:-webkit-box; -webkit-box-orient:vertical; overflow:hidden; overflow-wrap:anywhere; }
+  .od-clamp-2 { -webkit-line-clamp:2; } .od-clamp-3 { -webkit-line-clamp:3; }
+  .od-lines-2 { min-height:calc(2 * 1.4em); }
+  .od-nowrap { white-space:nowrap; }
+  .od-keep { word-break:keep-all; overflow-wrap:anywhere; }
+  .od-screen { display:grid; grid-template-rows:auto minmax(0,1fr) auto; height:100%; }
+  .od-scroll { overflow-y:auto; overscroll-behavior:contain; min-height:0; }
+  .od-rail { display:flex; gap:var(--od-gap,8px); overflow-x:auto; scroll-snap-type:x proximity; scrollbar-width:none; padding-inline:var(--od-rail-pad,16px); scroll-padding-inline:var(--od-rail-pad,16px); }
+  .od-rail::-webkit-scrollbar { display:none; }
+  :where(.od-rail)>:where(*) { flex:none; scroll-snap-align:start; }
+  :where(.od-rail)>:where(:last-child) { margin-inline-end:var(--od-rail-pad,16px); }
+  .od-spacer { flex:none; visibility:hidden; pointer-events:none; }
+  .od-touch { min-width:44px; min-height:44px; }
+}
+/* /OD-LAYOUT-PRIMITIVES v1 */
+:root { --canvas:#F4F6F9; --surface:#fff; --nav:#151E2D; --ink:#182334; --muted:#526174; --primary:#2456D3; --primary-hover:#1945B5; --line:#D9E0EA; --green:#166044; --green-bg:#EAF6EF; --red:#B42332; --red-bg:#FFF0F1; --amber:#825400; --amber-bg:#FFF5D6; --nav-text:#EDF2FA; --blue-bg:#EEF3FF; --font:'PingFang SC','Microsoft YaHei',system-ui,sans-serif; --mono:ui-monospace,SFMono-Regular,Consolas,monospace; --f-xs:12px; --f-sm:14px; --f-body:16px; --f-section:20px; --f-title:24px; --f-display:32px; --s1:4px; --s2:8px; --s3:12px; --s4:16px; --s6:24px; --s8:32px; --s12:48px; --s16:64px; --r1:4px; --r2:8px; --r3:12px; --enter:200ms; --exit:140ms; --shadow:0 16px 48px #151e2d26; }
+* { box-sizing:border-box; } body { margin:0; font-family:var(--font); font-size:var(--f-body); line-height:1.5; color:var(--ink); background:var(--canvas); } button,input,select { font:inherit; } button,a,select { -webkit-tap-highlight-color:transparent; } button { cursor:pointer; } button:disabled { cursor:not-allowed; opacity:.5; } button,input,select,a { outline-offset:4px; } :focus-visible { outline:3px solid var(--primary); } button { border:0; } [hidden] { display:none!important; } h1,h2,h3,p { margin:0; } h1 { font-size:var(--f-display); font-weight:650; letter-spacing:-1px; line-height:1.25; } h2 { font-size:var(--f-body); font-weight:650; } h3 { font-size:var(--f-body); font-weight:600; } .muted { color:var(--muted); } .small { font-size:var(--f-sm); } .mono { font-family:var(--mono); } .icon { display:block; width:20px; height:20px; flex:none; fill:none; stroke:currentColor; stroke-width:1.75; stroke-linecap:round; stroke-linejoin:round; } .sprite { position:absolute; width:0; height:0; pointer-events:none; } .app { display:block; min-height:100svh; }
+.brand { display:flex; align-items:center; gap:var(--s2); color:var(--ink); text-decoration:none; flex:none; } .brand-mark { display:grid; place-items:center; width:32px; height:32px; border:1px solid var(--line); border-radius:var(--r2); color:var(--primary); } .brand-mark .icon { width:24px; height:24px; } .brand strong { font-size:var(--f-section); font-weight:650; letter-spacing:2px; } .nav-list { display:flex; align-items:stretch; gap:var(--s2); min-width:0; } .nav-button { display:flex; align-items:center; justify-content:center; gap:var(--s2); min-height:64px; padding:0 var(--s4); background:transparent; color:var(--muted); border-bottom:2px solid transparent; font-size:var(--f-sm); font-weight:500; white-space:nowrap; } .nav-button.active { color:var(--primary); border-bottom-color:var(--primary); font-weight:600; } .nav-button:focus-visible { outline-offset:-4px; } .nav-count { display:flex; align-items:center; justify-content:center; min-width:20px; padding:0 var(--s1); background:var(--canvas); color:var(--muted); border-radius:var(--r1); font-family:var(--mono); font-size:var(--f-xs); }
+.main { min-width:0; min-height:100svh; display:flex; flex-direction:column; } .topbar { display:grid; grid-template-columns:auto minmax(0,1fr) auto; align-items:center; gap:var(--s8); padding:0 var(--s8); min-height:64px; background:var(--surface); border-bottom:1px solid var(--line); } .topbar-tools { justify-content:flex-end; } .icon-btn { display:flex; justify-content:center; align-items:center; min-width:44px; min-height:44px; background:transparent; color:var(--muted); border-radius:var(--r2); padding:var(--s2); } .content { padding:var(--s8); flex:1; min-width:0; max-width:1600px; width:100%; margin:0 auto; } .page-heading { display:flex; align-items:center; justify-content:space-between; gap:var(--s6); margin-bottom:var(--s6); } .page-heading h1 { font-size:var(--f-title); letter-spacing:0; } .subtitle { color:var(--muted); font-size:var(--f-sm); margin-top:var(--s3); } .ready { display:flex; align-items:center; gap:var(--s2); color:var(--muted); font-size:var(--f-sm); white-space:nowrap; } .dot { display:block; width:8px; height:8px; border-radius:50%; background:var(--muted); } .ready.running { color:var(--primary); } .ready.running .dot { background:var(--primary); } .notice { padding:var(--s3) var(--s4); border-radius:var(--r2); margin-bottom:var(--s4); background:var(--blue-bg); color:var(--primary-hover); display:flex; justify-content:space-between; align-items:center; gap:var(--s4); font-size:var(--f-sm); } .notice.error { color:var(--red); background:var(--red-bg); } .notice .icon-btn { color:inherit; }
+.green { color:var(--green); } .red { color:var(--red); } .blue { color:var(--primary); }
+.workspace { display:grid; grid-template-columns:minmax(0,1fr); gap:var(--s6); align-items:start; } .panel { background:var(--surface); border:1px solid var(--line); border-radius:var(--r2); min-width:0; } .panel-head { padding:var(--s6); display:flex; justify-content:space-between; gap:var(--s4); align-items:center; border-bottom:1px solid var(--line); } .panel-head small { display:block; color:var(--muted); font-size:var(--f-xs); margin-top:var(--s1); } .count-badge { display:inline-flex; align-items:center; justify-content:center; min-width:24px; padding:0 var(--s2); margin-left:var(--s2); font-family:var(--mono); font-size:var(--f-xs); font-weight:500; background:var(--canvas); border-radius:var(--r1); vertical-align:middle; } .btn { display:inline-flex; gap:var(--s2); align-items:center; justify-content:center; min-height:44px; border:1px solid var(--line); padding:var(--s2) var(--s4); background:var(--surface); color:var(--ink); border-radius:var(--r2); font-size:var(--f-sm); font-weight:500; white-space:nowrap; transition:background var(--enter) ease-out,transform var(--enter) ease-out; } .btn .icon { width:16px; height:16px; } .btn-primary { background:var(--primary); border-color:var(--primary); color:#fff; } .btn-danger { background:var(--red); color:#fff; border-color:var(--red); } .btn-quiet { border-color:transparent; background:transparent; color:var(--muted); } .btn-text { background:transparent; padding:var(--s2); color:var(--primary); font-size:var(--f-sm); min-height:44px; border-radius:var(--r1); white-space:nowrap; } .full { width:100%; } .import-bar { padding:var(--s4) var(--s6); display:flex; gap:var(--s2); flex-wrap:wrap; align-items:center; } .import-bar .clear { margin-left:auto; } .filter-bar { display:flex; padding:0 var(--s6); gap:var(--s6); border-bottom:1px solid var(--line); } .filter-btn { display:flex; align-items:center; gap:var(--s2); background:none; color:var(--muted); border-bottom:2px solid transparent; padding:var(--s3) 0; min-height:44px; font-size:var(--f-sm); white-space:nowrap; } .filter-btn.active { color:var(--primary); border-color:var(--primary); font-weight:600; } .filter-btn span { font-family:var(--mono); font-size:var(--f-xs); } .table-labels,.file-row { display:grid; grid-template-columns:minmax(0,1fr) 76px 108px 88px; gap:var(--s3); align-items:center; } .table-labels { padding:var(--s3) var(--s6); background:#FAFBFD; color:var(--muted); font-size:var(--f-xs); border-bottom:1px solid var(--line); } .table-labels span:last-child { text-align:right; } .file-row { padding:var(--s4) var(--s6); min-height:88px; border-bottom:1px solid #E9EDF3; } .file-row:last-child { border-bottom:0; } .file-info { gap:var(--s3); min-width:0; } .file-symbol { display:flex; align-items:center; justify-content:center; width:40px; height:48px; color:var(--primary); background:var(--blue-bg); border:1px solid #D9E5FF; border-radius:var(--r1); flex:none; } .file-symbol .icon { width:24px; height:24px; } .file-name { font-size:var(--f-sm); font-weight:500; text-align:left; padding:0; min-height:24px; width:100%; background:transparent; color:var(--ink); } .file-meta { color:var(--muted); font-size:var(--f-xs); margin-top:var(--s1); } .file-size { font-family:var(--mono); color:var(--muted); font-size:var(--f-xs); white-space:nowrap; } .file-status { font-size:var(--f-xs); --od-gap:var(--s1); } .status-text { display:flex!important; align-items:center; gap:var(--s1); white-space:nowrap; } .status-text .icon { width:14px; height:14px; } .status-pending { color:var(--muted); } .status-running { color:var(--primary); } .status-success { color:var(--green); } .status-failed { color:var(--red); } .status-canceled { color:var(--muted); } .progress-track { height:4px; background:#E6EBF4; border-radius:var(--r1); overflow:hidden; display:block; width:100%; } .progress-fill { display:block; height:100%; width:100%; background:var(--primary); transform-origin:left; transition:transform var(--enter) ease-out; } .row-actions { display:flex; gap:var(--s2); justify-content:flex-end; } .row-actions .icon-btn { min-width:36px; min-height:44px; padding:var(--s1); } .row-actions .icon { width:16px; height:16px; } .list-footer { padding:var(--s4) var(--s6); border-top:1px solid var(--line); display:flex; align-items:center; gap:var(--s2); color:var(--muted); font-size:var(--f-xs); min-height:56px; } .list-footer .icon { width:16px; height:16px; } .drop-zone.dragover { outline:2px dashed var(--primary); outline-offset:-4px; background:var(--blue-bg); } .empty { display:flex; flex-direction:column; align-items:center; text-align:center; gap:var(--s3); padding:var(--s12) var(--s6); } .empty>.icon { width:40px; height:40px; color:#74869F; } .empty p { font-size:var(--f-sm); color:var(--muted); max-width:40ch; }
+/* Compact processing toolbar */
+.process-toolbar { display:flex; align-items:center; gap:var(--s4); padding:var(--s4); margin-bottom:var(--s2); border:1px solid var(--line); border-radius:var(--r2); background:var(--surface); min-width:0; }
+.toolbar-field { display:flex; align-items:center; gap:var(--s2); min-width:0; }
+.toolbar-label { display:block; flex:none; font-size:var(--f-sm); color:var(--muted); white-space:nowrap; }
+.toolbar-output { flex:1 1 0; min-width:200px; }
+.toolbar-output .output-selector { flex:1 1 0; min-width:0; justify-content:flex-start; padding-inline:var(--s3); }
+.output-selector .od-truncate { flex:1 1 0; min-width:0; text-align:left; }
+.output-selector .icon { color:var(--muted); }
+.toolbar-feature { flex:none; }
+.process-toolbar select { font-family:var(--font); margin:0; }
+.toolbar-feature select { width:160px; }
+.toolbar-concurrency { flex:none; }
+.toolbar-concurrency select { width:64px; font-family:var(--mono); }
+.toolbar-info { flex:none; }
+.toolbar-launch { display:flex; flex:none; }
+.toolbar-launch .btn { min-width:128px; }
+.toolbar-status { font-size:var(--f-xs); color:var(--muted); margin:0 0 var(--s4); padding-inline:var(--s1); }
+.helper { font-size:var(--f-xs); color:var(--muted); line-height:1.75; margin-top:var(--s2); }
+.batch-strip { margin-top:var(--s6); display:flex; align-items:center; gap:var(--s4); color:var(--muted); font-size:var(--f-xs); } .batch-strip .progress-track { flex:1; max-width:240px; } .batch-strip strong { color:var(--ink); font-weight:500; } .app-footer { display:flex; gap:var(--s4); justify-content:space-between; align-items:center; padding:var(--s4) var(--s8); color:var(--muted); font-size:var(--f-xs); border-top:1px solid var(--line); background:var(--surface); } .app-footer .icon { width:14px; height:14px; }
+.report-toolbar { display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:var(--s4); margin-bottom:var(--s6); } .select-wrap { display:flex; align-items:center; gap:var(--s3); font-size:var(--f-sm); min-width:0; } select { display:block; background:var(--surface); color:var(--ink); border:1px solid var(--line); border-radius:var(--r2); padding:var(--s2) var(--s3); min-height:44px; max-width:100%; font-family:var(--mono); font-size:var(--f-sm); } .report-summary { display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1fr); gap:var(--s6); padding:var(--s6); border-bottom:1px solid var(--line); } .report-summary .od-field { --od-gap:var(--s2); } .report-summary .label { font-size:var(--f-xs); color:var(--muted); } .report-summary .value { font-size:var(--f-sm); overflow-wrap:anywhere; } .report-table { width:100%; border-collapse:collapse; font-size:var(--f-sm); table-layout:fixed; } .report-table th { font-size:var(--f-xs); color:var(--muted); background:#FAFBFD; text-align:left; font-weight:500; } .report-table th,.report-table td { padding:var(--s3) var(--s6); border-bottom:1px solid var(--line); vertical-align:top; overflow-wrap:anywhere; } .report-table th:first-child { width:48%; } .report-table th:nth-child(2) { width:20%; } .log-panel { margin-top:var(--s6); } .log-head { display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:var(--s3); padding:var(--s4) var(--s6); border-bottom:1px solid var(--line); } .log-head .small { font-family:var(--mono); } .log-body { background:#172235; color:#D8E1EF; padding:var(--s6); max-height:360px; min-height:180px; overflow-y:auto; font-family:var(--mono); font-size:var(--f-xs); line-height:1.9; border-radius:0 0 var(--r2) var(--r2); } .log-line { display:grid; grid-template-columns:72px 48px minmax(0,1fr); gap:var(--s3); } .log-line .log-time { color:#AABBD3; white-space:nowrap; } .log-line .level { color:#9EBBFF; } .log-line.error .level { color:#FFB2BB; } .log-line .message { overflow-wrap:anywhere; } .save-state { font-size:var(--f-sm); color:var(--muted); }
+dialog { border:1px solid var(--line); border-radius:var(--r3); background:var(--surface); color:var(--ink); padding:0; width:min(560px,calc(100% - 32px)); max-height:calc(100svh - 48px); box-shadow:var(--shadow); animation:dialog-enter var(--enter) ease-out; } dialog::backdrop { background:#0C172B66; } .dialog-head { display:flex; align-items:center; justify-content:space-between; gap:var(--s4); padding:var(--s4) var(--s6); border-bottom:1px solid var(--line); } .dialog-body { padding:var(--s6); font-size:var(--f-body); overflow-wrap:anywhere; } .dialog-body .od-field { --od-gap:var(--s1); margin-bottom:var(--s4); } .dialog-body .od-field>span:first-child { color:var(--muted); font-size:var(--f-sm); } .dialog-body p+p { margin-top:var(--s4); } .dialog-footer { display:flex; justify-content:flex-end; flex-wrap:wrap; gap:var(--s2); padding:var(--s4) var(--s6); border-top:1px solid var(--line); } .detail-log { font-family:var(--mono); font-size:var(--f-xs); background:var(--canvas); padding:var(--s3); line-height:1.75; } @keyframes dialog-enter { from { opacity:0; transform:translateY(8px); } to { opacity:1; transform:translateY(0); } }
+@media (hover:hover) { .btn:hover:not(:disabled) { background:#F0F3F8; } .btn-primary:hover:not(:disabled) { background:var(--primary-hover); } .btn-danger:hover:not(:disabled) { background:#941B28; } .icon-btn:hover:not(:disabled),.btn-text:hover:not(:disabled) { background:var(--blue-bg); color:var(--primary-hover); } .nav-button:hover { color:var(--primary-hover); background:var(--blue-bg); } .filter-btn:hover { color:var(--primary-hover); } .file-name:hover { color:var(--primary-hover); text-decoration:underline; text-underline-offset:4px; } .file-row:hover { background:#FBFCFE; } }
+@media (min-width:1440px) { .content { padding:var(--s8) var(--s12); } }
+@media (max-width:1199px) { .table-labels,.file-row { grid-template-columns:minmax(0,1fr) 96px 44px; } .file-size { display:none; } .table-labels .size-label { display:none; } .row-actions .delete-btn { display:none; } .panel-head { padding:var(--s4); } .file-row,.table-labels { padding-inline:var(--s4); } .import-bar { padding:var(--s4); } .filter-bar { padding-inline:var(--s4); gap:var(--s4); } .list-footer { padding-inline:var(--s4); } }
+@media (max-width:1023px) { .content { padding:var(--s6); } .topbar { padding-inline:var(--s6); } .workspace { grid-template-columns:minmax(0,1fr); } .process-toolbar { flex-wrap:wrap; } .toolbar-output { flex:1 1 100%; } .toolbar-launch { margin-left:auto; } .table-labels,.file-row { grid-template-columns:minmax(0,1fr) 76px 108px 88px; } .file-size { display:block; } .table-labels .size-label { display:block; } .row-actions .delete-btn { display:flex; } .app-footer { padding-inline:var(--s6); } }
+@media (max-width:767px) { .topbar { grid-template-columns:minmax(0,1fr) auto; gap:var(--s2) var(--s4); padding:var(--s2) var(--s4) 0; } .topbar nav { grid-column:1 / -1; } .nav-button { flex:1; min-height:48px; padding:0 var(--s3); } .content { padding:var(--s6) var(--s4); } .page-heading { gap:var(--s3); } h1 { font-size:var(--f-title); } .ready { font-size:var(--f-xs); } .table-labels { display:none; } .file-row { display:grid; grid-template-columns:minmax(0,1fr) 44px; gap:var(--s2) var(--s3); } .file-info { grid-column:1; } .file-size { grid-column:1; padding-left:52px; } .file-status { grid-column:1; padding-left:52px; } .row-actions { grid-column:2; grid-row:1 / span 3; flex-direction:column; gap:var(--s2); } .row-actions .delete-btn { display:none; } .file-status .progress-track { max-width:160px; } .file-symbol { width:40px; height:40px; } .file-name { font-size:var(--f-sm); } .filter-bar { gap:var(--s4); justify-content:space-between; } .filter-btn { font-size:var(--f-xs); } .import-bar { gap:var(--s2); } .import-bar .btn { padding-inline:var(--s3); } .import-bar .clear { padding-inline:var(--s2); } .list-footer { align-items:flex-start; } .process-toolbar { gap:var(--s3); } .toolbar-feature { flex:1 1 100%; } .toolbar-feature select { flex:1 1 0; width:auto; min-width:0; } .toolbar-launch { margin-left:auto; } .batch-strip { flex-wrap:wrap; gap:var(--s2); } .batch-strip .progress-track { max-width:none; min-width:64px; } .app-footer { flex-wrap:wrap; padding:var(--s4); font-size:var(--f-xs); } .report-summary { grid-template-columns:minmax(0,1fr); gap:var(--s4); padding:var(--s4); } .report-table th,.report-table td { padding:var(--s3); font-size:var(--f-xs); } .log-head,.log-body { padding:var(--s4); } .log-line { grid-template-columns:64px 40px minmax(0,1fr); gap:var(--s2); } .report-toolbar .select-wrap { width:100%; } .report-toolbar select { flex:1; min-width:0; } .dialog-body,.dialog-head { padding:var(--s4); } }
+@media (max-width:374px) { .content { padding:var(--s4) var(--s3); } .import-bar .clear { margin-left:0; } }
+@media (prefers-reduced-motion:reduce) { *,*::before,*::after { animation:none!important; transition:none!important; scroll-behavior:auto!important; } }
+</style>
+</head>
+<body>
+<svg class="sprite" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><defs>
+<symbol id="i-film" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M7 3v18M17 3v18M3 7h4M3 12h4M3 17h4M17 7h4M17 12h4M17 17h4M10 9l5 3-5 3z"/></symbol>
+<symbol id="i-grid" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></symbol>
+<symbol id="i-report" viewBox="0 0 24 24"><path d="M14 3H5v18h14V8zM14 3v5h5M8 12h8M8 16h5"/></symbol>
+<symbol id="i-folder" viewBox="0 0 24 24"><path d="M3 7V5h6l2 2h10v13H3zM3 10h18"/></symbol>
+<symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></symbol>
+<symbol id="i-arrow" viewBox="0 0 24 24"><path d="m9 5 7 7-7 7"/></symbol>
+<symbol id="i-help" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M9.5 9a2.5 2.5 0 1 1 4 2c-1 .7-1.5 1-1.5 2M12 16h.01"/></symbol>
+<symbol id="i-lock" viewBox="0 0 24 24"><rect x="5" y="10" width="14" height="11" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3M12 14v3"/></symbol>
+<symbol id="i-check" viewBox="0 0 24 24"><path d="m5 12 4 4L19 6"/></symbol>
+<symbol id="i-circle-check" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="m8 12 3 3 5-6"/></symbol>
+<symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></symbol>
+<symbol id="i-error" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v6M12 17h.01"/></symbol>
+<symbol id="i-close" viewBox="0 0 24 24"><path d="m6 6 12 12M6 18 18 6"/></symbol>
+<symbol id="i-trash" viewBox="0 0 24 24"><path d="M3 6h18M9 6V3h6v3M6 6l1 15h10l1-15M10 10v7M14 10v7"/></symbol>
+<symbol id="i-info" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 11v6M12 7h.01"/></symbol>
+<symbol id="i-play" viewBox="0 0 24 24"><path d="m8 4 12 8-12 8z"/></symbol>
+<symbol id="i-stop" viewBox="0 0 24 24"><rect x="6" y="6" width="12" height="12" rx="1"/></symbol>
+<symbol id="i-retry" viewBox="0 0 24 24"><path d="M3 10a9 9 0 1 1 2 8M3 4v6h6"/></symbol>
+<symbol id="i-download" viewBox="0 0 24 24"><path d="M12 3v12m-5-5 5 5 5-5M4 16v5h16v-5"/></symbol>
+<symbol id="i-eye" viewBox="0 0 24 24"><path d="M2 12s4-7 10-7 10 7 10 7-4 7-10 7-10-7-10-7z"/><circle cx="12" cy="12" r="3"/></symbol>
+<symbol id="i-settings" viewBox="0 0 24 24"><path d="M4 7h16M4 17h16"/><circle cx="9" cy="7" r="3" fill="currentColor" stroke="none"/><circle cx="15" cy="17" r="3" fill="currentColor" stroke="none"/></symbol>
+<symbol id="i-upload" viewBox="0 0 24 24"><path d="M12 16V3m-5 5 5-5 5 5M4 15v6h16v-6"/></symbol>
+</defs></svg>
+<div class="app">
+<main class="main">
+ <header class="topbar">
+  <div class="brand"><div class="brand-mark"><svg class="icon" aria-hidden="true"><use href="#i-film"/></svg></div><strong>帧序</strong></div>
+  <nav aria-label="主导航"><div class="nav-list" role="tablist" aria-label="工作区"><button id="tab-queue" class="nav-button active" role="tab" data-view="queue" aria-selected="true" aria-controls="queue-view" tabindex="0">视频处理</button><button id="tab-reports" class="nav-button" role="tab" data-view="reports" aria-selected="false" aria-controls="reports-view" tabindex="-1">日志与报告<span id="nav-report-count" class="nav-count" hidden>0</span></button></div></nav>
+  <div class="od-row topbar-tools"><button class="icon-btn" id="help" aria-label="查看使用说明"><svg class="icon" aria-hidden="true"><use href="#i-help"/></svg></button></div>
+ </header>
+ <div class="content">
+ <section class="page-heading"><div><h1 id="page-title">视频处理</h1><p class="subtitle" id="page-subtitle">导入视频并设置处理参数。</p></div><div class="ready" id="ready-state"><span class="dot"></span><span id="ready-text">准备就绪</span></div></section>
+ <div id="notice" class="notice" role="status" aria-live="polite" hidden><span id="notice-text"></span><button class="icon-btn" id="notice-close" aria-label="关闭提示"><svg class="icon" aria-hidden="true"><use href="#i-close"/></svg></button></div>
+ <section id="queue-view" role="tabpanel" aria-labelledby="tab-queue">
+  <section class="process-toolbar" aria-label="处理配置">
+   <div class="toolbar-field toolbar-output od-row"><span id="output-label" class="toolbar-label">输出位置</span><button class="btn output-selector" id="choose-output" aria-labelledby="output-label output-name"><svg class="icon" aria-hidden="true"><use href="#i-folder"/></svg><span id="output-name" class="od-truncate">浏览器下载目录</span></button><button class="icon-btn" id="use-download" aria-label="切换回浏览器下载" hidden><svg class="icon" aria-hidden="true"><use href="#i-download"/></svg></button></div>
+   <div class="toolbar-field toolbar-feature od-row"><label class="toolbar-label" for="feature">功能</label><select id="feature" name="feature"><option value="fingerprint">视频指纹扰动</option></select></div>
+   <div class="toolbar-field toolbar-concurrency od-row"><label class="toolbar-label" for="concurrency-select">并发</label><select id="concurrency-select"><option value="1">1</option><option value="2">2</option><option value="3" selected>3</option><option value="4">4</option></select></div>
+   <button class="icon-btn toolbar-info" id="config-info" aria-label="查看配置说明与完整输出位置"><svg class="icon" aria-hidden="true"><use href="#i-info"/></svg></button>
+   <div class="toolbar-launch"><button class="btn btn-primary" id="start" aria-describedby="start-helper" disabled><svg class="icon" aria-hidden="true"><use href="#i-play"/></svg><span>启动处理</span></button><button class="btn" id="cancel-batch" hidden><svg class="icon" aria-hidden="true"><use href="#i-stop"/></svg>取消批次</button></div>
+  </section>
+  <p class="toolbar-status" id="start-helper" role="status">请先添加至少一个视频</p>
+  <div class="workspace">
+   <section class="panel drop-zone" id="drop-zone" aria-label="待处理视频">
+    <div class="panel-head"><div><h2>待处理列表<span class="count-badge" id="queue-count">0</span></h2><small id="queue-source">尚未添加视频</small></div><button class="btn-text" id="retry-all" hidden>重试失败</button></div>
+    <div class="import-bar"><button class="btn" id="add-files"><svg class="icon" aria-hidden="true"><use href="#i-plus"/></svg>添加文件</button><button class="btn" id="add-folder"><svg class="icon" aria-hidden="true"><use href="#i-folder"/></svg>添加文件夹</button><button class="btn btn-quiet clear" id="clear-queue">清空</button></div>
+    <div class="filter-bar" aria-label="筛选任务"><button class="filter-btn active" data-filter="all" aria-pressed="true">全部<span id="filter-all">0</span></button><button class="filter-btn" data-filter="running" aria-pressed="false">处理中<span id="filter-running">0</span></button><button class="filter-btn" data-filter="success" aria-pressed="false">已完成<span id="filter-success">0</span></button><button class="filter-btn" data-filter="failed" aria-pressed="false">失败<span id="filter-failed">0</span></button></div>
+    <div class="table-labels" aria-hidden="true"><span>文件名称</span><span class="size-label">文件大小</span><span>处理状态</span><span>操作</span></div>
+    <div id="file-list" role="list" aria-label="视频文件列表"></div>
+    <div class="list-footer"><svg class="icon" aria-hidden="true"><use href="#i-upload"/></svg><span>也可以拖入文件 · 支持 MP4 / MOV / MKV / AVI / WEBM / M4V</span></div>
+   </section>
+  </div>
+  <div class="batch-strip"><svg class="icon" aria-hidden="true"><use href="#i-info"/></svg><span id="batch-text">当前队列等待启动</span><div class="progress-track" role="progressbar" aria-label="批次完成进度" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" id="batch-progress"><span class="progress-fill" id="batch-fill" style="transform:scaleX(0)"></span></div><strong class="od-nowrap" id="batch-percent">0%</strong><button class="btn-text" id="view-current-report" hidden>查看报告</button></div>
+ </section>
+ <section id="reports-view" role="tabpanel" aria-labelledby="tab-reports" hidden>
+  <div id="report-empty" class="panel empty"><svg class="icon" aria-hidden="true"><use href="#i-report"/></svg><h2>还没有处理报告</h2><p>启动一个批次后，处理日志与逐项结果会显示在这里。</p><button class="btn" data-view="queue">前往视频处理</button></div>
+  <div id="report-content" hidden>
+   <div class="report-toolbar"><div class="select-wrap"><label for="batch-select">处理批次</label><select id="batch-select"></select></div><div class="od-cluster"><button class="btn" id="export-log"><svg class="icon" aria-hidden="true"><use href="#i-download"/></svg>导出日志</button><button class="btn" id="export-report"><svg class="icon" aria-hidden="true"><use href="#i-report"/></svg>导出报告</button></div></div>
+   <section class="panel"><div class="panel-head"><h2>批次报告</h2><span class="save-state" id="report-state"></span></div><div class="report-summary" id="report-summary"></div><div id="report-table-wrap"></div></section>
+   <section class="panel log-panel"><div class="log-head"><div class="od-field"><h2>处理日志</h2><span class="muted small" id="log-filename"></span></div><div class="od-row"><button class="btn btn-quiet" id="log-filter" aria-pressed="false">仅看错误</button><button class="btn btn-quiet" id="download-log"><svg class="icon" aria-hidden="true"><use href="#i-download"/></svg>下载</button></div></div><div class="log-body" id="log-body" role="region" aria-label="批次日志" tabindex="0"></div></section>
+   <p class="helper" id="save-state"></p>
+  </div>
+ </section>
+ </div>
+ <footer class="app-footer"><div class="od-row"><svg class="icon" aria-hidden="true"><use href="#i-lock"/></svg><span>原始文件保持不变</span></div><span id="footer-status">并发 3 个任务</span></footer>
+</main>
+</div>
+<input id="files-input" type="file" accept="video/*,.mp4,.mov,.mkv,.avi,.webm,.m4v" multiple hidden>
+<input id="folder-input" type="file" webkitdirectory directory multiple hidden>
+<dialog id="modal" aria-labelledby="modal-title"><div class="dialog-head"><h2 id="modal-title"></h2><button class="icon-btn" id="modal-close" aria-label="关闭对话框"><svg class="icon" aria-hidden="true"><use href="#i-close"/></svg></button></div><div class="dialog-body" id="modal-body"></div><div class="dialog-footer"><button class="btn" id="modal-cancel">取消</button><button class="btn btn-primary" id="modal-confirm">确定</button></div></dialog>
+<script>
+'use strict';
+const $ = id => document.getElementById(id);
+const escapeHTML = value => String(value ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const icon = name => `<svg class="icon" aria-hidden="true"><use href="#i-${name}"/></svg>`;
+const supported = /\.(mp4|mov|mkv|avi|webm|m4v)$/i;
+const labels = {pending:'等待处理',running:'处理中',success:'已完成',failed:'失败',canceled:'已取消'};
+let nextID=1, batchSequence=0, timer=null, modalAction=null, modalReturnFocus=null;
+const state={ rows:[], concurrency:3, directory:null, view:'queue', filter:'all', running:false, batches:[], selectedBatch:null, errorsOnly:false };
+function sizeText(size){return size>=1024**3?(size/1024**3).toFixed(2)+' GB':size>=1024**2?(size/1024**2).toFixed(1).replace(/\.0$/,'')+' MB':size>=1024?(size/1024).toFixed(1)+' KB':size+' B';}
+function timeText(value){return new Date(value).toLocaleTimeString('zh-CN',{hour12:false});}
+function dateTime(value){return value?new Date(value).toLocaleString('zh-CN',{hour12:false}):'尚未结束';}
+function notice(message,error=false){$('notice-text').textContent=message; $('notice').classList.toggle('error',error); $('notice').hidden=false;}
+function openModal(title,body,{confirmText='知道了',action=null,danger=false,cancel=false}={}){
+ modalReturnFocus=document.activeElement; modalAction=action; $('modal-title').textContent=title; $('modal-body').innerHTML=body; $('modal-confirm').textContent=confirmText; $('modal-confirm').className='btn '+(danger?'btn-danger':'btn-primary'); $('modal-cancel').hidden=!cancel; $('modal').showModal(); (cancel?$('modal-cancel'):$('modal-confirm')).focus();
+}
+function closeModal(){ $('modal').close(); modalAction=null; if(modalReturnFocus?.isConnected) modalReturnFocus.focus({preventScroll:true}); }
+$('modal-close').onclick=closeModal; $('modal-cancel').onclick=closeModal; $('modal-confirm').onclick=()=>{const action=modalAction;closeModal(); if(action)action();};
+$('modal').addEventListener('cancel',event=>{event.preventDefault();closeModal();});
+$('modal').addEventListener('click',event=>{if(event.target===$('modal')){const rect=$('modal').getBoundingClientRect();if(event.clientX<rect.left||event.clientX>rect.right||event.clientY<rect.top||event.clientY>rect.bottom)closeModal();}});
+$('notice-close').onclick=()=>{$('notice').hidden=true;};
+$('help').onclick=()=>openModal('使用说明', '<div class="od-stack"><p>1. 添加视频或整个文件夹，检查待处理列表。</p><p>2. 选择输出位置与并行任务数，然后启动处理。</p><p>3. 在“日志与报告”中查看逐项结果并导出记录。</p><p class="muted">目录写入需要浏览器支持及授权；不可用时可下载日志与报告。批次记录保存在当前页面会话，关闭页面前请导出。</p></div>');
+function statusMarkup(row){const glyph={pending:'clock',running:'settings',success:'check',failed:'error',canceled:'stop'}[row.status];return `<span class="status-text status-${row.status}">${icon(glyph)}${row.status==='running'?row.progress+'%':labels[row.status]}</span>${row.status==='running'?`<span class="progress-track" role="progressbar" aria-label="${escapeHTML(row.name)}处理进度" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${row.progress}"><span class="progress-fill" style="transform:scaleX(${row.progress/100})"></span></span>`:''}`;}
+function renderRows(){
+ const focusKey=document.activeElement?.dataset?.focusKey;
+ const rows=state.rows.filter(r=>state.filter==='all'||r.status===state.filter);
+ $('file-list').innerHTML=rows.length?rows.map(r=>`<div class="file-row" role="listitem"><div class="file-info od-row"><div class="file-symbol">${icon('film')}</div><div class="od-field od-fill"><button class="file-name od-truncate" data-detail="${r.id}" data-focus-key="name-${r.id}" aria-label="查看 ${escapeHTML(r.name)} 详情">${escapeHTML(r.name)}</button><span class="file-meta">${escapeHTML(r.name.split('.').pop().toUpperCase())}${r.status==='running'?' · '+(r.progress<20?'准备任务':r.progress<80?'处理任务':'生成记录'):r.status==='failed'?' · 查看失败原因':''}</span></div></div><span class="file-size">${sizeText(r.size)}</span><div class="file-status od-cell">${statusMarkup(r)}</div><div class="row-actions"><button class="icon-btn" data-detail="${r.id}" data-focus-key="detail-${r.id}" aria-label="查看 ${escapeHTML(r.name)} 详情">${icon('eye')}</button><button class="icon-btn delete-btn" data-remove="${r.id}" data-focus-key="remove-${r.id}" aria-label="移除 ${escapeHTML(r.name)}" ${state.running?'disabled':''}>${icon('trash')}</button></div></div>`).join(''):`<div class="empty">${icon(state.rows.length?'film':'upload')}<h3>${state.rows.length?'没有符合筛选的任务':'添加你的第一个视频'}</h3><p>${state.rows.length?'切换筛选条件查看其他任务。':'选择文件、文件夹，或将视频拖入这里。'}</p>${state.rows.length?'':'<button class="btn" data-import="files">添加文件</button>'}</div>`;
+ if(focusKey){const candidate=document.querySelector(`[data-focus-key="${focusKey}"]`);if(candidate)candidate.focus({preventScroll:true});else document.querySelector(`[data-filter="${state.filter}"]`)?.focus({preventScroll:true});}
+ $('queue-count').textContent=state.rows.length;$('queue-source').textContent=state.rows.length?'本地文件 · '+state.rows.length+' 个视频':'尚未添加视频';
+ for(const filter of ['all','running','success','failed']){$('filter-'+filter).textContent=filter==='all'?state.rows.length:state.rows.filter(r=>r.status===filter).length;const button=document.querySelector(`[data-filter="${filter}"]`);button.classList.toggle('active',state.filter===filter);button.setAttribute('aria-pressed',String(state.filter===filter));}
+ $('retry-all').hidden=state.running||!state.rows.some(r=>r.status==='failed');
+}
+function batchRows(batch){return batch.end?batch.items:batch.rowIds.map(id=>state.rows.find(r=>r.id===id)).filter(Boolean).map(snapshot);}
+function snapshot(row){return {id:row.id,name:row.name,path:row.path,size:row.size,status:row.status,progress:row.progress,error:row.error,attempts:row.attempts,events:[...row.events]};}
+function currentBatch(){return state.batches[0]||null;}
+function renderControls(){
+ for(const id of ['add-files','add-folder','choose-output','use-download','feature','concurrency-select'])$(id).disabled=state.running;
+ $('clear-queue').disabled=state.running||!state.rows.length;
+ $('concurrency-select').value=String(state.concurrency);$('start').hidden=state.running;$('cancel-batch').hidden=!state.running;$('start').disabled=!state.rows.length;
+ const pending=state.rows.filter(r=>r.status==='pending').length;
+ $('start').querySelector('span').textContent=state.rows.length&&!pending?'重新处理':'启动处理';
+ $('start-helper').textContent=state.running?'当前批次配置已锁定':!state.rows.length?'请先添加至少一个视频':'原始文件保持不变';
+ $('ready-text').textContent=state.running?'正在处理':state.rows.length?'准备就绪':'等待添加';$('ready-state').classList.toggle('running',state.running);
+ $('footer-status').textContent='并发 '+state.concurrency+' 个任务';
+ $('output-name').textContent=state.directory?state.directory.name:'浏览器下载目录';$('use-download').hidden=!state.directory;
+ const batch=currentBatch();$('view-current-report').hidden=!batch;
+ const rows=batch?batchRows(batch):[];const done=rows.filter(r=>['success','failed','canceled'].includes(r.status)).length;const percentage=rows.length?Math.round(done/rows.length*100):0;
+ $('batch-fill').style.transform=`scaleX(${percentage/100})`;$('batch-progress').setAttribute('aria-valuenow',percentage);$('batch-percent').textContent=percentage+'%';
+ $('batch-text').textContent=batch?`${batch.id} · ${batch.end?(batch.canceled?'批次已取消':'批次已结束'):done+' / '+rows.length+' 个已结束'}`:'当前队列等待启动';
+ $('nav-report-count').textContent=state.batches.length;$('nav-report-count').hidden=state.batches.length===0;
+}
+function renderAll(){renderRows();renderControls();if(state.view==='reports')renderReport();}
+function setView(view){state.view=view;document.querySelectorAll('.nav-button').forEach(b=>{const active=b.dataset.view===view;b.classList.toggle('active',active);b.setAttribute('aria-selected',String(active));b.tabIndex=active?0:-1;});$('queue-view').hidden=view!=='queue';$('reports-view').hidden=view!=='reports';$('page-title').textContent=view==='queue'?'视频处理':'日志与报告';$('page-subtitle').textContent=view==='queue'?'导入视频并设置处理参数。':'查看批次结果，导出日志与报告。';if(view==='reports')renderReport();}
+function importFiles(files){
+ if(state.running){notice('请先结束当前批次，再添加文件。',true);return;}
+ const supportedFiles=Array.from(files).filter(file=>supported.test(file.name));
+ const rejected=files.length-supportedFiles.length;
+ if(!supportedFiles.length){notice('未找到支持的视频。请选择 MP4、MOV、MKV、AVI、WEBM 或 M4V 文件。',true);return;}
+ let added=0,duplicates=0;const keys=new Set(state.rows.map(r=>[r.path,r.size,r.lastModified].join('|')));
+ for(const file of supportedFiles){const path=file.webkitRelativePath||file.name;const key=[path,file.size,file.lastModified].join('|');if(keys.has(key)){duplicates++;continue;}keys.add(key);state.rows.push({id:nextID++,name:file.name,path,size:file.size,lastModified:file.lastModified,attempts:0,status:'pending',progress:0,error:'',events:[]});added++;}
+ state.filter='all';setView('queue');renderAll();notice(`已添加 ${added} 个视频${duplicates?'，跳过 '+duplicates+' 个重复项':''}${rejected?'，忽略 '+rejected+' 个不支持的文件':''}。`);
+}
+$('add-files').onclick=()=>{$('files-input').click();};$('add-folder').onclick=()=>{$('folder-input').click();};
+$('files-input').onchange=event=>{importFiles(event.target.files);event.target.value='';};$('folder-input').onchange=event=>{importFiles(event.target.files);event.target.value='';};
+let dragDepth=0;
+$('drop-zone').addEventListener('dragenter',e=>{e.preventDefault();if(!state.running){dragDepth++;$('drop-zone').classList.add('dragover');}});
+$('drop-zone').addEventListener('dragover',e=>{e.preventDefault();e.dataTransfer.dropEffect=state.running?'none':'copy';});
+$('drop-zone').addEventListener('dragleave',e=>{e.preventDefault();dragDepth=Math.max(0,dragDepth-1);if(!dragDepth)$('drop-zone').classList.remove('dragover');});
+$('drop-zone').addEventListener('drop',e=>{e.preventDefault();dragDepth=0;$('drop-zone').classList.remove('dragover');importFiles(e.dataTransfer.files);});
+window.addEventListener('dragover',e=>e.preventDefault());window.addEventListener('drop',e=>e.preventDefault());
+$('clear-queue').onclick=()=>{if(state.running)return;openModal('清空待处理列表？','<p>这会移除列表中的所有任务，已生成的批次报告会保留。原始文件不会被删除。</p>',{confirmText:'清空列表',danger:true,cancel:true,action:()=>{state.rows=[];state.filter='all';renderAll();notice('待处理列表已清空。');}});};
+function showDetail(id){const row=state.rows.find(r=>r.id===id);if(!row)return;openModal('任务详情',`<div class="od-field"><span>文件名称</span><strong>${escapeHTML(row.name)}</strong></div><div class="od-field"><span>相对路径／文件名</span><span>${escapeHTML(row.path)}</span></div><div class="od-field"><span>文件信息</span><span>${sizeText(row.size)} · 本地文件</span></div><div class="od-field"><span>处理状态</span><span class="status-${row.status}">${labels[row.status]}${row.status==='running'?' · '+row.progress+'%':''}</span></div>${row.error?'<p class="red">'+escapeHTML(row.error)+'</p>':''}${row.events.length?'<div class="detail-log">'+row.events.map(e=>escapeHTML(timeText(e.time)+' '+e.message)).join('<br>')+'</div>':''}`,{confirmText:row.status==='failed'&&!state.running?'重试此任务':'关闭',action:row.status==='failed'&&!state.running?()=>startBatch([row.id]):null});}
+async function chooseOutput(){
+ if(state.running)return;
+ if(!('showDirectoryPicker' in window)){openModal('使用浏览器下载','<p>当前浏览器不支持直接选择并写入输出目录。</p><p>你可以在“日志与报告”中下载日志和 JSON 报告，再通过浏览器的保存选项选择位置。</p>',{confirmText:'使用下载模式',action:()=>{state.directory=null;renderControls();notice('已使用浏览器下载模式。');}});return;}
+ try{const directory=await window.showDirectoryPicker({mode:'readwrite',id:'frameshift-output'});if(state.running){notice('当前批次已启动，请结束后再设置输出目录。',true);return;}state.directory=directory;renderControls();notice('已选择输出目录：'+directory.name+'。');}catch(error){if(error.name!=='AbortError')notice('无法获得目录写入权限，请重新授权或使用浏览器下载。',true);}
+}
+$('concurrency-select').onchange=event=>{if(state.running)return;state.concurrency=Number(event.target.value);renderControls();};
+$('config-info').onclick=()=>openModal('处理配置说明',`<div class="od-field"><span>输出位置</span><strong>${escapeHTML(state.directory?state.directory.name:'浏览器下载目录')}</strong></div><p>${state.directory?'处理结束后，日志与报告自动保存到所选目录。':'处理结束后，可在“日志与报告”中下载记录。'}</p><div class="od-field"><span>处理功能</span><strong>视频指纹扰动</strong><span>低失真重新编码，保持观感基本一致。</span></div><div class="od-field"><span>并行任务</span><span>最多同时处理 ${state.concurrency} 个视频；当前批次启动后配置会锁定。</span></div><div class="od-field"><span>文件命名</span><span class="mono">YYYYMMDD-01.log</span><span class="mono">YYYYMMDD-01.report.json</span></div>`);
+$('choose-output').onclick=chooseOutput;$('use-download').onclick=()=>{if(state.running)return;state.directory=null;renderControls();notice('已切换为浏览器下载。');};
+function batchID(){const d=new Date();const date=[d.getFullYear(),String(d.getMonth()+1).padStart(2,'0'),String(d.getDate()).padStart(2,'0')].join('');return date+'-'+String(++batchSequence).padStart(2,'0');}
+function appendLog(batch,message,level='INFO',row=null){const event={time:new Date().toISOString(),level,message};batch.log.push(event);if(row)row.events.push(event);}
+function startBatch(ids=null){
+ if(state.running)return;
+ const candidates=ids?state.rows.filter(r=>ids.includes(r.id)):state.rows.some(r=>r.status==='pending')?state.rows.filter(r=>r.status==='pending'):state.rows;
+ if(!candidates.length){notice('请先添加至少一个视频。',true);return;}
+ const batch={id:batchID(),start:new Date().toISOString(),end:null,rowIds:candidates.map(r=>r.id),items:[],concurrency:state.concurrency,output:state.directory?state.directory.name:'浏览器下载',directory:state.directory,log:[],canceled:false,saveState:'not-saved',saveError:''};
+ state.batches.unshift(batch);state.selectedBatch=batch.id;state.running=true;state.errorsOnly=false;
+ for(const row of candidates){row.status='pending';row.progress=0;row.error='';row.events=[];row.attempts++;}
+ appendLog(batch,'批次开始。');appendLog(batch,`功能：视频指纹扰动；方式：低失真重新编码；并发 ${batch.concurrency}；视频 ${candidates.length} 个。`);appendLog(batch,'日志与报告输出：'+batch.output+'。');
+ fillSlots(batch);renderAll();$('notice').hidden=true;timer=setInterval(()=>tick(batch),400);
+}
+function fillSlots(batch){const rows=batch.rowIds.map(id=>state.rows.find(r=>r.id===id));let active=rows.filter(r=>r.status==='running').length;for(const row of rows){if(active>=batch.concurrency)break;if(row.status==='pending'){row.status='running';active++;appendLog(batch,'开始任务：'+row.name,'INFO',row);}}}
+function tick(batch){
+ if(!state.running||batch.end)return;
+ const rows=batch.rowIds.map(id=>state.rows.find(r=>r.id===id));
+ for(const row of rows.filter(r=>r.status==='running')){row.progress=Math.min(100,row.progress+5+(row.id%4));if(row.progress===100){row.status='success';appendLog(batch,'流程结束：'+row.name+'。','INFO',row);}}
+ fillSlots(batch);
+ if(rows.every(r=>['success','failed','canceled'].includes(r.status)))finishBatch(batch);else renderAll();
+}
+function finishBatch(batch){
+ clearInterval(timer);timer=null;state.running=false;batch.end=new Date().toISOString();batch.items=batch.rowIds.map(id=>snapshot(state.rows.find(r=>r.id===id)));
+ const success=batch.items.filter(r=>r.status==='success').length,failed=batch.items.filter(r=>r.status==='failed').length,canceled=batch.items.filter(r=>r.status==='canceled').length;
+ appendLog(batch,`批次结束：完成 ${success}，失败 ${failed}，取消 ${canceled}。`);renderAll();notice(batch.canceled?'批次已取消，已结束任务的记录已保留。':`批次结束：${success} 个完成${failed?'，'+failed+' 个失败，可查看原因并重试':''}。`,failed>0);
+ if(batch.directory)savePair(batch);else{batch.saveState='download';if(state.view==='reports')renderReport();}
+}
+$('start').onclick=()=>startBatch();$('retry-all').onclick=()=>startBatch(state.rows.filter(r=>r.status==='failed').map(r=>r.id));
+$('cancel-batch').onclick=()=>openModal('取消当前批次？','<p>将停止正在处理的任务并取消排队任务。已完成和已失败的结果会保留，原始视频文件不受影响。</p>',{confirmText:'取消批次',danger:true,cancel:true,action:()=>{if(!state.running)return;const batch=currentBatch();batch.canceled=true;for(const id of batch.rowIds){const row=state.rows.find(r=>r.id===id);if(['pending','running'].includes(row.status)){row.status='canceled';appendLog(batch,'用户取消：'+row.name,'INFO',row);}}finishBatch(batch);}});
+$('view-current-report').onclick=()=>{state.selectedBatch=currentBatch()?.id;setView('reports');};
+function selectedBatch(){return state.batches.find(b=>b.id===state.selectedBatch)||state.batches[0];}
+function reportData(batch){const rows=batchRows(batch);return {batchId:batch.id,simulation:true,notice:'执行来源：HTML 交互原型。未接入视频处理引擎，未生成视频输出，未验证感知指纹变化。',feature:'视频指纹扰动',mode:'低失真重新编码，观感基本一致',startedAt:batch.start,finishedAt:batch.end,status:batch.end?(batch.canceled?'canceled':'finished'):'running',concurrency:batch.concurrency,outputLocation:batch.output,summary:{total:rows.length,success:rows.filter(r=>r.status==='success').length,failed:rows.filter(r=>r.status==='failed').length,canceled:rows.filter(r=>r.status==='canceled').length},files:rows.map(r=>({name:r.name,relativePath:r.path,sizeBytes:r.size,status:r.status,progress:r.progress,error:r.error||null,attempts:r.attempts,outputVideo:null}))};}
+function logText(batch){return '# 帧序处理日志\n# 执行来源：HTML 交互原型，未接入视频处理引擎。未生成视频输出，未评估实际感知指纹变化。\n# 批次：'+batch.id+'\n'+batch.log.map(e=>`[${e.time}] [${e.level}] ${e.message}`).join('\n')+'\n';}
+function renderReport(){
+ const batch=selectedBatch();$('report-empty').hidden=!!batch;$('report-content').hidden=!batch;if(!batch){return;}
+ state.selectedBatch=batch.id;
+ const select=$('batch-select');const expected=state.batches.map(b=>b.id).join('|');if(select.dataset.options!==expected){select.innerHTML=state.batches.map(b=>`<option value="${b.id}">${b.id}</option>`).join('');select.dataset.options=expected;}select.value=batch.id;
+ const rows=batchRows(batch);$('report-state').textContent=batch.end?(batch.canceled?'已取消':'已结束'):'记录中';
+ const fields=[['处理功能','视频指纹扰动 · 低失真重编码'],['输出位置',batch.output],['开始时间',dateTime(batch.start)],['结束时间',dateTime(batch.end)]];
+ $('report-summary').innerHTML=fields.map(([label,value])=>`<div class="od-field"><span class="label">${label}</span><span class="value">${escapeHTML(value)}</span></div>`).join('');
+ $('report-table-wrap').innerHTML=`<table class="report-table"><thead><tr><th scope="col">视频文件</th><th scope="col">状态</th><th scope="col">处理结果</th></tr></thead><tbody>${rows.map(r=>`<tr><td>${escapeHTML(r.name)}</td><td class="status-${r.status}">${labels[r.status]}${r.status==='running'?' '+r.progress+'%':''}</td><td>${escapeHTML(r.error||({pending:'等待处理',running:'处理中',success:'流程已结束',canceled:'用户取消'}[r.status]||'查看处理日志'))}</td></tr>`).join('')}</tbody></table>`;
+ $('log-filename').textContent=batch.id+'.log';
+ const logBody=$('log-body');const wasBottom=logBody.scrollHeight-logBody.scrollTop-logBody.clientHeight<48;const entries=batch.log.filter(e=>!state.errorsOnly||e.level==='ERROR');
+ logBody.innerHTML=entries.length?entries.map(e=>`<div class="log-line ${e.level==='ERROR'?'error':''}"><span class="log-time">${escapeHTML(timeText(e.time))}</span><span class="level">${e.level}</span><span class="message">${escapeHTML(e.message)}</span></div>`).join(''):'当前批次没有错误记录。';if(wasBottom)logBody.scrollTop=logBody.scrollHeight;
+ $('log-filter').setAttribute('aria-pressed',String(state.errorsOnly));$('log-filter').textContent=state.errorsOnly?'显示全部':'仅看错误';
+ const messages={'not-saved':batch.end?'尚未导出。可导出日志或报告。':'处理记录持续更新，导出得到当前快照。',saving:'正在保存日志与报告到输出目录…',saved:'日志与报告已保存至：'+batch.output,failed:'目录保存失败：'+batch.saveError+' 可使用下载按钮保存。',download:'处理流程已结束。请导出日志与报告。'};
+ $('save-state').textContent=messages[batch.saveState];$('save-state').classList.toggle('red',batch.saveState==='failed');
+}
+$('batch-select').onchange=e=>{state.selectedBatch=e.target.value;state.errorsOnly=false;renderReport();};$('log-filter').onclick=()=>{state.errorsOnly=!state.errorsOnly;renderReport();};
+async function writeFile(directory,name,content){const handle=await directory.getFileHandle(name,{create:true});const writable=await handle.createWritable();try{await writable.write(content);await writable.close();}catch(error){try{await writable.abort();}catch{}throw error;}}
+async function savePair(batch){batch.saveState='saving';if(state.view==='reports')renderReport();try{await writeFile(batch.directory,batch.id+'.log',logText(batch));await writeFile(batch.directory,batch.id+'.report.json',JSON.stringify(reportData(batch),null,2));batch.saveState='saved';notice('日志与报告已保存至：'+batch.output+'。');}catch(error){batch.saveState='failed';batch.saveError=error.name==='NotAllowedError'?'目录写入未授权':'未能写入文件，请检查目录权限';notice('日志或报告保存失败，请在报告页面下载。',true);}if(state.view==='reports')renderReport();}
+function download(name,content,mime){const url=URL.createObjectURL(new Blob([content],{type:mime}));const link=document.createElement('a');link.href=url;link.download=name;document.body.append(link);link.click();link.remove();setTimeout(()=>URL.revokeObjectURL(url),30000);}
+async function exportFile(kind,forceDownload=false){const batch=selectedBatch();if(!batch){notice('请先启动一个批次。',true);return;}const name=batch.id+(kind==='log'?'.log':'.report.json');const content=kind==='log'?logText(batch):JSON.stringify(reportData(batch),null,2);const mime=kind==='log'?'text/plain;charset=utf-8':'application/json;charset=utf-8';if(batch.directory&&!forceDownload){try{if(batch.directory.requestPermission){const permission=await batch.directory.requestPermission({mode:'readwrite'});if(permission!=='granted')throw new Error('permission');}await writeFile(batch.directory,name,content);notice('已保存 '+name+' 至：'+batch.output+'。');return;}catch{download(name,content,mime);notice('目录写入不可用，已向浏览器发起 '+name+' 的下载请求。',true);return;}}download(name,content,mime);notice('已向浏览器发起 '+name+' 的下载请求。');}
+$('export-log').onclick=()=>exportFile('log');$('export-report').onclick=()=>exportFile('report');$('download-log').onclick=()=>exportFile('log',true);
+document.querySelector('[role="tablist"]').addEventListener('keydown',e=>{
+ const current=e.target.closest('[role="tab"]');
+ if(!current||!['ArrowLeft','ArrowRight','Home','End'].includes(e.key))return;
+ e.preventDefault();const tabs=Array.from(document.querySelectorAll('.nav-button'));const index=tabs.indexOf(current);
+ const next=e.key==='Home'?0:e.key==='End'?tabs.length-1:(index+(e.key==='ArrowRight'?1:-1)+tabs.length)%tabs.length;
+ setView(tabs[next].dataset.view);tabs[next].focus();
+});
+document.addEventListener('click',e=>{
+ const view=e.target.closest('[data-view]');if(view){setView(view.dataset.view);return;}
+ const filter=e.target.closest('[data-filter]');if(filter){state.filter=filter.dataset.filter;renderRows();return;}
+ const detail=e.target.closest('[data-detail]');if(detail){showDetail(Number(detail.dataset.detail));return;}
+ const remove=e.target.closest('[data-remove]');if(remove&&!state.running){const id=Number(remove.dataset.remove);state.rows=state.rows.filter(r=>r.id!==id);renderAll();notice('已移除任务，原始文件未删除。');return;}
+ const add=e.target.closest('[data-import]');if(add&&!state.running)$('files-input').click();
+});
+window.addEventListener('beforeunload',e=>{if(state.running){e.preventDefault();e.returnValue='';}});
+renderAll();
+</script>
+</body>
+</html>

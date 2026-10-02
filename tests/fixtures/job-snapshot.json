@@ -1,0 +1,11 @@
+{
+  "jobId": "test-job",
+  "version": 3,
+  "state": "running",
+  "progress": 0.25,
+  "startedAtMs": 1000,
+  "endedAtMs": null,
+  "outputPath": null,
+  "error": null,
+  "cleanupPending": false
+}

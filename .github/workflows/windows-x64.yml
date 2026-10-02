@@ -1,0 +1,147 @@
+name: Windows x64 development installer
+
+on:
+  push:
+    branches: [ci/windows-x64]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: windows-x64-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: windows-2022
+    timeout-minutes: 60
+    defaults:
+      run:
+        shell: pwsh
+    steps:
+      - name: Checkout
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
+
+      - name: Node.js 24
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: '24'
+          cache: npm
+
+      - name: Rust 1.90.0 MSVC
+        uses: dtolnay/rust-toolchain@9423510f11512992cb6c790b35e139796f7ac612
+        with:
+          toolchain: 1.90.0
+          targets: x86_64-pc-windows-msvc
+          components: clippy
+
+      - name: Rust cache
+        uses: Swatinem/rust-cache@6323deb102c322ba6fcbdcafc7e3dddab59af2b6 # v2
+        with:
+          workspaces: src-tauri -> target
+
+      - name: Dependencies and locked sidecars
+        run: |
+          New-Item -ItemType Directory -Force .ci-evidence | Out-Null
+          npm ci
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          node scripts/prepare-sidecars.mjs --target x86_64-pc-windows-msvc | Tee-Object .ci-evidence/sidecars.json
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+
+      - name: Sidecar and release verifier tests
+        run: |
+          node --test scripts/prepare-sidecars.test.mjs scripts/verify-release.test.mjs | Tee-Object .ci-evidence/node-tests.txt
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+
+      - name: Frontend tests
+        run: |
+          npm run test -- --run | Tee-Object .ci-evidence/frontend-tests.txt
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+
+      - name: Backend tests
+        run: |
+          cargo test --locked --manifest-path src-tauri/Cargo.toml | Tee-Object .ci-evidence/backend-tests.txt
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+
+      - name: Generated media regression
+        run: |
+          npm run test:media | Tee-Object .ci-evidence/generated-media.txt
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+
+      - name: Build NSIS installer with Tauri Action
+        id: build
+        uses: tauri-apps/tauri-action@1deb371b0cd8bd54025b384f1cd735e725c4060f # v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          args: --target x86_64-pc-windows-msvc --bundles nsis --ci -- --locked
+
+      - name: Desktop clippy
+        run: |
+          cargo clippy --locked --manifest-path src-tauri/Cargo.toml --target x86_64-pc-windows-msvc --release --all-targets --features desktop -- -D warnings
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+
+      - name: Silent installation and installed resource check
+        run: |
+          $installers = @(Get-ChildItem src-tauri/target/x86_64-pc-windows-msvc/release/bundle/nsis/*.exe)
+          if ($installers.Count -ne 1) { throw 'Expected one NSIS installer' }
+          $installer = $installers[0].FullName
+          $installed = Join-Path $env:RUNNER_TEMP '帧序 installed'
+          $process = Start-Process -FilePath $installer -ArgumentList "/S /D=$installed" -Wait -PassThru
+          if ($process.ExitCode -ne 0) { throw "Installer failed: $($process.ExitCode)" }
+          node scripts/verify-release.mjs --target x86_64-pc-windows-msvc --artifact $installer --installed-dir $installed --development --record .ci-evidence/installed-resources.json
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          "VIDEO_EDITOR_INSTALLED_EXE=$(Join-Path $installed 'video-editor.exe')" >> $env:GITHUB_ENV
+          New-Item -ItemType Directory -Force .ci-artifacts | Out-Null
+          Copy-Item -LiteralPath $installer -Destination .ci-artifacts
+          $metadata = [ordered]@{
+            target = 'x86_64-pc-windows-msvc'
+            sourceCommit = $env:GITHUB_SHA
+            runUrl = "https://github.com/$env:GITHUB_REPOSITORY/actions/runs/$env:GITHUB_RUN_ID"
+            builtAt = (Get-Date).ToUniversalTime().ToString('o')
+            runner = $env:ImageOS
+            os = [Environment]::OSVersion.VersionString
+            installer = $installers[0].Name
+            installerSizeBytes = $installers[0].Length
+            installerSha256 = (Get-FileHash -LiteralPath $installer -Algorithm SHA256).Hash.ToLowerInvariant()
+            releaseStatus = 'NOT VERIFIED'
+            scope = 'Windows CI build, silent installation and native resource checks; user desktop acceptance remains pending'
+          }
+          $metadata | ConvertTo-Json | Set-Content -Encoding utf8 .ci-evidence/build.json
+
+      - name: Media regression using installed tools
+        run: |
+          $env:VIDEO_EDITOR_FIXTURE_DIR = Join-Path $env:GITHUB_WORKSPACE '.media-fixtures'
+          cargo test --locked --manifest-path src-tauri/Cargo.toml --test pipeline_real generated_media_end_to_end -- --ignored --test-threads=1 | Tee-Object .ci-evidence/installed-media.txt
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          $sample = Join-Path $env:GITHUB_WORKSPACE 'docs/requirements/20261002-research/原视频.mp4'
+          if (Test-Path -LiteralPath $sample) {
+            $env:VIDEO_EDITOR_SAMPLE_DIR = Split-Path $sample
+            cargo test --locked --manifest-path src-tauri/Cargo.toml --test pipeline_real provided_sample_end_to_end -- --ignored --test-threads=1 | Tee-Object .ci-evidence/original-sample.txt
+            if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          } else {
+            'Original sample not uploaded; native Windows sample verification remains pending.' | Set-Content .ci-evidence/original-sample.txt
+          }
+
+      - name: Upload checked development installer
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: frameshift-${{ steps.build.outputs.appVersion }}-windows-x64-development-${{ github.run_id }}
+          path: |
+            .ci-artifacts/*.exe
+            .ci-evidence/build.json
+            .ci-evidence/installed-resources.json
+          if-no-files-found: error
+          retention-days: 14
+
+      - name: Upload verification logs
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: windows-x64-verification-${{ github.run_id }}
+          path: .ci-evidence/
+          if-no-files-found: warn
+          retention-days: 14
