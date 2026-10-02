@@ -38,7 +38,9 @@ pub fn prepare_workspace(
     fs::create_dir_all(record_dir).map_err(AppError::io)?;
     let records = fs::canonicalize(record_dir).map_err(AppError::io)?;
     let directory = root.join(format!(".video-editor-{job_id}"));
-    let mut builder = fs::DirBuilder::new();
+    let builder = fs::DirBuilder::new();
+    #[cfg(unix)]
+    let mut builder = builder;
     #[cfg(unix)]
     {
         use std::os::unix::fs::DirBuilderExt;

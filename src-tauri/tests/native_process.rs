@@ -1,5 +1,5 @@
 mod support;
-#[tokio::test(start_paused = true)]
+#[tokio::test]
 async fn hung_ffmpeg_is_killed_after_three_second_grace() {
     let f = ProcessFixture::new("q_hang");
     let r = NativeRunner::new(f.paths());
@@ -19,16 +19,30 @@ async fn hung_ffmpeg_is_killed_after_three_second_grace() {
         )
         .await
     });
-    while !f.is_alive() {
-        tokio::task::yield_now().await;
-    }
+    timeout(Duration::from_secs(5), async {
+        while !f.is_alive() {
+            tokio::time::sleep(Duration::from_millis(10)).await;
+        }
+    })
+    .await
+    .expect("fixture did not start");
+    let started = std::time::Instant::now();
     token.cancel();
-    while !f.q_seen() {
-        tokio::task::yield_now().await;
-    }
+    timeout(Duration::from_secs(5), async {
+        while !f.q_seen() {
+            tokio::time::sleep(Duration::from_millis(10)).await;
+        }
+    })
+    .await
+    .expect("fixture did not acknowledge q");
     assert!(f.is_alive());
-    tokio::time::advance(Duration::from_secs(3)).await;
-    let result = job.await.unwrap().unwrap();
+    // OS pipe writes and process exit do not follow Tokio's paused clock on Windows.
+    let result = timeout(Duration::from_secs(6), job)
+        .await
+        .expect("hung FFmpeg was not reaped")
+        .unwrap()
+        .unwrap();
+    assert!(started.elapsed() >= Duration::from_secs(3));
     assert!(result.canceled);
     assert!(!f.is_alive());
 }

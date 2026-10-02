@@ -61,6 +61,7 @@ jobs:
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
 
       - name: Backend tests
+        timeout-minutes: 10
         run: |
           cargo test --locked --manifest-path src-tauri/Cargo.toml | Tee-Object .ci-evidence/backend-tests.txt
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
