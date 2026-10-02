@@ -27,7 +27,10 @@ export function executableArchitecture(bytes) {
   throw new Error('unsupported executable architecture/header');
 }
 function runNative(file,args) {
-  const r = spawnSync(file,args,{encoding:'utf8',timeout:30000,maxBuffer:2*1024*1024,env:{...process.env,PATH:process.platform === 'win32' ? process.env.PATH : '/usr/bin:/bin'}});
+  const env = {...process.env,PATH:process.platform === 'win32' ? process.env.PATH : '/usr/bin:/bin'};
+  // Node inherits PowerShell 7 paths; Windows PowerShell needs its own module versions.
+  if (process.platform === 'win32' && file === 'powershell.exe' && env.WinPSModulePath) env.PSModulePath = env.WinPSModulePath;
+  const r = spawnSync(file,args,{encoding:'utf8',timeout:30000,maxBuffer:2*1024*1024,env});
   if (r.error || r.status !== 0) throw new Error(r.error?.message || `${file}: exit ${r.status}: ${r.stderr.slice(-1000)}`);
   return r.stdout + r.stderr;
 }
