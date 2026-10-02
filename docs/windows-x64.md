@@ -1,8 +1,8 @@
 # Windows x64 开发安装包
 
-Windows x64 开发安装器已通过 [GitHub Actions 原生构建](https://github.com/mailingfeng/video-editor/actions/runs/37040318798)、静默安装和安装后媒体回归。产物为 `帧序_0.1.0_x64-setup.exe`，约 56.44 MiB。主程序、媒体工具和安装器实测均未签名；用户桌面和完整发行验收仍待完成，发行状态为 **NOT VERIFIED**。本次只推进 Windows x64。
+Windows x64 开发安装器已通过 [GitHub Actions 原生构建](https://github.com/mailingfeng/video-editor/actions/runs/37069401427)、静默安装、安装后转换与三项生命周期回归。产物为 `帧序_0.1.0_x64-setup.exe`，约 56.46 MiB。主程序、媒体工具和安装器实测均未签名；用户桌面和完整发行验收仍待完成，发行状态为 **NOT VERIFIED**。本次只推进 Windows x64。
 
-Actions 页面提供 `frameshift-0.1.0-windows-x64-development-37040318798` 安装包 artifact，保留至 2026-10-16（UTC）；再次推送构建分支可重新生成。安装器 SHA-256 为 `fef279153db7f21724fb1c8f443138f80fec8f0a92a9728a825ba4ee9b746d2a`。详情见 [构建记录](evidence/windows-x64-actions-20261003.json)与[安装资源原始记录](evidence/windows-x64-installed-resources-20261003.json)。
+Actions 页面提供 `frameshift-0.1.0-windows-x64-development-37069401427` 安装包 artifact，保留至 2026-10-16（UTC）；再次推送构建分支可重新生成。安装器 SHA-256 为 `6dca5b8931350022ebf62bfd98f2f830799ea0f4fa648304862cd7c3f7273959`。artifact 附带[无需开发工具的桌面验收指南](windows-desktop-acceptance.md)、构建元数据与资源记录。详情见[生命周期验收记录](evidence/windows-x64-lifecycle-actions-20261003.json)与[本次安装资源记录](evidence/windows-x64-lifecycle-installed-resources-20261003.json)；[首次构建记录](evidence/windows-x64-actions-20261003.json)保留不变。
 
 ## 锁定资源
 
@@ -22,13 +22,15 @@ Actions 页面提供 `frameshift-0.1.0-windows-x64-development-37040318798` 安�
 
 流程依次检查锁定工具、Node／前端／后端测试、生成媒体回归，构建 NSIS，运行桌面 clippy，再静默安装到中文／空格目录。安装资源检查原生执行工具并核对哈希；后续回归通过 `VIDEO_EDITOR_INSTALLED_EXE` 使用安装目录的工具。原视频存在时再执行 2713 帧原样本转换与取消回归；没有上传该视频时，记录原样本 Windows 验证仍待执行。
 
-通过检查后，Actions artifact `frameshift-<版本>-windows-x64-development-<运行ID>` 提供安装器、SHA-256 和安装资源检查 JSON；验证日志另存一个 artifact，保留 14 天。构建使用 GitHub 自动颁发的 `GITHUB_TOKEN`，权限为 contents: read；本地 PAT 仅用于提交代码和读取构建结果，不放入代码、工作流或日志。工作流不创建 GitHub Release。
+通过检查后，Actions artifact `frameshift-<版本>-windows-x64-development-<运行ID>` 提供安装器、SHA-256、安装资源检查 JSON 和桌面验收指南；验证日志另存一个 artifact，保留 14 天。构建使用 GitHub 自动颁发的 `GITHUB_TOKEN`，权限为 contents: read；本地 PAT 仅用于提交代码和读取构建结果，不放入代码、工作流或日志。工作流不创建 GitHub Release。
 
 仓库是公开的，上传代码前需确保整个待推送历史没有 `.env` 凭据。若旧本地历史已有 token，应从远端安全基线创建仅含代码的构建分支；删除 HEAD 文件或增加 `.gitignore` 不能清除祖先提交中的凭据。样本视频只有在允许公开时才加入该分支。
 
 CI 的构建、静默安装和媒体回归可证明该 runner 上的行为；用户桌面启动、无开发工具环境、上传、完整发行材料和签名仍需独立验收，releaseStatus 保持 NOT VERIFIED。
 
-2026-10-03 验证运行的源提交为 `dba94158a28dfe760ef813146e0dddfe98966024`。Windows 2022 runner 上的工具／检查器测试 17 项、前端 9 项、后端 42 项通过，4 项原生媒体测试默认忽略；生成媒体回归和使用安装目录工具的回归分别单独通过。后者覆盖中文／空格／引号路径、带音频与无音频、时间偏移、全范围视频及不支持／损坏输入。
+首次验证运行的源提交为 `dba94158a28dfe760ef813146e0dddfe98966024`。Windows 2022 runner 上的工具／检查器测试 17 项、前端 9 项、后端 42 项通过，4 项原生媒体测试默认忽略；生成媒体回归和使用安装目录工具的回归分别单独通过。后者覆盖中文／空格／引号路径、带音频与无音频、时间偏移、全范围视频及不支持／损坏输入。
+
+后续运行 `37069401427` 基于 `720923a8d5b7af3e8c6941d83a556618376874a5`，工具／检查器 17 项、前端 9 项、后端 42 项通过；默认忽略 8 项，媒体回归另行显式执行。新增三项安装后回归通过（14.90 秒）：等待 FFmpeg 真实进度和非空临时媒体后取消、在登记的正式路径注入重名文件并确认不覆盖、强制结束自有测试服务及工具进程树后运行启动恢复并保留其他文件。取消后还完成一次新转换，源 identity 均保持不变。取消／崩溃测试仅在测试包装器加入 `-re`，让输入按实时速度读取；产品参数不变。这些验证生产后端和安装工具，不能填写用户桌面启动或干净主机收据，也未验证孤立 FFmpeg 仍运行时的恢复。
 
 提供的原视频在 Intel Mac 完成真实转换和取消回归：2713 帧、AAC 48 kHz、源文件 identity 保持不变，取消后没有正式输出。原视频仍保留本地，本次 Windows runner 使用生成样例；原视频的 Windows 验证待允许公开上传后执行。
 
