@@ -101,6 +101,7 @@ jobs:
           "VIDEO_EDITOR_INSTALLED_EXE=$(Join-Path $installed 'video-editor.exe')" >> $env:GITHUB_ENV
           New-Item -ItemType Directory -Force .ci-artifacts | Out-Null
           Copy-Item -LiteralPath $installer -Destination .ci-artifacts
+          Copy-Item docs/windows-desktop-acceptance.md .ci-artifacts
           $metadata = [ordered]@{
             target = 'x86_64-pc-windows-msvc'
             sourceCommit = $env:GITHUB_SHA
@@ -121,6 +122,8 @@ jobs:
           $env:VIDEO_EDITOR_FIXTURE_DIR = Join-Path $env:GITHUB_WORKSPACE '.media-fixtures'
           cargo test --locked --manifest-path src-tauri/Cargo.toml --test pipeline_real generated_media_end_to_end -- --ignored --test-threads=1 | Tee-Object .ci-evidence/installed-media.txt
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          cargo test --locked --manifest-path src-tauri/Cargo.toml --test lifecycle_real generated_ -- --ignored --test-threads=1 | Tee-Object .ci-evidence/installed-lifecycle.txt
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
           $sample = Join-Path $env:GITHUB_WORKSPACE 'docs/requirements/20261002-research/原视频.mp4'
           if (Test-Path -LiteralPath $sample) {
             $env:VIDEO_EDITOR_SAMPLE_DIR = Split-Path $sample
@@ -136,6 +139,7 @@ jobs:
           name: frameshift-${{ steps.build.outputs.appVersion }}-windows-x64-development-${{ github.run_id }}
           path: |
             .ci-artifacts/*.exe
+            .ci-artifacts/windows-desktop-acceptance.md
             .ci-evidence/build.json
             .ci-evidence/installed-resources.json
           if-no-files-found: error

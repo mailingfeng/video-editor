@@ -17,6 +17,7 @@ export async function generateFixtures() {
   const encode = ['-t','1.2','-c:v','libx264','-pix_fmt','yuv420p','-c:a','aac'];
   make("短片 空格 '引号'.mp4", [...video,...audio,...encode]);
   make('no-audio.mp4', [...video,...encode]);
+  make('lifecycle 空格.mp4', [...video,...audio,'-t','10','-c:v','libx264','-pix_fmt','yuv420p','-c:a','aac']);
   make('full-range.mp4', [...video,'-t','1.2','-c:v','mjpeg','-pix_fmt','yuvj420p','-color_range','pc','-colorspace','bt709']);
   make('rgb.mp4', ['-f','lavfi','-i','testsrc=size=128x96:rate=30','-t','1.2','-c:v','libx264rgb','-pix_fmt','rgb24']);
   make('av-offset.mp4', [...video,'-itsoffset','0.12',...audio,...encode]);

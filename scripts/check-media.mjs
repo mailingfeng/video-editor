@@ -14,8 +14,14 @@ if (sampleDir) {
     catch {if (i === 4 || path.dirname(sampleDir) === sampleDir) throw new Error('原视频.mp4 not found above --sample-dir'); sampleDir = path.dirname(sampleDir);}
   }
 }
-const r = spawnSync('cargo', ['test','--manifest-path','src-tauri/Cargo.toml','--test','pipeline_real',...(sampleDir ? [] : ['generated_media_end_to_end']),'--','--ignored','--test-threads=1'], {
-  cwd:root, stdio:'inherit', env:{...process.env,VIDEO_EDITOR_FIXTURE_DIR:fixtureDir,...(sampleDir ? {VIDEO_EDITOR_SAMPLE_DIR:sampleDir} : {})},
+const env = {...process.env,VIDEO_EDITOR_FIXTURE_DIR:fixtureDir,...(sampleDir ? {VIDEO_EDITOR_SAMPLE_DIR:sampleDir} : {})};
+const r = spawnSync('cargo', ['test','--locked','--manifest-path','src-tauri/Cargo.toml','--test','pipeline_real',...(sampleDir ? [] : ['generated_media_end_to_end']),'--','--ignored','--test-threads=1'], {
+  cwd:root, stdio:'inherit', env,
 });
 if (r.error) throw r.error;
 process.exitCode = r.status ?? 1;
+if (process.exitCode === 0) {
+  const lifecycle = spawnSync('cargo', ['test','--locked','--manifest-path','src-tauri/Cargo.toml','--test','lifecycle_real','generated_','--','--ignored','--test-threads=1'], {cwd:root, stdio:'inherit', env});
+  if (lifecycle.error) throw lifecycle.error;
+  process.exitCode = lifecycle.status ?? 1;
+}
