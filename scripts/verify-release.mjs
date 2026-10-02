@@ -28,8 +28,6 @@ export function executableArchitecture(bytes) {
 }
 function runNative(file,args) {
   const env = {...process.env,PATH:process.platform === 'win32' ? process.env.PATH : '/usr/bin:/bin'};
-  // Node inherits PowerShell 7 paths; Windows PowerShell needs its own module versions.
-  if (process.platform === 'win32' && file === 'powershell.exe' && env.WinPSModulePath) env.PSModulePath = env.WinPSModulePath;
   const r = spawnSync(file,args,{encoding:'utf8',timeout:30000,maxBuffer:2*1024*1024,env});
   if (r.error || r.status !== 0) throw new Error(r.error?.message || `${file}: exit ${r.status}: ${r.stderr.slice(-1000)}`);
   return r.stdout + r.stderr;
@@ -110,7 +108,8 @@ export async function verifyPackage(options, boundary = {}) {
     try {
       if (windows) {
         const literal = file.replaceAll("'","''");
-        const status = run('powershell.exe',['-NoProfile','-NonInteractive','-Command',`(Get-AuthenticodeSignature -LiteralPath '${literal}').Status.ToString()`]).trim();
+        // Load the module from this PowerShell's installation, bypassing inherited PS7 paths.
+        const status = run('powershell.exe',['-NoProfile','-NonInteractive','-Command',`Import-Module ($PSHOME + '\\Modules\\Microsoft.PowerShell.Security\\Microsoft.PowerShell.Security.psd1') -ErrorAction Stop; (Get-AuthenticodeSignature -LiteralPath '${literal}').Status.ToString()`]).trim();
         if (status !== 'Valid') throw new Error(`Authenticode ${status}`);
         result.signatures[path.basename(file)] = status;
       } else {
