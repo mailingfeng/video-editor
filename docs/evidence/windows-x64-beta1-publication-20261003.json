@@ -1,0 +1,75 @@
+{
+  "version": "0.0.1-beta.1",
+  "tag": "v0.0.1-beta.1",
+  "releaseId": 402274554,
+  "url": "https://github.com/mailingfeng/video-editor/releases/tag/v0.0.1-beta.1",
+  "publishedAt": "2026-10-03T02:17:15Z",
+  "draft": false,
+  "prerelease": true,
+  "sourceCommit": "051e9944639c76c77bafa7f5815ca2a2149da341",
+  "runId": 37087790487,
+  "runUrl": "https://github.com/mailingfeng/video-editor/actions/runs/37087790487",
+  "formalReleaseStatus": "NOT VERIFIED",
+  "authenticode": "NotSigned",
+  "assets": [
+    {
+      "id": 606964771,
+      "name": "build.json",
+      "size": 641,
+      "digest": "sha256:5c8755d5793137828524785effb672ea020e881a52a970495088eabb9678448b",
+      "browser_download_url": "https://github.com/mailingfeng/video-editor/releases/download/v0.0.1-beta.1/build.json"
+    },
+    {
+      "id": 606958980,
+      "name": "frameshift_0.0.1-beta.1_windows_x64_setup.exe",
+      "size": 59182967,
+      "digest": "sha256:b09739108a431482f460ae40f39043eb56952ce1dde8b67e99d7efed6bca42c0",
+      "browser_download_url": "https://github.com/mailingfeng/video-editor/releases/download/v0.0.1-beta.1/frameshift_0.0.1-beta.1_windows_x64_setup.exe"
+    },
+    {
+      "id": 606964789,
+      "name": "installed-resources.json",
+      "size": 12158,
+      "digest": "sha256:f50ceffd7e802f83e938ef499d67ef071f846bd6946b88ca5873c2c87c8804c2",
+      "browser_download_url": "https://github.com/mailingfeng/video-editor/releases/download/v0.0.1-beta.1/installed-resources.json"
+    },
+    {
+      "id": 606965010,
+      "name": "SHA256SUMS",
+      "size": 653,
+      "digest": "sha256:2f66f3ebf58ec039fe440ae3dc232214ae12d86eeb5f19904e2adfdf397320e2",
+      "browser_download_url": "https://github.com/mailingfeng/video-editor/releases/download/v0.0.1-beta.1/SHA256SUMS"
+    },
+    {
+      "id": 606964947,
+      "name": "third-party-notices.md",
+      "size": 2496,
+      "digest": "sha256:a88894d1f5ed735a57d0beb1b28defdd6330fa9685ad20ea1642cbe781b7fcd2",
+      "browser_download_url": "https://github.com/mailingfeng/video-editor/releases/download/v0.0.1-beta.1/third-party-notices.md"
+    },
+    {
+      "id": 606964923,
+      "name": "verification-summary.json",
+      "size": 1640,
+      "digest": "sha256:a60f631128c949c83e1cce50508c87ce8707c5759935d31ff5f327573a4d1e58",
+      "browser_download_url": "https://github.com/mailingfeng/video-editor/releases/download/v0.0.1-beta.1/verification-summary.json"
+    },
+    {
+      "id": 606964715,
+      "name": "windows-desktop-acceptance.md",
+      "size": 6231,
+      "digest": "sha256:87190df4eea88a563e88ae23b9e587c0358c75f0d0b26084960fb428182b388b",
+      "browser_download_url": "https://github.com/mailingfeng/video-editor/releases/download/v0.0.1-beta.1/windows-desktop-acceptance.md"
+    },
+    {
+      "id": 606964971,
+      "name": "windows-verification-logs.zip",
+      "size": 6756,
+      "digest": "sha256:db3254a2231f2920c78283500b2aa357e6e6f5508780ecc2f1b7906cf0348373",
+      "browser_download_url": "https://github.com/mailingfeng/video-editor/releases/download/v0.0.1-beta.1/windows-verification-logs.zip"
+    }
+  ],
+  "allAssetDigestsMatchLocal": true,
+  "secretFilesPublished": false,
+  "originalVideoPublished": false
+}

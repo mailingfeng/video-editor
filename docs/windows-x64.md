@@ -1,5 +1,7 @@
 # Windows x64 开发安装包
 
+当前内测版本 **0.0.1-beta.1** 已发布到 [GitHub Pre-release](https://github.com/mailingfeng/video-editor/releases/tag/v0.0.1-beta.1)，提供长期保留的 Windows x64 安装器与校验和；详见[内测发布记录](releases/0.0.1-beta.1.md)。下面保留先前 0.1.0 开发构建的日期化记录。
+
 Windows x64 开发安装器已通过 [GitHub Actions 原生构建](https://github.com/mailingfeng/video-editor/actions/runs/37069401427)、静默安装、安装后转换与三项生命周期回归。产物为 `帧序_0.1.0_x64-setup.exe`，约 56.46 MiB。主程序、媒体工具和安装器实测均未签名；用户桌面和完整发行验收仍待完成，发行状态为 **NOT VERIFIED**。本次只推进 Windows x64。
 
 Actions 页面提供 `frameshift-0.1.0-windows-x64-development-37069401427` 安装包 artifact，保留至 2026-10-16（UTC）；再次推送构建分支可重新生成。安装器 SHA-256 为 `6dca5b8931350022ebf62bfd98f2f830799ea0f4fa648304862cd7c3f7273959`。artifact 附带[无需开发工具的桌面验收指南](windows-desktop-acceptance.md)、构建元数据与资源记录。详情见[生命周期验收记录](evidence/windows-x64-lifecycle-actions-20261003.json)与[本次安装资源记录](evidence/windows-x64-lifecycle-installed-resources-20261003.json)；[首次构建记录](evidence/windows-x64-actions-20261003.json)保留不变。
