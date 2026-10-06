@@ -1,0 +1,112 @@
+{
+  "analysis_date": "2026-10-02",
+  "host": "macOS 14.8.8 x86_64",
+  "ffmpeg_version": "N-124084-g0c6b4ad5fca-tessus",
+  "ffprobe_available": false,
+  "scope": "Two local MP4 samples; platform upload success is user-reported; no platform detection test performed.",
+  "original": {
+    "bytes": 18964845,
+    "file_sha256": "c4fd9bc7b1c8fc928848808aee0ffd7b0c961fffb449f92587f3c756211d8beb",
+    "video_sha256_streamcopy": "edd147502b460667f4e241d1040c84718da9ea2f16583ef510e0b35d34aee1d1",
+    "audio_sha256_streamcopy": "34d4ea563c1d1da74b2f5db551402c176325a987bc74d6b001ee3c69cb21c522",
+    "video_samples": 2713,
+    "video_timescale": 15360,
+    "video_duration_ticks": 1389056,
+    "video_payload_bytes": 18050048,
+    "audio_sample_rate": 44100,
+    "audio_packets": 3896,
+    "audio_payload_bytes": 836625,
+    "audio_edit_duration_ms": 90441,
+    "container_header_duration_ms": 90465,
+    "moov_bytes": 78124,
+    "metadata": {
+      "comment": "Content Adaptive Encoding 3.1",
+      "encoder": "Lavf58.20.100"
+    }
+  },
+  "processed": {
+    "bytes": 18973451,
+    "file_sha256": "3cb1dc9c019a787fd747f69590971830331d6e3913d9b7222a3bd55bcf16f575",
+    "video_sha256_streamcopy": "723a00f06a08e7f409f8765b988e4e58e68fd74159b9a7b84c6c6e3120aca633",
+    "audio_sha256_streamcopy": "58aa43e25631d8228877b4c7114d24289e1dd0778df96a7adcc47cacf0ad43e2",
+    "video_samples": 2713,
+    "video_timescale": 15360,
+    "video_duration_ticks": 1389056,
+    "video_payload_bytes": 18049876,
+    "audio_sample_rate": 48000,
+    "audio_packets": 4241,
+    "audio_payload_bytes": 843862,
+    "audio_edit_duration_ms": 90453,
+    "container_header_duration_ms": 90475,
+    "moov_bytes": 79665,
+    "metadata": {
+      "title": "dedup_67b0cf91_72534",
+      "comment": "processed_1790831200_1300",
+      "encoder": "Lavf58.20.100"
+    }
+  },
+  "video_shared": {
+    "width": 720,
+    "height": 1280,
+    "fps": 30,
+    "codec": "H.264 Main",
+    "pixel_format": "yuv420p",
+    "color_range": "limited",
+    "color_space": "bt709",
+    "sample_aspect_ratio": "1:1",
+    "timebase": "1/15360",
+    "keyframe_sample_numbers_1based": [
+      1,
+      301,
+      601,
+      901,
+      1201,
+      1501,
+      1801,
+      2101,
+      2401,
+      2701
+    ],
+    "sps_annexb_sha256": "be713afa8338e1906e9c8eecd951a666c32df8346202b5813fe6fe1a3b8d8dcf",
+    "pps_annexb_sha256": "e049b0c38c91eeb31b50e22716526b70c6b94cfcfb703f9571db7279fe5a0d82"
+  },
+  "video_comparison": {
+    "compressed_packet_count": 2713,
+    "identical_compressed_packets": 0,
+    "different_packet_sizes": 2711,
+    "different_dts_pts_duration_rows": 0,
+    "psnr_average_db": 41.05591,
+    "psnr_y_db": 39.74194,
+    "psnr_u_db": 48.292972,
+    "psnr_v_db": 45.05886,
+    "psnr_min_per_frame_db": 34.892038,
+    "psnr_max_per_frame_db": 58.505092,
+    "ssim_all": 0.982761,
+    "ssim_y": 0.978428,
+    "ssim_u": 0.992672,
+    "ssim_v": 0.990181
+  },
+  "video_baseline": {
+    "encoder": "libx264",
+    "preset": "veryfast",
+    "target_bitrate": 1596000,
+    "gop": 300,
+    "bframes": 0,
+    "original_vs_baseline_psnr_db": 44.570562,
+    "original_vs_baseline_ssim": 0.99021,
+    "baseline_vs_processed_psnr_db": 40.424325,
+    "baseline_vs_processed_ssim": 0.980514
+  },
+  "audio_baseline": {
+    "encoder": "aac",
+    "sample_rate": 48000,
+    "target_bitrate": 74000,
+    "original_vs_baseline_waveform_correlation": 0.9987385092104848,
+    "original_vs_baseline_rms_change_db": -0.024008630906811466
+  },
+  "method_notes": {
+    "video_metrics": "FFmpeg native H.264 decoding, original presentation timestamps, all 2713 frames; no scaling or alignment applied to PSNR/SSIM.",
+    "audio_metrics": "Stereo decoded to float PCM at 48 kHz, mono arithmetic mean (L+R)/2, common prefix length. Band power uses 4096-point Hann windows with 2048-sample hop. Local delay search uses five 2-second windows and +/-100 ms unnormalized FFT cross-correlation; compare interior 1.8 seconds after alignment.",
+    "video_samples": "Frame numbers 0,30,300,900,1800,2550; affine least squares on the full Y plane. Integer translation search +/-3px uses central area excluding 4px border, spatial stride 2."
+  }
+}
