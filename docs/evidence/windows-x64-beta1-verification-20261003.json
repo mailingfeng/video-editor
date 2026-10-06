@@ -1,0 +1,40 @@
+{
+  "version": "0.0.1-beta.1",
+  "tag": "v0.0.1-beta.1",
+  "sourceCommit": "051e9944639c76c77bafa7f5815ca2a2149da341",
+  "runId": 37087790487,
+  "runUrl": "https://github.com/mailingfeng/video-editor/actions/runs/37087790487",
+  "ciConclusion": "success",
+  "allStepsPassed": true,
+  "target": "x86_64-pc-windows-msvc",
+  "installerName": "frameshift_0.0.1-beta.1_windows_x64_setup.exe",
+  "installerSha256": "b09739108a431482f460ae40f39043eb56952ce1dde8b67e99d7efed6bca42c0",
+  "installerSizeBytes": 59182967,
+  "installedFingerprint": "6a42141a77f8359f61bb6aa8d4ba8ebb1188375a276451ccea098bb537090877",
+  "nodePassed": 17,
+  "frontendPassed": 9,
+  "backendPassed": 42,
+  "backendIgnored": 8,
+  "installedConversion": "PASS",
+  "installedLifecycle": {
+    "testsPassed": 3,
+    "durationSeconds": 15.11,
+    "cases": [
+      "generated_cancel_after_media_progress",
+      "generated_output_conflict_preserves_existing_file",
+      "generated_crash_recovery_preserves_foreign_files"
+    ]
+  },
+  "artifactArchiveDigestMatchesGitHub": true,
+  "artifactArchiveCrcPassed": true,
+  "developmentResourceStatus": "DEVELOPMENT CHECKED",
+  "formalReleaseStatus": "NOT VERIFIED",
+  "authenticode": "NotSigned: application, ffmpeg, ffprobe and installer",
+  "pending": [
+    "Real Windows user desktop and clean-host acceptance",
+    "Original sample on Windows",
+    "Douyin or Xiaohongshu upload",
+    "Complete distribution materials and signing"
+  ],
+  "scope": "Backend and installed tools on Windows 2022; cancellation and crash use test-only input pacing, recovery follows termination of service and child; desktop receipt is not inferred."
+}

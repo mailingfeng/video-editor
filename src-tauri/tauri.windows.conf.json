@@ -1,0 +1,15 @@
+{
+  "$schema": "https://schema.tauri.app/config/2",
+  "bundle": {
+    "targets": ["nsis"],
+    "resources": {
+      "../tools/licenses/ffmpeg-windows-x64-GPLv3.txt": "licenses/windows-x64/FFmpeg-GPLv3.txt",
+      "../tools/licenses/ffmpeg-windows-x64-README.txt": "licenses/windows-x64/FFmpeg-README.txt"
+    },
+    "windows": {
+      "allowDowngrades": false,
+      "webviewInstallMode": {"type": "downloadBootstrapper", "silent": true},
+      "nsis": {"installMode": "currentUser", "languages": ["SimpChinese", "English"], "displayLanguageSelector": true}
+    }
+  }
+}

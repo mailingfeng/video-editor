@@ -1,0 +1,42 @@
+{
+  "$schema": "https://schema.tauri.app/config/2",
+  "productName": "帧序",
+  "version": "0.0.1-beta.1",
+  "identifier": "com.frameshift.videoeditor",
+  "build": {
+    "beforeDevCommand": "npm run dev",
+    "beforeBuildCommand": "npm run build",
+    "devUrl": "http://localhost:1420",
+    "frontendDist": "../dist",
+    "features": [
+      "desktop"
+    ]
+  },
+  "app": {
+    "windows": [
+      {
+        "title": "帧序 · 视频处理工作台",
+        "width": 1280,
+        "height": 840,
+        "minWidth": 960,
+        "minHeight": 680
+      }
+    ],
+    "security": {
+      "csp": "default-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' asset: http://asset.localhost; connect-src ipc: http://ipc.localhost"
+    }
+  },
+  "bundle": {
+    "active": true,
+    "resources": {"../docs/third-party-notices.md": "third-party-notices.md", "../tools/sidecars.lock.json": "sidecars.lock.json"},
+    "icon": ["icons/icon.png", "icons/icon.icns", "icons/icon.ico"],
+    "targets": [
+      "app",
+      "dmg"
+    ],
+    "externalBin": [
+      "binaries/ffmpeg",
+      "binaries/ffprobe"
+    ]
+  }
+}

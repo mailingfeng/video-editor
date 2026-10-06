@@ -1,0 +1,90 @@
+{
+  "schemaVersion": 1,
+  "target": "x86_64-pc-windows-msvc",
+  "releaseStatus": "NOT VERIFIED",
+  "sourceCommit": "dba94158a28dfe760ef813146e0dddfe98966024",
+  "branch": "ci/windows-x64",
+  "run": {
+    "id": 37040318798,
+    "url": "https://github.com/mailingfeng/video-editor/actions/runs/37040318798",
+    "conclusion": "success",
+    "jobId": 110948547897,
+    "runner": "win22",
+    "os": "Microsoft Windows NT 10.0.20348.0",
+    "builtAt": "2026-10-02T17:28:10.7099273Z",
+    "allStepsPassed": true
+  },
+  "installer": {
+    "name": "帧序_0.1.0_x64-setup.exe",
+    "sizeBytes": 59185337,
+    "sha256": "fef279153db7f21724fb1c8f443138f80fec8f0a92a9728a825ba4ee9b746d2a",
+    "artifactId": 11242062120,
+    "artifactName": "frameshift-0.1.0-windows-x64-development-37040318798",
+    "artifactExpiresAt": "2026-10-16T17:28:13Z",
+    "archiveSha256": "68fd9c474fb00cf508c0fe2844439597986df29119be6e0e03bf259f6c3f0254",
+    "archiveSizeBytes": 59185559,
+    "archiveDigestMatchesGitHub": true,
+    "localInstallerSha256MatchesBuild": true,
+    "localPath": ".superpowers/artifacts/windows-x64-37040318798/帧序_0.1.0_x64-setup.exe"
+  },
+  "installedResources": {
+    "status": "DEVELOPMENT CHECKED",
+    "record": "windows-x64-installed-resources-20261003.json",
+    "fingerprint": "8861f5d2308280e20437b3b87c253998fb0671a7ea02039e1d0b2b87c0185862",
+    "nativeSignatureQueries": "PASS",
+    "authenticode": "NotSigned: application, ffmpeg, ffprobe and installer"
+  },
+  "tests": {
+    "nodePassed": 17,
+    "frontendPassed": 9,
+    "backendPassed": 42,
+    "backendIgnored": 4,
+    "backendFailed": 0,
+    "desktopClippy": "PASS",
+    "realProcessGraceAndReaping": "PASS",
+    "media": {
+      "generated": {
+        "status": "PASS",
+        "testsPassed": 1,
+        "durationSeconds": 2.39
+      },
+      "installedTools": {
+        "status": "PASS",
+        "testsPassed": 1,
+        "durationSeconds": 2.15
+      }
+    }
+  },
+  "originalSample": {
+    "path": "docs/requirements/20261002-research/原视频.mp4",
+    "sizeBytes": 18964845,
+    "sha256": "c4fd9bc7b1c8fc928848808aee0ffd7b0c961fffb449f92587f3c756211d8beb",
+    "matchesCommittedSource": true,
+    "localIntelMacRegression": {
+      "status": "PASS",
+      "testsPassed": 2,
+      "durationSeconds": 53.69,
+      "frameCount": 2713,
+      "outputAudioSampleRate": 48000,
+      "sourceIdentityPreserved": true,
+      "runningCancellationNoPublishedOutput": true
+    },
+    "publiclyUploaded": false,
+    "windowsOriginalSampleStatus": "NOT VERIFIED"
+  },
+  "delivery": {
+    "type": "GitHub Actions development artifacts",
+    "retentionDays": 14,
+    "credentialsExcludedFromRemoteTreeAndHistory": true,
+    "localSecretBearingHistoryPushed": false,
+    "defaultBranchChanged": false
+  },
+  "pending": [
+    "Windows user desktop launch and acceptance",
+    "Clean host without development tools",
+    "Original sample on Windows",
+    "Douyin or Xiaohongshu upload acceptance",
+    "Complete distribution source and dependency materials",
+    "Valid Authenticode signatures"
+  ]
+}

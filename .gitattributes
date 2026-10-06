@@ -1,0 +1,2 @@
+# Locked third-party materials must retain their archive bytes on Windows too.
+tools/licenses/*.txt -text -whitespace

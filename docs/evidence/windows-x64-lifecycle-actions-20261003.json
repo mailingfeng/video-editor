@@ -1,0 +1,87 @@
+{
+  "schemaVersion": 1,
+  "target": "x86_64-pc-windows-msvc",
+  "releaseStatus": "NOT VERIFIED",
+  "objective": "Installed Windows media lifecycle regression and desktop acceptance handoff",
+  "sourceCommit": "720923a8d5b7af3e8c6941d83a556618376874a5",
+  "branch": "ci/windows-x64",
+  "run": {
+    "id": 37069401427,
+    "url": "https://github.com/mailingfeng/video-editor/actions/runs/37069401427",
+    "jobId": 111044986265,
+    "conclusion": "success",
+    "allStepsPassed": true,
+    "runner": "win22",
+    "os": "Microsoft Windows NT 10.0.20348.0",
+    "builtAt": "2026-10-02T21:57:52.1342255Z"
+  },
+  "installer": {
+    "name": "帧序_0.1.0_x64-setup.exe",
+    "sizeBytes": 59203371,
+    "sha256": "6dca5b8931350022ebf62bfd98f2f830799ea0f4fa648304862cd7c3f7273959",
+    "artifactId": 11254435987,
+    "artifactExpiresAt": "2026-10-16T21:58:10Z",
+    "archiveSha256": "19a77de6bfcdc512246cf8a23d7979e149ea5daf20d70a569c9981fe7453a122",
+    "archiveDigestMatchesGitHub": true,
+    "archiveCrcPassed": true,
+    "guideMatchesCommittedTextAfterCRLFNormalization": true,
+    "localPath": ".superpowers/artifacts/windows-x64-37069401427/帧序_0.1.0_x64-setup.exe"
+  },
+  "installedResources": {
+    "record": "windows-x64-lifecycle-installed-resources-20261003.json",
+    "fingerprint": "3c6c72d80e95c19ad1f3c122f88a87fe1712d8c495e4b557594c9e6845e568a5",
+    "status": "DEVELOPMENT CHECKED",
+    "authenticode": "NotSigned: application, ffmpeg, ffprobe and installer"
+  },
+  "tests": {
+    "nodePassed": 17,
+    "frontendPassed": 9,
+    "backendPassed": 42,
+    "backendIgnored": 8,
+    "backendFailed": 0,
+    "desktopClippy": "PASS",
+    "installedConversion": "PASS",
+    "installedLifecycle": {
+      "status": "PASS",
+      "testsPassed": 3,
+      "durationSeconds": 14.9,
+      "cases": [
+        "generated_cancel_after_media_progress",
+        "generated_output_conflict_preserves_existing_file",
+        "generated_crash_recovery_preserves_foreign_files"
+      ]
+    },
+    "localMutationChecks": {
+      "skipCleanup": "REJECTED",
+      "replaceDestination": "REJECTED",
+      "skipRecoveryCleanup": "REJECTED"
+    }
+  },
+  "originalSample": {
+    "sha256": "c4fd9bc7b1c8fc928848808aee0ffd7b0c961fffb449f92587f3c756211d8beb",
+    "sizeBytes": 18964845,
+    "matchesCommittedSource": true,
+    "publiclyUploaded": false,
+    "windowsStatus": "NOT VERIFIED",
+    "localIntelMacRegression": {
+      "status": "PASS",
+      "pipelineTestsPassed": 2,
+      "lifecycleTestsPassed": 3,
+      "pipelineDurationSeconds": 53.69,
+      "lifecycleDurationSeconds": 15.56,
+      "frameCount": 2713,
+      "outputAudioSampleRate": 48000,
+      "sourceIdentityPreserved": true,
+      "cancellationNoPublishedOutput": true
+    }
+  },
+  "scope": "Production backend and installed tools on Windows runner; cancellation/crash use test-only input pacing. Crash recovery follows forced exit of both service and child. GUI/clean host and live orphan recovery are not inferred.",
+  "pending": [
+    "Windows user desktop launch and clean-host acceptance",
+    "Original sample on Windows",
+    "Douyin or Xiaohongshu upload",
+    "Recovery while an orphan media process still runs",
+    "Complete distribution source and dependency materials",
+    "Valid Authenticode signatures"
+  ]
+}

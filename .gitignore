@@ -1,0 +1,14 @@
+.worktrees/
+.superpowers/
+.DS_Store
+node_modules/
+dist/
+src-tauri/target/
+src-tauri/gen/
+src-tauri/binaries/
+.media-fixtures/
+.sidecar-cache/
+.env
+.env.*
+.ci-evidence/
+.ci-artifacts/
