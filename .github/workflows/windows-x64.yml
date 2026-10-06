@@ -129,8 +129,12 @@ jobs:
             $env:VIDEO_EDITOR_SAMPLE_DIR = Split-Path $sample
             cargo test --locked --manifest-path src-tauri/Cargo.toml --test pipeline_real provided_sample_end_to_end -- --ignored --test-threads=1 | Tee-Object .ci-evidence/original-sample.txt
             if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+            cargo test --locked --manifest-path src-tauri/Cargo.toml --test batch_real -- --ignored --test-threads=1 | Tee-Object .ci-evidence/installed-batch.txt
+            if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
           } else {
             'Original sample not uploaded; native Windows sample verification remains pending.' | Set-Content .ci-evidence/original-sample.txt
+            cargo test --locked --manifest-path src-tauri/Cargo.toml --test batch_real generated_ -- --ignored --test-threads=1 | Tee-Object .ci-evidence/installed-batch.txt
+            if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
           }
 
       - name: Upload checked development installer

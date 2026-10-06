@@ -14,7 +14,7 @@ function fakeApi(initial:QueueItem[]=[]){
   const listeners=new Set<(s:JobSnapshot)=>void>();const queues=new Set<(s:QueueSnapshot)=>void>();let drop:(paths:string[])=>void=()=>{};
   const api:DesktopApi={available:true,pickInput:vi.fn(async()=>media.identity.canonicalPath),pickInputFolder:vi.fn(async()=>'/input'),pickOutputDirectory:vi.fn(async()=>'/output'),probeInput:vi.fn(),cancelProbe:vi.fn(),startJob:vi.fn(),getJobSnapshot:vi.fn(),cancelJob:vi.fn(),
     listPresets:vi.fn(async()=>[{presetId:'basic-transcode-v1',version:1,title:'基础转换',evidenceStatus:'checked'}]),getCurrentJobSnapshot:vi.fn(async()=>null),
-    getQueueSnapshot:vi.fn(async()=>q),importPaths:vi.fn(async(paths:string[])=>{q={...q,version:q.version+1,items:[...q.items,...paths.filter(path=>!q.items.some(i=>i.inputPath===path)).map((path,index)=>waiting(`added-${index}`,path))]};return q;}),
+    getQueueSnapshot:vi.fn(async()=>q),importPaths:vi.fn(async(paths:string[])=>{q={...q,version:q.version+1,items:[...q.items,...paths.filter(path=>!q.items.some(i=>i.inputPath===path)).map((path,index)=>waiting(`added-${q.version}-${index}`,path))]};return q;}),
     importFolder:vi.fn(async()=>{q={...q,version:q.version+1,items:[waiting('a'),waiting('b','/input/b.mp4'),waiting('c','/input/c.mp4')]};return q;}),
     removeItem:vi.fn(async(id)=>{q={...q,version:q.version+1,items:q.items.filter(i=>i.itemId!==id)};return q;}),
     startBatch:vi.fn(async()=>{q={...q,version:q.version+1,running:true,items:q.items.map((i,index)=>index<2?{...i,state:'started',jobId:`job-${i.itemId}`,snapshot:snapshot(`job-${i.itemId}`)}:i)};return q;}),

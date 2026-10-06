@@ -9,6 +9,12 @@ fn folder_collects_current_level_mp4_and_preserves_unchecked_candidates() {
     std::fs::create_dir(dir.path().join("sub")).unwrap();
     std::fs::write(dir.path().join("sub/hidden.mp4"), b"").unwrap();
     std::fs::create_dir(dir.path().join("directory.mp4")).unwrap();
+    #[cfg(unix)]
+    std::os::unix::fs::symlink(
+        dir.path().join("sub"),
+        dir.path().join("linked-directory.mp4"),
+    )
+    .unwrap();
     let items = collect_folder(dir.path()).unwrap();
     assert_eq!(items.len(), 2);
     assert!(items.iter().any(|i| i.input_path.ends_with("中文 a.mp4")));

@@ -13,7 +13,11 @@ pub fn collect_folder(folder: &Path) -> Result<Vec<InputCandidate>, AppError> {
     let mut paths = Vec::new();
     for entry in std::fs::read_dir(folder).map_err(AppError::io)? {
         let entry = entry.map_err(AppError::io)?;
-        if !entry.file_type().map_err(AppError::io)?.is_dir() && is_mp4(&entry.path()) {
+        let file_type = entry.file_type().map_err(AppError::io)?;
+        if !file_type.is_dir()
+            && !(file_type.is_symlink() && entry.path().is_dir())
+            && is_mp4(&entry.path())
+        {
             paths.push(entry.path());
         }
     }
