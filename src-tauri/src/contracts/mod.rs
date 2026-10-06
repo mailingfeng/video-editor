@@ -1,7 +1,9 @@
+mod batch;
 mod error;
 mod job;
 mod media;
 mod plan;
+pub use batch::*;
 pub use error::*;
 pub use job::*;
 pub use media::*;

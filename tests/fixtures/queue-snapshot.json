@@ -1,0 +1,9 @@
+{
+  "version": 2,
+  "running": true,
+  "items": [
+    {"itemId":"item-a","inputPath":"C:/视频/a.mp4","state":"waiting","jobId":null,"snapshot":null,"media":null},
+    {"itemId":"item-b","inputPath":"C:/视频/b.mp4","state":"canceled","jobId":null,"snapshot":null,"media":null},
+    {"itemId":"item-c","inputPath":"C:/视频/c.mp4","state":"started","jobId":"test-job","snapshot":{"jobId":"test-job","version":3,"state":"running","progress":0.25,"startedAtMs":1000,"endedAtMs":null,"outputPath":null,"error":null,"cleanupPending":false},"media":null}
+  ]
+}
