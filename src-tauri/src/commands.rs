@@ -1,5 +1,6 @@
 use crate::contracts::{
-    AppError, ErrorCode, JobSnapshot, JobState, MediaInfo, PresetSummary, StartJobRequest,
+    AppError, BatchSettings, ErrorCode, JobSnapshot, JobState, MediaInfo, PresetSummary,
+    QueueSnapshot, StartJobRequest,
 };
 use crate::jobs::log::LogExcerpt;
 use crate::jobs::service::JobService;
@@ -25,6 +26,46 @@ pub async fn probe_input(
 #[tauri::command]
 pub async fn cancel_probe(state: State<'_, DesktopState>) -> Result<(), AppError> {
     state.jobs.cancel_inspection().await
+}
+#[tauri::command]
+pub async fn get_queue_snapshot(state: State<'_, DesktopState>) -> Result<QueueSnapshot, AppError> {
+    Ok(state.jobs.queue_snapshot().await)
+}
+#[tauri::command]
+pub async fn import_folder(
+    state: State<'_, DesktopState>,
+    path: String,
+) -> Result<QueueSnapshot, AppError> {
+    state.jobs.import_folder(path).await
+}
+#[tauri::command]
+pub async fn import_paths(
+    state: State<'_, DesktopState>,
+    paths: Vec<String>,
+) -> Result<QueueSnapshot, AppError> {
+    state.jobs.import_paths(paths).await
+}
+#[tauri::command]
+pub async fn remove_item(
+    state: State<'_, DesktopState>,
+    item_id: String,
+) -> Result<QueueSnapshot, AppError> {
+    state.jobs.remove_item(&item_id).await
+}
+#[tauri::command]
+pub async fn start_batch(
+    state: State<'_, DesktopState>,
+    settings: BatchSettings,
+) -> Result<QueueSnapshot, AppError> {
+    state.require_tools()?;
+    state.jobs.start_batch(settings).await
+}
+#[tauri::command]
+pub async fn cancel_item(
+    state: State<'_, DesktopState>,
+    item_id: String,
+) -> Result<QueueSnapshot, AppError> {
+    state.jobs.cancel_item(&item_id).await
 }
 #[tauri::command]
 pub fn list_presets() -> Vec<PresetSummary> {

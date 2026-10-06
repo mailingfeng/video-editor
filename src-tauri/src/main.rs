@@ -52,11 +52,15 @@ fn main() {
                 _ => {}
             }
             let handle = app.handle().clone();
-            let jobs = JobService::new(
+            let queue_handle = handle.clone();
+            let jobs = JobService::with_queue_sink(
                 Arc::new(NativeRunner::new(tools)),
                 records,
                 Arc::new(move |snapshot| {
                     let _ = handle.emit("job_snapshot", snapshot);
+                }),
+                Arc::new(move |snapshot| {
+                    let _ = queue_handle.emit("queue_snapshot", snapshot);
                 }),
             );
             app.manage(DesktopState { jobs, tool_error });
@@ -71,7 +75,13 @@ fn main() {
             commands::get_current_job_snapshot,
             commands::cancel_job,
             commands::get_job_log,
-            commands::reveal_output
+            commands::reveal_output,
+            commands::get_queue_snapshot,
+            commands::import_folder,
+            commands::import_paths,
+            commands::remove_item,
+            commands::start_batch,
+            commands::cancel_item
         ])
         .on_window_event(move |window, event| {
             if let tauri::WindowEvent::CloseRequested { api, .. } = event {

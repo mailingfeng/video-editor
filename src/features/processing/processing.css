@@ -6,3 +6,18 @@
 @media(max-width:1000px){.content{padding:24px}.topbar{padding:0 24px;gap:24px}.workspace{grid-template-columns:minmax(0,1.2fr) minmax(300px,1fr)}.panel-head,.panel-body,.source-details{padding:20px}.app-label{display:none}}
 @media(max-width:760px){.topbar{grid-template-columns:1fr;padding:12px 16px 0;gap:8px}.topbar nav{width:100%}.nav-button{min-height:48px;flex:1;justify-content:center}.content{padding:24px 16px}.workspace{grid-template-columns:1fr}.page-heading{align-items:flex-start;gap:12px}.ready{font-size:12px;margin-top:8px}.subtitle{font-size:12px}.app-footer{padding:16px;flex-wrap:wrap}.report-summary{grid-template-columns:1fr}.media-grid{gap:16px 8px}}
 @media(prefers-reduced-motion:reduce){*,*::before,*::after{transition:none!important;animation:none!important}}
+.import-toolbar{display:flex;gap:12px;padding:16px 24px;border-bottom:1px solid var(--line)}
+.file-queue{list-style:none;margin:0;padding:0;max-height:360px;overflow:auto;scrollbar-gutter:stable}
+.queue-row{padding:14px 24px;border-bottom:1px solid var(--line);min-width:0}
+.queue-row.selected{background:#F7F9FE;box-shadow:inset 3px 0 var(--primary)}
+.queue-row:last-child{border-bottom:0}
+.queue-select{display:flex;align-items:center;gap:12px;width:100%;text-align:left;border:0;background:transparent;padding:0;min-height:48px}
+.queue-name{display:flex;flex-direction:column;gap:3px;min-width:0;flex:1}
+.queue-name strong{font-weight:600;overflow-wrap:anywhere}
+.queue-path{font-size:11px;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.queue-status{display:flex;justify-content:space-between;gap:12px;margin:10px 0 8px;font-size:12px;font-variant-numeric:tabular-nums}
+.phase{color:var(--muted)}.phase-running,.phase-validating,.phase-committing{color:var(--primary)}.phase-succeeded{color:#166044}.phase-failed{color:#B42332}
+.queue-actions{display:flex;justify-content:flex-end;gap:4px;margin-top:6px}.queue-actions .btn{min-height:36px;font-size:12px;padding:5px 10px}
+.selected-details{border-top:1px solid var(--line)}.selected-details .file-heading h3{font-size:14px}
+@media(max-width:1000px){.import-toolbar,.queue-row{padding-left:20px;padding-right:20px}}
+@media(max-width:760px){.file-queue{max-height:320px}.queue-actions{flex-wrap:wrap}.import-toolbar{flex-wrap:wrap}}
