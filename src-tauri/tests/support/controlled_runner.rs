@@ -1,7 +1,7 @@
 use async_trait::async_trait;
 use std::sync::{
-    atomic::{AtomicUsize, Ordering},
-    Arc,
+    atomic::{AtomicBool, AtomicUsize, Ordering},
+    Arc, Mutex,
 };
 use tokio::sync::{mpsc, Semaphore};
 use tokio_util::sync::CancellationToken;
@@ -25,6 +25,12 @@ pub struct ControlledRunner {
     pub calls: AtomicUsize,
     pub active: AtomicUsize,
     pub add_foreign: bool,
+    pub inputs: Mutex<Vec<String>>,
+    pub conversions: Mutex<Vec<Vec<String>>>,
+    pub gates: Mutex<std::collections::HashMap<String, Arc<Semaphore>>>,
+    pub hold_cancel: AtomicBool,
+    pub reaping: Semaphore,
+    pub reap_release: Semaphore,
 }
 impl ControlledRunner {
     pub fn new(at: BlockAt, add_foreign: bool) -> Arc<Self> {
@@ -35,6 +41,12 @@ impl ControlledRunner {
             calls: AtomicUsize::new(0),
             active: AtomicUsize::new(0),
             add_foreign,
+            inputs: Mutex::new(Vec::new()),
+            conversions: Mutex::new(Vec::new()),
+            gates: Mutex::new(std::collections::HashMap::new()),
+            hold_cancel: AtomicBool::new(false),
+            reaping: Semaphore::new(0),
+            reap_release: Semaphore::new(0),
         })
     }
     pub async fn wait_entered(&self) {
@@ -67,6 +79,9 @@ impl MediaRunner for ControlledRunner {
         let path = spec.args.last().unwrap();
         let output = path.ends_with("output.mp4");
         let metadata = spec.args.iter().any(|a| a == "-show_streams");
+        if metadata && !output {
+            self.inputs.lock().unwrap().push(path.clone());
+        }
         if metadata
             && match self.at {
                 BlockAt::Probe => !output,
@@ -75,7 +90,15 @@ impl MediaRunner for ControlledRunner {
             }
         {
             self.entered.add_permits(1);
-            tokio::select! {p=self.release.acquire()=>{p.unwrap().forget();},_=cancel.cancelled()=>{return Ok(RunExit{exit_code:None,stdout:String::new(),stderr_tail:String::new(),canceled:true});}}
+            let gate = self.gates.lock().unwrap().get(path).cloned();
+            let release = gate.as_deref().unwrap_or(&self.release);
+            tokio::select! {p=release.acquire()=>{p.unwrap().forget();},_=cancel.cancelled()=>{
+                if self.hold_cancel.load(Ordering::SeqCst) {
+                    self.reaping.add_permits(1);
+                    self.reap_release.acquire().await.unwrap().forget();
+                }
+                return Ok(RunExit{exit_code:None,stdout:String::new(),stderr_tail:String::new(),canceled:true});
+            }}
         }
         if cancel.is_cancelled() {
             return Ok(RunExit {
@@ -92,6 +115,11 @@ impl MediaRunner for ControlledRunner {
             ))
             .unwrap();
             if !output {
+                j["format"]["tags"]["title"] = serde_json::json!(std::path::Path::new(path)
+                    .file_name()
+                    .unwrap()
+                    .to_str()
+                    .unwrap());
                 j["streams"][1]["sample_rate"] = serde_json::json!("44100");
                 j["streams"][1]["time_base"] = serde_json::json!("1/44100");
                 j["streams"][1]["duration_ts"] = serde_json::json!(88200);
@@ -107,6 +135,11 @@ impl MediaRunner for ControlledRunner {
                     .await;
             }
         } else if spec.args.iter().any(|a| a == "-progress") {
+            self.conversions.lock().unwrap().push(spec.args.clone());
+            let input = &spec.args[spec.args.iter().position(|a| a == "-i").unwrap() + 1];
+            let _ = events
+                .send(ProcessEvent::StderrLine(format!("input: {input}")))
+                .await;
             std::fs::write(path, b"converted").unwrap();
             if self.add_foreign {
                 std::fs::write(

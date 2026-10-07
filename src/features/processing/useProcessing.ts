@@ -1,127 +1,154 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
-import type { DesktopApi } from '../../api/desktop';
-import type { AppError, JobSnapshot, LogExcerpt, MediaInfo, PresetSummary, StartJobRequest } from '../../api/contracts';
+import {useCallback,useEffect,useRef,useState} from 'react';
+import type {DesktopApi} from '../../api/desktop';
+import type {JobSnapshot,LogExcerpt,MetadataRequest,PresetSummary,QueueSnapshot} from '../../api/contracts';
+import {emptyQueueState,mergeJob,mergeQueue,terminal,type QueueState} from './queueState';
 
-export const terminal = (s: JobSnapshot | null) => !s || ['succeeded', 'failed', 'canceled'].includes(s.state);
-function message(error: unknown): string {
-  if (typeof error === 'object' && error !== null && 'message' in error) return String(error.message);
-  return typeof error === 'string' ? error : '操作未完成，请查看日志后重试。';
+function message(error:unknown):string {
+  if (typeof error==='object' && error!==null && 'message' in error) return String(error.message);
+  return typeof error==='string'?error:'操作未完成，请查看日志后重试。';
 }
-export function useProcessing(api: DesktopApi) {
-  const [media, setMedia] = useState<MediaInfo | null>(null);
-  const [presets, setPresets] = useState<PresetSummary[]>([]);
-  const [outputDirectory, setOutputDirectory] = useState('');
-  const [snapshot, setSnapshot] = useState<JobSnapshot | null>(null);
-  const [jobSourceKey, setJobSourceKey] = useState<string | null>(null);
-  const [log, setLog] = useState<LogExcerpt | null>(null);
-  const [error, setError] = useState<string | null>(null);
-  const [probing, setProbing] = useState(false);
-  const [starting, setStarting] = useState(false);
-  const [cancelingProbe, setCancelingProbe] = useState(false);
-  const mounted = useRef(false);
-  const startLock = useRef(false);
-  const importLock = useRef(false);
-  const generation = useRef(0);
-  const jobId = useRef<string | null>(null);
-  const snapshotRef = useRef<JobSnapshot | null>(null);
-  const busy = starting || probing || !terminal(snapshot);
 
-  const merge = useCallback((next: JobSnapshot) => {
-    if (!mounted.current || (startLock.current && !jobId.current)) return;
-    if (jobId.current && jobId.current !== next.jobId) return;
-    const previous = snapshotRef.current;
-    if (previous?.jobId === next.jobId && previous.version >= next.version) return;
-    jobId.current = next.jobId;
-    snapshotRef.current = next;
-    setSnapshot(next);
-  }, []);
+export function useProcessing(api:DesktopApi) {
+  const [state,setState]=useState(emptyQueueState);
+  const stateRef=useRef(state);
+  const [presets,setPresets]=useState<PresetSummary[]>([]);
+  const [outputDirectory,setOutputDirectory]=useState('');
+  const [selectedId,setSelectedId]=useState<string|null>(null);
+  const selectedRef=useRef<string|null>(null);
+  const [historical,setHistorical]=useState<JobSnapshot|null>(null);
+  const [log,setLog]=useState<LogExcerpt|null>(null);
+  const [logLoading,setLogLoading]=useState(false);
+  const [logError,setLogError]=useState<string|null>(null);
+  const [error,setError]=useState<string|null>(null);
+  const [importing,setImporting]=useState(false);
+  const [starting,setStarting]=useState(false);
+  const mounted=useRef(false);
+  const epoch=useRef(0);
+  const detailGeneration=useRef(0);
+  const importLock=useRef(false);
+  const startLock=useRef(false);
 
-  const importPath = useCallback(async (path: string) => {
-    if (importLock.current || startLock.current || !terminal(snapshotRef.current)) return;
-    importLock.current = true;
-    const attempt = ++generation.current;
-    setError(null); setMedia(null); setProbing(true);
-    try {
-      const info = await api.probeInput(path);
-      if (mounted.current && attempt === generation.current) setMedia(info);
-    } catch (e) {
-      if (mounted.current && attempt === generation.current && (e as AppError)?.code !== 'canceled') setError(message(e));
-    } finally {
-      if (attempt === generation.current) {
-        importLock.current = false;
-        if (mounted.current) setProbing(false);
-      }
+  const update=useCallback((next:QueueState)=>{
+    stateRef.current=next;setState(next);
+    if (!next.queue.items.some(i=>i.itemId===selectedRef.current)) {
+      selectedRef.current=next.queue.items[0]?.itemId??null;
+      setSelectedId(selectedRef.current);setLog(null);setLogLoading(false);setLogError(null);++detailGeneration.current;
     }
-  }, [api]);
+  },[]);
+  const accept=useCallback((next:QueueSnapshot,query=false)=>{
+    if (mounted.current) update(mergeQueue(stateRef.current,next,query));
+  },[update]);
+  const importPaths=useCallback(async(paths:string[])=>{
+    if (stateRef.current.queue.running || startLock.current || importLock.current || !paths.length) return;
+    importLock.current=true;setImporting(true);setError(null);const attempt=epoch.current;
+    try {const next=await api.importPaths(paths);if(mounted.current && attempt===epoch.current) accept(next);}
+    catch(e){if(mounted.current && attempt===epoch.current)setError(message(e));}
+    finally{if(attempt===epoch.current){importLock.current=false;if(mounted.current)setImporting(false);}}
+  },[api,accept]);
 
-  useEffect(() => {
-    mounted.current = true;
-    let alive = true;
-    const disposers: (() => void)[] = [];
-    const add = (off: () => void) => {if (alive) disposers.push(off); else off();};
-    const initialGeneration = generation.current;
-    if (api.available) {
-      void api.subscribeSnapshots((next) => {if (alive) merge(next);}).then(async (off) => {
-        add(off);
-        if (!alive) return;
-        const restored = await api.getCurrentJobSnapshot();
-        if (alive && generation.current === initialGeneration && restored) merge(restored);
-      }).catch((e) => {if (alive) setError(message(e));});
-      void api.subscribeFileDrop((paths) => {
-        if (paths.length !== 1) {setError('每次请选择一个 MP4 视频。'); return;}
-        void importPath(paths[0]);
-      }).then(add).catch((e) => {if (alive) setError(message(e));});
-      void api.listPresets().then((items) => {if (alive) setPresets(items);}).catch((e) => {if (alive) setError(message(e));});
+  useEffect(()=>{
+    mounted.current=true;++epoch.current;let alive=true;
+    const disposers:(()=>void)[]=[];
+    const add=(off:()=>void)=>{if(alive)disposers.push(off);else off();};
+    let queryRunning=false;let unknownDuringQuery=false;let subscriptionsReady=false;
+    const query=async()=>{
+      if(queryRunning){unknownDuringQuery=true;return;}
+      queryRunning=true;
+      try {
+        do {
+          unknownDuringQuery=false;
+          const next=await api.getQueueSnapshot();
+          if(!alive)return;
+          accept(next,!unknownDuringQuery);
+        } while(unknownDuringQuery && alive);
+      } catch(e){if(alive)setError(message(e));}
+      finally{queryRunning=false;}
+    };
+    if(api.available) {
+      const subscribed=Promise.all([
+        api.subscribeSnapshots(next=>{
+          if(!alive)return;
+          const known=stateRef.current.queue.items.some(i=>i.jobId===next.jobId);
+          update(mergeJob(stateRef.current,next));
+          if(!known && subscriptionsReady)void query();
+        }).then(add),
+        api.subscribeQueue(next=>{if(alive)accept(next);}).then(add),
+      ]);
+      void subscribed.then(async()=>{
+        if(!alive)return;
+        subscriptionsReady=true;
+        await query();
+        if(!alive)return;
+        const restored=await api.getCurrentJobSnapshot();
+        if(alive && restored && terminal(restored))setHistorical(restored);
+      }).catch(e=>{if(alive)setError(message(e));});
+      void api.subscribeFileDrop(paths=>{if(alive)void importPaths(paths);}).then(add).catch(e=>{if(alive)setError(message(e));});
+      void api.listPresets().then(items=>{if(alive)setPresets(items);}).catch(e=>{if(alive)setError(message(e));});
     }
-    return () => {alive = false; mounted.current = false; disposers.forEach((off) => off());};
-  }, [api, importPath, merge]);
+    return ()=>{
+      alive=false;mounted.current=false;++epoch.current;++detailGeneration.current;
+      importLock.current=false;startLock.current=false;
+      disposers.forEach(off=>off());
+    };
+  },[api,accept,importPaths,update]);
 
-  async function selectInput() {
-    if (busy || importLock.current) return;
-    try {const path = await api.pickInput(); if (path && mounted.current) await importPath(path);}
-    catch (e) {if (mounted.current) setError(message(e));}
+  const busy=starting || state.queue.running;
+  const selectedItem=state.queue.items.find(i=>i.itemId===selectedId)??null;
+  const snapshot=selectedItem?.snapshot??(state.queue.items.length===0?historical:null);
+  const previousResult=state.queue.items.length===0 && historical!==null;
+  const jobForSelection=()=>{
+    const selected=stateRef.current.queue.items.find(i=>i.itemId===selectedRef.current);
+    return selected?.jobId ?? (stateRef.current.queue.items.length===0?historical?.jobId:null) ?? null;
+  };
+  function selectItem(id:string){selectedRef.current=id;setSelectedId(id);setLog(null);setLogLoading(false);setLogError(null);++detailGeneration.current;}
+  async function selectInput(){
+    if(busy || importing)return;const attempt=epoch.current;
+    try{const path=await api.pickInput();if(mounted.current && attempt===epoch.current && path)await importPaths([path]);}
+    catch(e){if(mounted.current && attempt===epoch.current)setError(message(e));}
   }
-  async function selectOutput() {
-    try {const path = await api.pickOutputDirectory(); if (path && mounted.current) setOutputDirectory(path);}
-    catch (e) {if (mounted.current) setError(message(e));}
+  async function selectFolder(){
+    if(busy || importLock.current)return;const attempt=epoch.current;
+    let acquired=false;
+    try{
+      const path=await api.pickInputFolder();
+      if(!path || !mounted.current || attempt!==epoch.current || stateRef.current.queue.running || startLock.current || importLock.current)return;
+      importLock.current=true;acquired=true;setImporting(true);setError(null);
+      const next=await api.importFolder(path);
+      if(mounted.current && attempt===epoch.current)accept(next);
+    }catch(e){if(mounted.current && attempt===epoch.current)setError(message(e));}
+    finally{if(acquired && attempt===epoch.current){importLock.current=false;if(mounted.current)setImporting(false);}}
   }
-  async function cancelProbe() {
-    if (cancelingProbe) return;
-    setCancelingProbe(true);
-    try {
-      await api.cancelProbe(); ++generation.current; importLock.current = false;
-      if (mounted.current) {setProbing(false); setMedia(null);}
-    } catch (e) {if (mounted.current) setError(message(e));}
-    finally {if (mounted.current) setCancelingProbe(false);}
+  async function selectOutput(){
+    if(busy)return;const attempt=epoch.current;
+    try{const path=await api.pickOutputDirectory();if(path && mounted.current && attempt===epoch.current && !stateRef.current.queue.running && !startLock.current)setOutputDirectory(path);}
+    catch(e){if(mounted.current && attempt===epoch.current)setError(message(e));}
   }
-  async function start(metadata: StartJobRequest['metadata']) {
-    if (startLock.current || importLock.current || !terminal(snapshotRef.current) || !media || !outputDirectory || !presets[0]) return;
-    startLock.current = true; ++generation.current; jobId.current = null; snapshotRef.current = null;
-    setJobSourceKey(`${media.identity.canonicalPath}\n${media.identity.sha256}`);
-    setStarting(true); setSnapshot(null); setLog(null); setError(null);
-    try {
-      const id = await api.startJob({inputPath: media.identity.canonicalPath, outputDirectory, presetId: presets[0].presetId, metadata});
-      jobId.current = id;
-      merge(await api.getJobSnapshot(id));
-    } catch (e) {if (mounted.current) setError(message(e));}
-    finally {startLock.current = false; if (mounted.current) setStarting(false);}
+  async function start(metadata:MetadataRequest){
+    if(startLock.current || importLock.current || stateRef.current.queue.running || !stateRef.current.queue.items.some(i=>i.state==='waiting') || !outputDirectory || !presets[0])return;
+    startLock.current=true;setStarting(true);setError(null);const attempt=epoch.current;
+    try{const next=await api.startBatch({outputDirectory,presetId:presets[0].presetId,metadata});if(mounted.current && attempt===epoch.current)accept(next);}
+    catch(e){if(mounted.current && attempt===epoch.current)setError(message(e));}
+    finally{if(attempt===epoch.current){startLock.current=false;if(mounted.current)setStarting(false);}}
   }
-  async function cancelJob() {
-    if (!jobId.current) return;
-    try {merge(await api.cancelJob(jobId.current));}
-    catch (e) {if (mounted.current) setError(message(e));}
+  async function itemAction(id:string,action:'remove'|'cancel'){
+    const attempt=epoch.current;
+    try{const next=await (action==='remove'?api.removeItem(id):api.cancelItem(id));if(mounted.current && attempt===epoch.current)accept(next);}
+    catch(e){if(mounted.current && attempt===epoch.current)setError(message(e));}
   }
-  const refreshLog = useCallback(async () => {
-    const id = jobId.current;
-    if (!id) return;
-    try {const result = await api.getJobLog(id); if (mounted.current && id === jobId.current) setLog(result);}
-    catch (e) {if (mounted.current) setError(message(e));}
-  }, [api]);
-  useEffect(() => {if (snapshot && terminal(snapshot)) void refreshLog();}, [snapshot?.jobId, snapshot?.state, refreshLog]);
-  async function reveal() {
-    if (snapshotRef.current?.state !== 'succeeded' || !jobId.current) return;
-    try {await api.revealOutput(jobId.current);} catch (e) {if (mounted.current) setError(message(e));}
+  async function refreshLog(){
+    const id=jobForSelection();if(!id)return;
+    const generation=++detailGeneration.current;const attempt=epoch.current;
+    setLogLoading(true);setLogError(null);
+    try{const next=await api.getJobLog(id);if(mounted.current && attempt===epoch.current && generation===detailGeneration.current && id===jobForSelection())setLog(next);}
+    catch(e){if(mounted.current && attempt===epoch.current && generation===detailGeneration.current && id===jobForSelection())setLogError(message(e));}
+    finally{if(mounted.current && attempt===epoch.current && generation===detailGeneration.current)setLogLoading(false);}
   }
-  return {media, presets, outputDirectory, snapshot, jobSourceKey, log, error, probing, starting, busy, cancelingProbe,
-    selectInput, selectOutput, cancelProbe, start, cancelJob, refreshLog, reveal};
+  async function reveal(itemId?:string){
+    const item=stateRef.current.queue.items.find(i=>i.itemId===(itemId??selectedRef.current));
+    const snap=item?.snapshot??(stateRef.current.queue.items.length===0?historical:null);
+    if(snap?.state!=='succeeded')return;const attempt=epoch.current;
+    try{await api.revealOutput(snap.jobId);}catch(e){if(mounted.current && attempt===epoch.current)setError(message(e));}
+  }
+  return {queue:state.queue,selectedItem,media:selectedItem?.media??null,snapshot,previousResult,presets,outputDirectory,log,logLoading,logError,error,importing,starting,busy,
+    selectItem,selectInput,selectFolder,selectOutput,start,removeItem:(id:string)=>itemAction(id,'remove'),cancelItem:(id:string)=>itemAction(id,'cancel'),refreshLog,reveal};
 }

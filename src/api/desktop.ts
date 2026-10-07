@@ -2,11 +2,12 @@ import { invoke, isTauri } from '@tauri-apps/api/core';
 import { listen } from '@tauri-apps/api/event';
 import { getCurrentWebview } from '@tauri-apps/api/webview';
 import { open } from '@tauri-apps/plugin-dialog';
-import type { JobSnapshot, LogExcerpt, MediaInfo, PresetSummary, StartJobRequest } from './contracts';
+import type { BatchSettings, JobSnapshot, LogExcerpt, MediaInfo, PresetSummary, QueueSnapshot, StartJobRequest } from './contracts';
 
 export interface DesktopApi {
   available: boolean;
   pickInput(): Promise<string | null>;
+  pickInputFolder(): Promise<string | null>;
   pickOutputDirectory(): Promise<string | null>;
   probeInput(path: string): Promise<MediaInfo>;
   cancelProbe(): Promise<void>;
@@ -18,6 +19,13 @@ export interface DesktopApi {
   getJobLog(jobId: string): Promise<LogExcerpt>;
   revealOutput(jobId: string): Promise<void>;
   subscribeSnapshots(listener: (snapshot: JobSnapshot) => void): Promise<() => void>;
+  getQueueSnapshot(): Promise<QueueSnapshot>;
+  importFolder(path:string): Promise<QueueSnapshot>;
+  importPaths(paths:string[]): Promise<QueueSnapshot>;
+  removeItem(itemId:string): Promise<QueueSnapshot>;
+  startBatch(settings:BatchSettings): Promise<QueueSnapshot>;
+  cancelItem(itemId:string): Promise<QueueSnapshot>;
+  subscribeQueue(listener:(snapshot:QueueSnapshot)=>void): Promise<() => void>;
   subscribeFileDrop(listener: (paths: string[]) => void): Promise<() => void>;
 }
 export const desktopApi: DesktopApi = {
@@ -31,6 +39,17 @@ export const desktopApi: DesktopApi = {
     return typeof selected === 'string' ? selected : null;
   },
   probeInput: (path) => invoke('probe_input', {path}),
+  pickInputFolder: async () => {
+    const selected = await open({multiple:false,directory:true});
+    return typeof selected === 'string' ? selected : null;
+  },
+  getQueueSnapshot:()=>invoke('get_queue_snapshot'),
+  importFolder:(path)=>invoke('import_folder',{path}),
+  importPaths:(paths)=>invoke('import_paths',{paths}),
+  removeItem:(itemId)=>invoke('remove_item',{itemId}),
+  startBatch:(settings)=>invoke('start_batch',{settings}),
+  cancelItem:(itemId)=>invoke('cancel_item',{itemId}),
+  subscribeQueue:(listener)=>listen<QueueSnapshot>('queue_snapshot',(event)=>listener(event.payload)),
   cancelProbe: () => invoke('cancel_probe'),
   listPresets: () => invoke('list_presets'),
   startJob: (request) => invoke('start_job', {request}),

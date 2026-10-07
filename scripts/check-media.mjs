@@ -25,3 +25,8 @@ if (process.exitCode === 0) {
   if (lifecycle.error) throw lifecycle.error;
   process.exitCode = lifecycle.status ?? 1;
 }
+if (process.exitCode === 0) {
+  const batch = spawnSync('cargo', ['test','--locked','--manifest-path','src-tauri/Cargo.toml','--test','batch_real',...(sampleDir ? [] : ['generated_']),'--','--ignored','--test-threads=1'], {cwd:root, stdio:'inherit', env});
+  if (batch.error) throw batch.error;
+  process.exitCode = batch.status ?? 1;
+}
