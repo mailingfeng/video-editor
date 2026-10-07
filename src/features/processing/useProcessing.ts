@@ -17,6 +17,8 @@ export function useProcessing(api:DesktopApi) {
   const selectedRef=useRef<string|null>(null);
   const [historical,setHistorical]=useState<JobSnapshot|null>(null);
   const [log,setLog]=useState<LogExcerpt|null>(null);
+  const [logLoading,setLogLoading]=useState(false);
+  const [logError,setLogError]=useState<string|null>(null);
   const [error,setError]=useState<string|null>(null);
   const [importing,setImporting]=useState(false);
   const [starting,setStarting]=useState(false);
@@ -30,7 +32,7 @@ export function useProcessing(api:DesktopApi) {
     stateRef.current=next;setState(next);
     if (!next.queue.items.some(i=>i.itemId===selectedRef.current)) {
       selectedRef.current=next.queue.items[0]?.itemId??null;
-      setSelectedId(selectedRef.current);setLog(null);++detailGeneration.current;
+      setSelectedId(selectedRef.current);setLog(null);setLogLoading(false);setLogError(null);++detailGeneration.current;
     }
   },[]);
   const accept=useCallback((next:QueueSnapshot,query=false)=>{
@@ -98,7 +100,7 @@ export function useProcessing(api:DesktopApi) {
     const selected=stateRef.current.queue.items.find(i=>i.itemId===selectedRef.current);
     return selected?.jobId ?? (stateRef.current.queue.items.length===0?historical?.jobId:null) ?? null;
   };
-  function selectItem(id:string){selectedRef.current=id;setSelectedId(id);setLog(null);++detailGeneration.current;}
+  function selectItem(id:string){selectedRef.current=id;setSelectedId(id);setLog(null);setLogLoading(false);setLogError(null);++detailGeneration.current;}
   async function selectInput(){
     if(busy || importing)return;const attempt=epoch.current;
     try{const path=await api.pickInput();if(mounted.current && attempt===epoch.current && path)await importPaths([path]);}
@@ -136,8 +138,10 @@ export function useProcessing(api:DesktopApi) {
   async function refreshLog(){
     const id=jobForSelection();if(!id)return;
     const generation=++detailGeneration.current;const attempt=epoch.current;
+    setLogLoading(true);setLogError(null);
     try{const next=await api.getJobLog(id);if(mounted.current && attempt===epoch.current && generation===detailGeneration.current && id===jobForSelection())setLog(next);}
-    catch(e){if(mounted.current && attempt===epoch.current && generation===detailGeneration.current)setError(message(e));}
+    catch(e){if(mounted.current && attempt===epoch.current && generation===detailGeneration.current && id===jobForSelection())setLogError(message(e));}
+    finally{if(mounted.current && attempt===epoch.current && generation===detailGeneration.current)setLogLoading(false);}
   }
   async function reveal(itemId?:string){
     const item=stateRef.current.queue.items.find(i=>i.itemId===(itemId??selectedRef.current));
@@ -145,6 +149,6 @@ export function useProcessing(api:DesktopApi) {
     if(snap?.state!=='succeeded')return;const attempt=epoch.current;
     try{await api.revealOutput(snap.jobId);}catch(e){if(mounted.current && attempt===epoch.current)setError(message(e));}
   }
-  return {queue:state.queue,selectedItem,media:selectedItem?.media??null,snapshot,previousResult,presets,outputDirectory,log,error,importing,starting,busy,
+  return {queue:state.queue,selectedItem,media:selectedItem?.media??null,snapshot,previousResult,presets,outputDirectory,log,logLoading,logError,error,importing,starting,busy,
     selectItem,selectInput,selectFolder,selectOutput,start,removeItem:(id:string)=>itemAction(id,'remove'),cancelItem:(id:string)=>itemAction(id,'cancel'),refreshLog,reveal};
 }

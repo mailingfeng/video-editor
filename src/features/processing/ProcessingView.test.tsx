@@ -1,10 +1,15 @@
 import {act,cleanup,fireEvent,render,screen,waitFor,within} from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import {afterEach,describe,expect,it,vi} from 'vitest';
+import {afterEach,beforeAll,describe,expect,it,vi} from 'vitest';
 import type {DesktopApi} from '../../api/desktop';
 import type {JobSnapshot,MediaInfo,QueueItem,QueueSnapshot} from '../../api/contracts';
 import {ProcessingView} from './ProcessingView';
 afterEach(cleanup);
+// jsdom does not implement the browser's native dialog lifecycle.
+beforeAll(()=>{
+  HTMLDialogElement.prototype.showModal=function(){this.open=true;};
+  HTMLDialogElement.prototype.close=function(){this.open=false;};
+});
 const media:MediaInfo={identity:{canonicalPath:'/input/原 视频.mp4',sizeBytes:12345,modifiedNs:'123',sha256:'a'.repeat(64)},container:'mp4',title:null,comment:null,video:{streamIndex:0,codec:'h264',width:720,height:1280,bitDepth:8,pixelFormat:'yuv420p',frameRate:{num:30,den:1},timeBase:{num:1,den:15360},frameCount:60,startPts:0,durationTicks:30720,bitRate:null,colorRange:null,colorSpace:null,colorPrimaries:null,colorTransfer:null},audio:null};
 const snapshot=(jobId='job-a',state:JobSnapshot['state']='running',version=2):JobSnapshot=>({jobId,state,version,progress:0.4,startedAtMs:123,endedAtMs:null,outputPath:null,error:null,cleanupPending:false});
 const waiting=(itemId='a',inputPath=media.identity.canonicalPath):QueueItem=>({itemId,inputPath,state:'waiting',jobId:null,snapshot:null,media:null});
@@ -60,12 +65,16 @@ describe('batch desktop interface',()=>{
     const failed={...snapshot('job-b','failed',9),progress:null,error:{code:'validation_failed' as const,message:'帧数校验失败',details:'expected 60, got 59'}};
     const {api}=fakeApi([{...waiting('a'),state:'started',jobId:'job-a',snapshot:{...snapshot(),progress:null}}, {...waiting('b','/input/b.mp4'),state:'started',jobId:'job-b',snapshot:failed}]);const user=await ready(api);
     expect(within(row('原 视频.mp4')).getByText('处理中')).toBeVisible();expect(within(row('原 视频.mp4')).queryByText(/%/)).not.toBeInTheDocument();
-    await user.click(within(row('b.mp4')).getByRole('button',{name:'查看 b.mp4'}));expect(screen.getByText('帧数校验失败')).toBeVisible();
-    await user.click(screen.getByRole('button',{name:'查看任务日志'}));expect(await screen.findByText('log job-b')).toBeVisible();expect(screen.queryByRole('button',{name:'在文件夹中显示'})).not.toBeInTheDocument();
+    await user.click(within(row('b.mp4')).getByRole('button',{name:'查看 b.mp4 的日志'}));
+    const dialog=screen.getByRole('dialog',{name:'查看日志'});
+    expect(within(dialog).getByText('帧数校验失败')).toBeVisible();
+    expect(await within(dialog).findByText('log job-b')).toBeVisible();
   });
   it('shows media details after check without claiming complete color information',async()=>{
-    const {api}=fakeApi([{...waiting('a'),media:{...media,video:{...media.video,colorRange:'pc'}}}]);await ready(api);
-    expect(screen.getByText(/部分颜色信息缺失/)).toBeVisible();expect(screen.getByText(/范围 pc/)).toBeVisible();
+    const {api}=fakeApi([{...waiting('a'),media:{...media,video:{...media.video,colorRange:'pc'}}}]);const user=await ready(api);
+    await user.click(within(row('原 视频.mp4')).getByRole('button',{name:'查看 原 视频.mp4 的视频信息'}));
+    const dialog=screen.getByRole('dialog',{name:'视频信息'});
+    expect(within(dialog).getByText(/部分颜色信息缺失/)).toBeVisible();expect(within(dialog).getByText(/范围 pc/)).toBeVisible();
   });
   it('start stays single while pending and override applies to the batch',async()=>{
     const {api}=fakeApi([waiting('a')]);const pending=deferred<QueueSnapshot>();vi.mocked(api.startBatch).mockReturnValue(pending.promise);const user=await ready(api);
@@ -80,11 +89,58 @@ describe('batch desktop interface',()=>{
   });
   it('labels historical result only with an empty queue and does not restart it',async()=>{
     const {api}=fakeApi();vi.mocked(api.getCurrentJobSnapshot).mockResolvedValue({...snapshot('old','succeeded',8),progress:1,outputPath:'/old.mp4'});await ready(api);
-    expect(await screen.findByText('上次结果')).toBeVisible();expect(screen.getByRole('button',{name:'开始处理'})).toBeDisabled();expect(api.startBatch).not.toHaveBeenCalled();
+    await waitFor(()=>expect(screen.getByRole('button',{name:'开始处理'})).toBeDisabled());expect(api.startBatch).not.toHaveBeenCalled();
+    await userEvent.click(screen.getByRole('button',{name:'日志与报告'}));
+    expect(await screen.findByText('上次结果')).toBeVisible();
   });
   it('same-name paths remain distinguishable and folder failure keeps existing items',async()=>{
     const {api}=fakeApi([waiting('a','/one/video.mp4'),waiting('b','/two/video.mp4')]);vi.mocked(api.importFolder).mockRejectedValue({message:'所选文件夹当前层没有 MP4 文件'});const user=await ready(api);
     expect(screen.getByText('/one/video.mp4')).toBeVisible();expect(screen.getByText('/two/video.mp4')).toBeVisible();
     await user.click(screen.getByRole('button',{name:'选择文件夹'}));expect(await screen.findByText('所选文件夹当前层没有 MP4 文件')).toBeVisible();expect(screen.getAllByRole('listitem',{name:'video.mp4'})).toHaveLength(2);
+  });
+  it('opens the clicked file source information and keeps the other file out of the dialog',async()=>{
+    const other={...media,identity:{...media.identity,canonicalPath:'/input/b.mp4'},title:'第二个视频',video:{...media.video,width:1920,height:1080}};
+    const {api}=fakeApi([{...waiting('a'),media},{...waiting('b','/input/b.mp4'),media:other}]);const user=await ready(api);
+    await user.click(within(row('b.mp4')).getByRole('button',{name:'查看 b.mp4 的视频信息'}));
+    const dialog=screen.getByRole('dialog',{name:'视频信息'});
+    expect(within(dialog).getByText('1920 × 1080')).toBeVisible();
+    expect(within(dialog).getByText('第二个视频')).toBeVisible();
+    expect(within(dialog).queryByText('720 × 1280')).not.toBeInTheDocument();
+    await user.click(within(dialog).getByRole('button',{name:'关闭'}));
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+  });
+  it('does not replace another file log with a response from a closed dialog',async()=>{
+    const {api}=fakeApi(['a','b'].map(id=>({...waiting(id,`/input/${id}.mp4`),state:'started' as const,jobId:`job-${id}`,snapshot:snapshot(`job-${id}`)})));
+    const pending=deferred<{text:string;truncated:boolean}>();
+    vi.mocked(api.getJobLog).mockImplementation(async id=>id==='job-a'?pending.promise:{text:'转换记录 b',truncated:false});
+    const user=await ready(api);
+    await user.click(within(row('a.mp4')).getByRole('button',{name:'查看 a.mp4 的日志'}));
+    expect(within(screen.getByRole('dialog')).getByText('正在读取日志…')).toBeVisible();
+    await user.click(within(screen.getByRole('dialog')).getByRole('button',{name:'关闭'}));
+    await user.click(within(row('b.mp4')).getByRole('button',{name:'查看 b.mp4 的日志'}));
+    expect(await within(screen.getByRole('dialog')).findByText('转换记录 b')).toBeVisible();
+    await act(async()=>pending.resolve({text:'迟到的记录 a',truncated:false}));
+    expect(within(screen.getByRole('dialog')).queryByText('迟到的记录 a')).not.toBeInTheDocument();
+    expect(within(screen.getByRole('dialog')).getByText('转换记录 b')).toBeVisible();
+  });
+  it('explains unavailable source details and logs for a waiting file',async()=>{
+    const {api}=fakeApi([waiting('a')]);const user=await ready(api);
+    await user.click(within(row('原 视频.mp4')).getByRole('button',{name:'查看 原 视频.mp4 的视频信息'}));
+    expect(within(screen.getByRole('dialog')).getByText(/待检查/)).toBeVisible();
+    await user.click(within(screen.getByRole('dialog')).getByRole('button',{name:'关闭'}));
+    await user.click(within(row('原 视频.mp4')).getByRole('button',{name:'查看 原 视频.mp4 的日志'}));
+    expect(within(screen.getByRole('dialog')).getByText('尚未开始处理，暂无日志。')).toBeVisible();
+    expect(within(screen.getByRole('dialog')).getByRole('button',{name:'刷新日志'})).toBeDisabled();
+  });
+  it('shows a log read error inside the file dialog and allows refreshing it',async()=>{
+    const {api}=fakeApi([{...waiting('a'),state:'started',jobId:'job-a',snapshot:snapshot()}]);
+    vi.mocked(api.getJobLog).mockRejectedValueOnce({message:'日志暂时不可读'}).mockResolvedValue({text:'恢复后的记录',truncated:true});
+    const user=await ready(api);await user.click(within(row('原 视频.mp4')).getByRole('button',{name:'查看 原 视频.mp4 的日志'}));
+    const dialog=screen.getByRole('dialog',{name:'查看日志'});
+    expect(await within(dialog).findByRole('alert')).toHaveTextContent('日志暂时不可读');
+    await user.click(within(dialog).getByRole('button',{name:'刷新日志'}));
+    expect(await within(dialog).findByText('恢复后的记录')).toBeVisible();
+    expect(within(dialog).queryByText('日志暂时不可读')).not.toBeInTheDocument();
+    expect(within(dialog).getByText('仅显示最近 64 KiB 日志。')).toBeVisible();
   });
 });
