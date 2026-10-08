@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useId, useState } from 'react';
 import type { DesktopApi } from '../../api/desktop';
 import type { JobState, QueueItem } from '../../api/contracts';
 import { useProcessing } from './useProcessing';
@@ -13,9 +13,11 @@ function Icon({name}: {name:'film'|'folder'|'report'|'upload'|'check'|'play'}) {
 export function ProcessingView({api}: {api: DesktopApi}) {
   const p = useProcessing(api);
   const [tab, setTab] = useState<'processing'|'logs'>('processing');
-  const [override, setOverride] = useState(false);
-  const [title, setTitle] = useState('');
-  const [comment, setComment] = useState('');
+  const [showStartHint, setShowStartHint] = useState(false);
+  const startHintId = useId();
+  const needsOutput = !p.outputDirectory;
+  const startHintVisible = needsOutput && showStartHint;
+  const startDisabled = !api.available || p.busy || p.importing || !p.queue.items.some(item => item.state === 'waiting') || needsOutput || p.presets.length === 0;
   const [details, setDetails] = useState<{itemId:string;kind:'media'|'logs'}|null>(null);
   const detailsItem = p.queue.items.find(item => item.itemId === details?.itemId);
   const snap = p.snapshot;
@@ -39,7 +41,12 @@ export function ProcessingView({api}: {api: DesktopApi}) {
     </header>
     <main className="content">
       {tab === 'logs' && <div className="page-heading"><div><h1>日志与报告</h1><p className="subtitle">查看选中文件的处理记录与结果。</p></div><span className={`ready ${p.busy ? 'active' : ''}`}><i/>{p.busy ? '任务进行中' : '准备就绪'}</span></div>}
-      {tab === 'processing' && <div className="launch-bar"><div className="toolbar-output"><span className="muted">输出目录</span><button className="btn output-selector" disabled={!api.available || p.busy} onClick={() => void p.selectOutput()} aria-label="选择输出目录" title={p.outputDirectory}><Icon name="folder"/><span>{p.outputDirectory || '选择保存位置'}</span></button></div><span className="toolbar-preset muted">基础转换 v1</span><span className={`ready ${p.busy ? 'active' : ''}`} role="status"><i/>{p.busy ? '任务进行中' : '准备就绪'}</span><button className="btn primary" disabled={!api.available || p.busy || p.importing || !p.queue.items.some(item => item.state === 'waiting') || !p.outputDirectory || p.presets.length === 0} onClick={() => void p.start(override ? {mode:'override', title:title || null, comment:comment || null} : {mode:'preserve'})}><Icon name="play"/>{p.starting ? '正在启动' : '开始处理'}</button></div>}
+      {tab === 'processing' && <div className="launch-bar"><div className="toolbar-output"><span className="muted">输出目录</span><button className="btn output-selector" disabled={!api.available || p.busy} onClick={() => void p.selectOutput()} aria-label="选择输出目录" title={p.outputDirectory}><Icon name="folder"/><span>{p.outputDirectory || '选择保存位置'}</span></button></div><span className="toolbar-preset muted">基础转换 v1</span><span className={`ready ${p.busy ? 'active' : ''}`} role="status"><i/>{p.busy ? '任务进行中' : '准备就绪'}</span>
+        <div className="start-action" role="group" aria-label="开始处理" tabIndex={needsOutput ? 0 : undefined} aria-describedby={startHintVisible ? startHintId : undefined} onMouseEnter={() => setShowStartHint(true)} onMouseLeave={() => setShowStartHint(false)} onFocus={() => setShowStartHint(true)} onBlur={() => setShowStartHint(false)} onKeyDown={event => {if(event.key === 'Escape')setShowStartHint(false);}}>
+          <button className="btn primary" disabled={startDisabled} aria-describedby={startHintVisible ? startHintId : undefined} onClick={() => void p.start()}><Icon name="play"/>{p.starting ? '正在启动' : '开始处理'}</button>
+          {startHintVisible && <span className="start-tooltip" id={startHintId} role="tooltip">请先选择保存位置，再开始处理视频。</span>}
+        </div>
+      </div>}
       {!api.available && <div className="notice">请使用桌面应用选择本地视频。此页面仅展示界面。</div>}
       {p.error && <div className="notice error" role="alert">{p.error}</div>}
       {tab === 'processing' ? <div className="workspace">
@@ -59,9 +66,7 @@ export function ProcessingView({api}: {api: DesktopApi}) {
           </section>
           <section className="panel settings"><div className="panel-head"><h2>处理设置</h2><span className="badge">基础转换 v1</span></div><div className="panel-body">
             <label className="field"><span>处理预设</span><select value={p.presets[0]?.presetId ?? ''} disabled aria-label="处理预设"><option value={p.presets[0]?.presetId ?? ''}>基础转换</option></select></label><p className="helper preset-description">输出 H.264 / MP4，保留画面尺寸、原始帧与时间轴，支持可变帧率；音频转为 AAC 48 kHz，保留 1–8 声道。</p>
-            <p className="helper">本批共用以上设置。默认分别保留每个视频的标题与备注。自动生成新文件，不覆盖已有文件。</p>
-            <label className="checkbox"><input type="checkbox" checked={override} disabled={p.busy} onChange={(e) => setOverride(e.target.checked)}/>自定义标题与备注</label>
-            {override && <div className="metadata-fields"><label className="field"><span>标题</span><input value={title} maxLength={2000} disabled={p.busy} onChange={(e) => setTitle(e.target.value)}/></label><label className="field"><span>备注</span><textarea value={comment} maxLength={8000} disabled={p.busy} onChange={(e) => setComment(e.target.value)}/></label></div>}
+            <p className="helper">本批共用以上设置，分别保留每个视频的标题与备注。自动生成新文件，不覆盖已有文件。</p>
           </div></section>
         </div>
       </div> : <section className="panel"><div className="panel-head"><div><h2>任务记录</h2><small>{snap ? `任务 ${snap.jobId}` : '尚无任务记录'}</small></div><button className="btn" disabled={!snap || p.logLoading} onClick={() => void p.refreshLog()}>刷新日志</button></div>{previousResult && <div className="notice">上次结果</div>}<div className="report-summary"><div><span>状态</span><strong>{snap ? labels[snap.state] : p.selectedItem?.state === 'canceled' ? '已取消' : '等待开始'}</strong></div><div><span>结果路径</span><strong>{snap?.outputPath ?? '—'}</strong></div></div>{p.logError && <div className="notice error" role="alert">{p.logError}</div>}<pre className="log-body" aria-busy={p.logLoading}>{p.log?.text || (p.logLoading ? '正在读取日志…' : '执行任务后，此处显示媒体工具、转换参数与校验记录。')}</pre>{p.log?.truncated && <p className="helper log-footer">仅显示最近 64 KiB 日志。</p>}</section>}

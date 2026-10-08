@@ -31,6 +31,28 @@ function fakeApi(initial:QueueItem[]=[]){
 async function ready(api:DesktopApi){render(<ProcessingView api={api}/>);const user=userEvent.setup();await screen.findByRole('button',{name:'选择文件夹'});await user.click(screen.getByRole('button',{name:'选择输出目录'}));return user;}
 const row=(name:string)=>screen.getByRole('listitem',{name});
 describe('batch desktop interface',()=>{
+  it('explains the missing save location on hover and keyboard focus until one is selected',async()=>{
+    const {api}=fakeApi([waiting('a')]);
+    vi.mocked(api.pickOutputDirectory).mockResolvedValueOnce(null).mockResolvedValue('/output');
+    render(<ProcessingView api={api}/>);const user=userEvent.setup();
+    await screen.findByRole('listitem',{name:'原 视频.mp4'});
+    const start=screen.getByRole('button',{name:'开始处理'});
+    expect(start).toBeDisabled();
+    fireEvent.click(start);expect(api.startBatch).not.toHaveBeenCalled();
+    const hint=screen.getByRole('group',{name:'开始处理'});
+    await user.hover(hint);
+    expect(screen.getByRole('tooltip')).toHaveTextContent('请先选择保存位置，再开始处理视频。');
+    await user.unhover(hint);expect(screen.queryByRole('tooltip')).not.toBeInTheDocument();
+    act(()=>hint.focus());expect(screen.getByRole('tooltip')).toBeVisible();
+    await user.keyboard('{Escape}');expect(screen.queryByRole('tooltip')).not.toBeInTheDocument();
+    await user.click(screen.getByRole('button',{name:'选择输出目录'}));
+    expect(start).toBeDisabled();
+    await user.click(screen.getByRole('button',{name:'选择输出目录'}));
+    await waitFor(()=>expect(start).toBeEnabled());
+    await user.hover(hint);expect(screen.queryByRole('tooltip')).not.toBeInTheDocument();
+    await user.click(start);
+    expect(api.startBatch).toHaveBeenCalledWith({outputDirectory:'/output',presetId:'basic-transcode-v1',metadata:{mode:'preserve'}});
+  });
   it('imports folder candidates before probing and removes only the selected row',async()=>{
     const {api}=fakeApi();const user=await ready(api);await user.click(screen.getByRole('button',{name:'选择文件夹'}));
     await screen.findByText('b.mp4');expect(api.probeInput).not.toHaveBeenCalled();
@@ -46,7 +68,7 @@ describe('batch desktop interface',()=>{
     act(()=>emit({...snapshot('job-b','running',4),progress:0.25}));
     expect(within(row('原 视频.mp4')).getByText('校验结果')).toBeVisible();expect(within(row('b.mp4')).getByText('25%')).toBeVisible();
     expect(within(row('c.mp4')).getByText('待处理')).toBeVisible();expect(screen.queryByText('100%')).not.toBeInTheDocument();
-    expect(screen.getByRole('checkbox',{name:'自定义标题与备注'})).toBeDisabled();
+    expect(screen.queryByRole('checkbox',{name:'自定义标题与备注'})).not.toBeInTheDocument();
     expect(screen.getByRole('button',{name:'移除 c.mp4'})).toBeDisabled();expect(screen.getByRole('button',{name:'选择输出目录'})).toBeDisabled();
   });
   it('cancels one waiting item without changing others',async()=>{
@@ -76,11 +98,13 @@ describe('batch desktop interface',()=>{
     const dialog=screen.getByRole('dialog',{name:'视频信息'});
     expect(within(dialog).getByText(/部分颜色信息缺失/)).toBeVisible();expect(within(dialog).getByText(/范围 pc/)).toBeVisible();
   });
-  it('start stays single while pending and override applies to the batch',async()=>{
+  it('start stays single while pending and preserves each video metadata without custom fields',async()=>{
     const {api}=fakeApi([waiting('a')]);const pending=deferred<QueueSnapshot>();vi.mocked(api.startBatch).mockReturnValue(pending.promise);const user=await ready(api);
-    await user.click(screen.getByRole('checkbox',{name:'自定义标题与备注'}));await user.type(screen.getByLabelText('标题'),'batch title');
+    expect(screen.queryByRole('checkbox',{name:'自定义标题与备注'})).not.toBeInTheDocument();
+    expect(screen.queryByLabelText('标题')).not.toBeInTheDocument();
+    expect(screen.queryByLabelText('备注')).not.toBeInTheDocument();
     const start=screen.getByRole('button',{name:'开始处理'});fireEvent.click(start);fireEvent.click(start);
-    expect(api.startBatch).toHaveBeenCalledTimes(1);expect(api.startBatch).toHaveBeenCalledWith(expect.objectContaining({metadata:{mode:'override',title:'batch title',comment:null}}));
+    expect(api.startBatch).toHaveBeenCalledTimes(1);expect(api.startBatch).toHaveBeenCalledWith(expect.objectContaining({metadata:{mode:'preserve'}}));
     await act(async()=>pending.resolve({version:2,running:true,items:[{...waiting('a'),state:'started',jobId:'job-a',snapshot:snapshot()}]}));
   });
   it('preserves single file choosing and drag import',async()=>{

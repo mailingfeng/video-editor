@@ -1,6 +1,6 @@
 import {useCallback,useEffect,useRef,useState} from 'react';
 import type {DesktopApi} from '../../api/desktop';
-import type {JobSnapshot,LogExcerpt,MetadataRequest,PresetSummary,QueueSnapshot} from '../../api/contracts';
+import type {JobSnapshot,LogExcerpt,PresetSummary,QueueSnapshot} from '../../api/contracts';
 import {emptyQueueState,mergeJob,mergeQueue,terminal,type QueueState} from './queueState';
 
 function message(error:unknown):string {
@@ -123,10 +123,10 @@ export function useProcessing(api:DesktopApi) {
     try{const path=await api.pickOutputDirectory();if(path && mounted.current && attempt===epoch.current && !stateRef.current.queue.running && !startLock.current)setOutputDirectory(path);}
     catch(e){if(mounted.current && attempt===epoch.current)setError(message(e));}
   }
-  async function start(metadata:MetadataRequest){
+  async function start(){
     if(startLock.current || importLock.current || stateRef.current.queue.running || !stateRef.current.queue.items.some(i=>i.state==='waiting') || !outputDirectory || !presets[0])return;
     startLock.current=true;setStarting(true);setError(null);const attempt=epoch.current;
-    try{const next=await api.startBatch({outputDirectory,presetId:presets[0].presetId,metadata});if(mounted.current && attempt===epoch.current)accept(next);}
+    try{const next=await api.startBatch({outputDirectory,presetId:presets[0].presetId,metadata:{mode:'preserve'}});if(mounted.current && attempt===epoch.current)accept(next);}
     catch(e){if(mounted.current && attempt===epoch.current)setError(message(e));}
     finally{if(attempt===epoch.current){startLock.current=false;if(mounted.current)setStarting(false);}}
   }
