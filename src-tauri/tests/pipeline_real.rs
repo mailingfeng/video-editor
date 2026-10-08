@@ -90,6 +90,12 @@ async fn generated_media_end_to_end() {
         "no-audio.mp4",
         "av-offset.mp4",
         "full-range.mp4",
+        "vfr.mp4",
+        "phone.mov",
+        "clip.m4v",
+        "surround.mkv",
+        "surround-71.mp4",
+        "capture.webm",
     ] {
         let source = fixtures.join(name);
         let before = probe_input(runner().as_ref(), &source, CancellationToken::new())
@@ -112,7 +118,14 @@ async fn generated_media_end_to_end() {
         .await
         .unwrap();
         assert_eq!(before.video.frame_count, after.video.frame_count);
-        assert_eq!(before.video.frame_rate, after.video.frame_rate);
+        assert_eq!(
+            before.audio.as_ref().map(|a| a.channels),
+            after.audio.as_ref().map(|a| a.channels)
+        );
+        assert_eq!(
+            serde_json::to_value(&before.video).unwrap()["timeline"]["timestampSha256"],
+            serde_json::to_value(&after.video).unwrap()["timeline"]["timestampSha256"]
+        );
         assert_eq!(before.video.color_range, after.video.color_range);
         assert_eq!(
             after.audio.as_ref().map(|a| a.sample_rate),
@@ -130,7 +143,6 @@ async fn generated_media_end_to_end() {
         );
     }
     for (name, code) in [
-        ("vfr.mp4", ErrorCode::UnsupportedInput),
         ("hdr.mp4", ErrorCode::UnsupportedInput),
         ("rgb.mp4", ErrorCode::UnsupportedInput),
         ("damaged.mp4", ErrorCode::DamagedMedia),
@@ -140,6 +152,37 @@ async fn generated_media_end_to_end() {
         assert_eq!(result.error.unwrap().code, code, "{name}");
         assert!(result.output_path.is_none());
     }
+}
+#[tokio::test]
+#[ignore = "requires an explicitly supplied compatibility sample"]
+async fn provided_compatible_media_end_to_end() {
+    let source =
+        PathBuf::from(std::env::var_os("VIDEO_EDITOR_COMPAT_SAMPLE").expect("supply sample path"));
+    let before = probe_input(runner().as_ref(), &source, CancellationToken::new())
+        .await
+        .unwrap();
+    let (result, _dir, _) = process(&source, false).await;
+    assert_eq!(result.state, JobState::Succeeded, "{:?}", result.error);
+    let after = probe_input(
+        runner().as_ref(),
+        Path::new(result.output_path.as_ref().unwrap()),
+        CancellationToken::new(),
+    )
+    .await
+    .unwrap();
+    assert_eq!(before.video.frame_count, after.video.frame_count);
+    let source_timeline = serde_json::to_value(&before.video).unwrap()["timeline"].clone();
+    assert!(source_timeline["timestampSha256"].is_string());
+    assert_eq!(
+        source_timeline["timestampSha256"],
+        serde_json::to_value(&after.video).unwrap()["timeline"]["timestampSha256"]
+    );
+    assert_eq!(
+        file_identity(&source, &CancellationToken::new())
+            .await
+            .unwrap(),
+        before.identity
+    );
 }
 #[tokio::test]
 #[ignore = "requires explicitly supplied read-only sample directory"]

@@ -1,6 +1,6 @@
 # 帧序桌面开发
 
-代码位于 `feat/desktop-mvp` 分支。UI 采用 `docs/opendesign/index.html` 的导航、颜色、间距和按钮风格；功能范围为单个 MP4 的基础转换。
+应用支持文件与文件夹批量导入 MP4、MOV、M4V、MKV 和 WebM，输出为 H.264 / MP4。输入目前要求一个主视频轨、零或一个音轨、偶数尺寸的 8 bit SDR 视频；音频支持 1–8 声道，包括 5.1 和 7.1。
 
 ## 启动
 
@@ -34,7 +34,17 @@ VIDEO_EDITOR_SAMPLE_DIR=/path/to/research-or-samples cargo test --manifest-path 
 
 最后一条命令在指定目录及其父目录查找 `原视频.mp4`，仅以只读方式探测并转换，结果写入测试临时目录。会验证 2713 帧、48 kHz 音频、独立输出、转换与取消前后的输入 SHA。生成媒体保存在忽略的 `.media-fixtures/`，样本与产物不提交。
 
-生成回归覆盖 CFR、有无音轨、不同音画起点、全范围 YUV、VFR、HDR、RGB 和损坏容器；VFR / HDR / RGB 拒绝处理。首版没有设计 RGB 色彩矩阵转换，不能只复制矩阵标签冒充颜色转换。全范围 H.264 被 ffprobe 报告为 `yuvj420p` 时按等价的 8 位 4:2:0 检查，并核对已知范围。前端测试覆盖重复开始、乱序快照、跨任务旧事件、重挂载与订阅清理、取消检查、校验失败、部分色彩信息和新输入与历史结果的区分。
+生成回归覆盖 CFR / VFR、上述五类容器、5.1 / 7.1 音频、有无音轨、不同音画起点、全范围 YUV、HDR、RGB 和损坏容器。VFR 保留帧数与逐帧时间戳，转码与完整解码校验均使用 `-fps_mode:v passthrough -enc_time_base:v demux`；输出逐帧时间戳用归一化有理数秒计算 SHA256 后比对。帧率由实际帧数和时长计算；帧时长缺失时使用相邻时间戳，最后一帧只能采用帧时长、轨道终点或已确认的均匀帧间隔。音频轨道时长缺失时追加读包探测，已知声道布局保持一致，多声道码率按声道数调整。
+
+HDR、10 bit、RGB 色彩矩阵转换、奇数尺寸、多主轨仍需另行设计转换策略。全范围 H.264 被 ffprobe 报告为 `yuvj420p` 时按等价的 8 位 4:2:0 检查，并核对已知范围；已知的范围通过 `h264_metadata` 写入码流，其他未知颜色标记保持未知。前端测试覆盖重复开始、乱序快照、跨任务旧事件、重挂载与订阅清理、取消检查、校验失败、部分色彩信息和新输入与历史结果的区分。
+
+对本地兼容性样本进行只读验收（测试结果写入临时目录，源视频不会被修改）：
+
+```sh
+VIDEO_EDITOR_COMPAT_SAMPLE="$PWD/docs/requirements/20261002-research/h264.mp4" \
+  cargo test --locked --manifest-path src-tauri/Cargo.toml --test pipeline_real \
+  provided_compatible_media_end_to_end -- --ignored
+```
 
 ## 已执行的桌面操作
 

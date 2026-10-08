@@ -44,7 +44,7 @@ export function ProcessingView({api}: {api: DesktopApi}) {
       {p.error && <div className="notice error" role="alert">{p.error}</div>}
       {tab === 'processing' ? <div className="workspace">
         <div className="configuration">
-          <section className="panel input-panel"><div className="panel-head"><div><h2>待处理文件</h2><small>当前层 MP4 · 按文件独立校验</small></div><span className="badge">{p.queue.items.length} 个文件 · 并发 2</span></div>
+          <section className="panel input-panel"><div className="panel-head"><div><h2>待处理文件</h2><small>当前层视频 · 按文件独立校验</small></div><span className="badge">{p.queue.items.length} 个文件 · 并发 2</span></div>
             <div className="import-toolbar"><button className="btn" disabled={!api.available || p.busy || p.importing} onClick={() => void p.selectInput()}><Icon name="film"/>选择视频</button><button className="btn primary" disabled={!api.available || p.busy || p.importing} onClick={() => void p.selectFolder()}><Icon name="folder"/>{p.importing ? '正在导入' : '选择文件夹'}</button></div>
             {p.queue.items.length ? <ul className="file-queue" aria-label="待处理文件列表">{p.queue.items.map(item => {
               const fileName = item.inputPath.split(/[\\/]/).pop() || item.inputPath;
@@ -55,10 +55,10 @@ export function ProcessingView({api}: {api: DesktopApi}) {
                 <div className="progress-track" role="progressbar" aria-label={`${fileName} 处理进度`} aria-valuemin={0} aria-valuemax={100} aria-valuenow={value ?? undefined} aria-valuetext={status(item)}><span style={{transform:`scaleX(${value === null ? 0 : value / 100})`}}/></div>
                 <div className="queue-actions">{canCancel(item) && <button className="btn quiet" aria-label={`取消 ${fileName}`} onClick={() => void p.cancelItem(item.itemId)}>取消</button>}{item.snapshot?.state === 'succeeded' && <button className="btn quiet" aria-label={`显示 ${fileName} 的结果`} onClick={() => void p.reveal(item.itemId)}><Icon name="folder"/>显示结果</button>}<button className="btn quiet" aria-label={`查看 ${fileName} 的视频信息`} onClick={() => openDetails(item.itemId,'media')}><Icon name="film"/>视频信息</button><button className="btn quiet" aria-label={`查看 ${fileName} 的日志`} onClick={() => openDetails(item.itemId,'logs')}><Icon name="report"/>查看日志</button><button className="btn quiet" aria-label={`移除 ${fileName}`} disabled={p.busy || p.importing} onClick={() => void p.removeItem(item.itemId)}>移除</button></div>
               </li>;
-            })}</ul> : <div className="empty"><Icon name="upload"/><h3>添加需要处理的视频</h3><p>拖入 MP4 文件，或选择文件夹批量添加。</p></div>}
+            })}</ul> : <div className="empty"><Icon name="upload"/><h3>添加需要处理的视频</h3><p>支持 MP4、MOV、M4V、MKV、WebM，也可选择文件夹批量添加。</p></div>}
           </section>
           <section className="panel settings"><div className="panel-head"><h2>处理设置</h2><span className="badge">基础转换 v1</span></div><div className="panel-body">
-            <label className="field"><span>处理预设</span><select value={p.presets[0]?.presetId ?? ''} disabled aria-label="处理预设"><option value={p.presets[0]?.presetId ?? ''}>基础转换</option></select></label><p className="helper preset-description">H.264 / MP4，保留画面尺寸与帧率；有音轨时转为 AAC 48 kHz。</p>
+            <label className="field"><span>处理预设</span><select value={p.presets[0]?.presetId ?? ''} disabled aria-label="处理预设"><option value={p.presets[0]?.presetId ?? ''}>基础转换</option></select></label><p className="helper preset-description">输出 H.264 / MP4，保留画面尺寸、原始帧与时间轴，支持可变帧率；音频转为 AAC 48 kHz，保留 1–8 声道。</p>
             <p className="helper">本批共用以上设置。默认分别保留每个视频的标题与备注。自动生成新文件，不覆盖已有文件。</p>
             <label className="checkbox"><input type="checkbox" checked={override} disabled={p.busy} onChange={(e) => setOverride(e.target.checked)}/>自定义标题与备注</label>
             {override && <div className="metadata-fields"><label className="field"><span>标题</span><input value={title} maxLength={2000} disabled={p.busy} onChange={(e) => setTitle(e.target.value)}/></label><label className="field"><span>备注</span><textarea value={comment} maxLength={8000} disabled={p.busy} onChange={(e) => setComment(e.target.value)}/></label></div>}

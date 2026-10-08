@@ -136,7 +136,7 @@ impl JobService {
         if inputs.is_empty() {
             return Err(AppError::new(
                 ErrorCode::UnsupportedInput,
-                "所选文件夹当前层没有 MP4 文件",
+                "所选文件夹当前层没有支持的视频文件（MP4、MOV、M4V、MKV、WebM）",
             ));
         }
         self.append_inputs(inputs).await

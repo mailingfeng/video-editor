@@ -47,9 +47,21 @@ pub async fn validate_output(
         .map(String::from)
         .chain([plan.workspace.temp_path.clone()])
         .chain(
-            ["-map", "0:v:0", "-map", "0:a:0?", "-f", "null", "-"]
-                .into_iter()
-                .map(String::from),
+            [
+                "-map",
+                "0:v:0",
+                "-map",
+                "0:a:0?",
+                "-fps_mode:v",
+                "passthrough",
+                "-enc_time_base:v",
+                "demux",
+                "-f",
+                "null",
+                "-",
+            ]
+            .into_iter()
+            .map(String::from),
         )
         .collect();
     let decoded = run_capture(
@@ -129,10 +141,18 @@ pub fn verify_specifications(plan: &ProcessingPlan, output: &MediaInfo) -> Resul
         || !pixel_matches
         || v.width != p.width
         || v.height != p.height
-        || v.frame_rate != p.frame_rate
+        || (plan.source.video.timeline.is_none() && v.frame_rate != p.frame_rate)
         || v.frame_count != p.frame_count
     {
         return Err(failed("视频规格或帧数与处理计划不一致"));
+    }
+    if let Some(source) = &plan.source.video.timeline {
+        if v.timeline
+            .as_ref()
+            .is_none_or(|current| current.timestamp_sha256 != source.timestamp_sha256)
+        {
+            return Err(failed("逐帧时间戳与输入不一致"));
+        }
     }
     if exceeds(
         seconds(v.duration_ticks, v.time_base) - p.video_duration_seconds,
@@ -175,6 +195,9 @@ pub fn verify_specifications(plan: &ProcessingPlan, output: &MediaInfo) -> Resul
             {
                 return Err(failed("音频规格或时长与处理计划不一致"));
             }
+            if source.channel_layout.is_some() && source.channel_layout != a.channel_layout {
+                return Err(failed("音频声道布局发生变化"));
+            }
             let expected = seconds(source.start_pts, source.time_base)
                 - seconds(plan.source.video.start_pts, plan.source.video.time_base);
             let actual = seconds(a.start_pts, a.time_base) - seconds(v.start_pts, v.time_base);
@@ -202,6 +225,10 @@ fn as_validation(e: AppError) -> AppError {
     if matches!(e.code, ErrorCode::Canceled | ErrorCode::ToolMissing) {
         e
     } else {
-        failed("输出校验未通过").detail(e.to_string())
+        let details = match e.details {
+            Some(detail) => format!("{}：{detail}", e.message),
+            None => e.message,
+        };
+        failed("输出校验未通过").detail(details)
     }
 }

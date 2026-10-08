@@ -57,6 +57,7 @@ fn nonzero_starts_keep_relative_timeline() {
     assert_eq!(p.source.audio.unwrap().start_pts, 224910);
     assert!(p.args.contains(&"-copyts".into()));
     assert_eq!(arg_value(&p.args, "-fps_mode:v"), Some("passthrough"));
+    assert_eq!(arg_value(&p.args, "-enc_time_base:v"), Some("demux"));
     assert!(!p.args.contains(&"-r".into()));
     assert!(!p.args.contains(&"-vf".into()));
     assert_eq!(arg_value(&p.args, "-video_track_timescale"), Some("15360"));
@@ -93,4 +94,32 @@ fn gop_follows_frame_rate() {
         den: 1001,
     };
     assert_eq!(arg_value(&plan(&m).args, "-g"), Some("300"));
+}
+#[test]
+fn surround_channels_layout_and_bitrate_are_preserved() {
+    let mut json = serde_json::to_value(media()).unwrap();
+    json["audio"]["channels"] = 6.into();
+    json["audio"]["channelLayout"] = "5.1".into();
+    json["audio"]["bitRate"] = 384000.into();
+    let source = serde_json::from_value(json).unwrap();
+    let p = plan(&source);
+    assert_eq!(arg_value(&p.args, "-ac"), Some("6"));
+    assert_eq!(arg_value(&p.args, "-channel_layout:a"), Some("5.1"));
+    assert_eq!(arg_value(&p.args, "-b:a"), Some("384000"));
+}
+#[test]
+fn known_range_is_written_even_without_other_color_tags() {
+    let mut source = media();
+    source.video.color_space = None;
+    source.video.color_primaries = None;
+    source.video.color_transfer = None;
+    assert_eq!(
+        arg_value(&plan(&source).args, "-bsf:v"),
+        Some("h264_metadata=video_full_range_flag=0")
+    );
+    source.video.color_range = Some("pc".into());
+    assert_eq!(
+        arg_value(&plan(&source).args, "-bsf:v"),
+        Some("h264_metadata=video_full_range_flag=1")
+    );
 }
