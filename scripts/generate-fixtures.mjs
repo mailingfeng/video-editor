@@ -21,6 +21,11 @@ export async function generateFixtures() {
   make('full-range.mp4', [...video,'-t','1.2','-c:v','mjpeg','-pix_fmt','yuvj420p','-color_range','pc','-colorspace','bt709']);
   make('rgb.mp4', ['-f','lavfi','-i','testsrc=size=128x96:rate=30','-t','1.2','-c:v','libx264rgb','-pix_fmt','rgb24']);
   make('av-offset.mp4', [...video,'-itsoffset','0.12',...audio,...encode]);
+  make('phone.mov', [...video,...audio,...encode]);
+  make('clip.m4v', [...video,...audio,...encode]);
+  make('surround.mkv', [...video,'-f','lavfi','-i','anullsrc=channel_layout=5.1:sample_rate=44100',...encode]);
+  make('surround-71.mp4', [...video,'-f','lavfi','-i','anullsrc=channel_layout=7.1:sample_rate=48000',...encode]);
+  make('capture.webm', [...video,...audio,'-t','1.2','-c:v','libvpx-vp9','-pix_fmt','yuv420p','-c:a','libopus','-ar','48000']);
   make('vfr.mp4', [...video,'-vf',"select='not(eq(mod(n,7),0))'",'-fps_mode','vfr',...encode]);
   make('hdr.mp4', [...video,'-t','1.2','-c:v','libx264','-pix_fmt','yuv420p10le','-color_primaries','bt2020','-color_trc','smpte2084','-colorspace','bt2020nc']);
   await writeFile(path.join(fixtureDir,'damaged.mp4'), Buffer.from('incomplete MP4 header'));

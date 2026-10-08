@@ -44,9 +44,9 @@ export function FileDetailsDialog({kind,item,status,log,logLoading,logError,onCl
           <div><dt>文件大小</dt><dd>{(media.identity.sizeBytes/1024/1024).toFixed(1)} MB</dd></div>
           <div><dt>时长 / 容器</dt><dd>{duration.toFixed(2)} 秒 · {media.container}</dd></div>
           <div><dt>画面</dt><dd>{video.width} × {video.height}</dd></div>
-          <div><dt>帧率 / 帧数</dt><dd>{(video.frameRate.num/video.frameRate.den).toFixed(2)} fps / {video.frameCount}</dd></div>
+          <div><dt>帧率 / 帧数</dt><dd>{video.timeline?.variableFrameRate?'可变帧率 · 平均 ':''}{(video.frameRate.num/video.frameRate.den).toFixed(2)} fps / {video.frameCount}</dd></div>
           <div><dt>视频编码</dt><dd>{video.codec} · {video.pixelFormat} · {video.bitDepth} bit</dd></div>
-          <div><dt>音频</dt><dd>{media.audio?`${media.audio.codec} · ${media.audio.sampleRate/1000} kHz · ${media.audio.channels===1?'单声道':media.audio.channels===2?'立体声':`${media.audio.channels} 声道`}`:'无音轨'}</dd></div>
+          <div><dt>音频</dt><dd>{media.audio?`${media.audio.codec} · ${media.audio.sampleRate/1000} kHz · ${media.audio.channels===1?'单声道':media.audio.channels===2?'立体声':`${media.audio.channels} 声道`}${media.audio.channelLayout?`（${media.audio.channelLayout}）`:''}`:'无音轨'}</dd></div>
           <div><dt>标题</dt><dd>{media.title||'未提供'}</dd></div>
           <div><dt>备注</dt><dd>{media.comment||'未提供'}</dd></div>
         </dl><p className="helper">{colorSummary}</p>

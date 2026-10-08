@@ -110,6 +110,27 @@ use video_editor::{
     },
     presets::basic::build_plan,
 };
+#[test]
+fn changed_frame_timestamps_fail_even_when_count_and_duration_match() {
+    let mut source_json = serde_json::to_value(media()).unwrap();
+    source_json["video"]["timeline"] =
+        serde_json::json!({"variableFrameRate": true, "timestampSha256": "original"});
+    let source: MediaInfo = serde_json::from_value(source_json.clone()).unwrap();
+    let plan = build_plan(
+        &source,
+        &request("/input/original.mp4", "/output"),
+        workspace(std::path::Path::new("/output")),
+        "test",
+    )
+    .unwrap();
+    source_json["audio"]["sampleRate"] = 48000.into();
+    source_json["video"]["timeline"]["timestampSha256"] = "retimed".into();
+    let output = serde_json::from_value(source_json).unwrap();
+    assert_eq!(
+        verify_specifications(&plan, &output).unwrap_err().code,
+        ErrorCode::ValidationFailed
+    );
+}
 async fn validate_fixture(name: &str) -> Result<ValidationResult, AppError> {
     let d = tempfile::tempdir().unwrap();
     let input = d.path().join("source.mp4");

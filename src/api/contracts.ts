@@ -3,8 +3,9 @@ export type ErrorCode = 'unsupported_input'|'damaged_media'|'tool_missing'|'outp
 export interface AppError {code:ErrorCode;message:string;details:string|null}
 export interface Rational {num:number;den:number}
 export interface FileIdentity {canonicalPath:string;sizeBytes:number;modifiedNs:string;sha256:string}
-export interface VideoInfo {streamIndex:number;codec:string;width:number;height:number;bitDepth:number;pixelFormat:string;frameRate:Rational;timeBase:Rational;frameCount:number;startPts:number;durationTicks:number;bitRate:number|null;colorRange:string|null;colorSpace:string|null;colorPrimaries:string|null;colorTransfer:string|null}
-export interface AudioInfo {streamIndex:number;codec:string;sampleRate:number;channels:number;timeBase:Rational;startPts:number;durationTicks:number;bitRate:number|null}
+export interface VideoTimeline {variableFrameRate:boolean;timestampSha256:string}
+export interface VideoInfo {streamIndex:number;codec:string;width:number;height:number;bitDepth:number;pixelFormat:string;frameRate:Rational;timeBase:Rational;frameCount:number;startPts:number;durationTicks:number;timeline?:VideoTimeline;bitRate:number|null;colorRange:string|null;colorSpace:string|null;colorPrimaries:string|null;colorTransfer:string|null}
+export interface AudioInfo {streamIndex:number;codec:string;sampleRate:number;channels:number;channelLayout?:string;timeBase:Rational;startPts:number;durationTicks:number;bitRate:number|null}
 export interface MediaInfo {identity:FileIdentity;container:string;video:VideoInfo;audio:AudioInfo|null;title:string|null;comment:string|null}
 export type MetadataRequest = {mode:'preserve'}|{mode:'override';title:string|null;comment:string|null};
 export interface StartJobRequest {inputPath:string;outputDirectory:string;presetId:string;metadata:MetadataRequest}

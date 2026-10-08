@@ -49,6 +49,25 @@ fn keys_deduplicate_aliases_and_keep_same_names_in_different_folders() {
         1
     );
 }
+#[test]
+fn common_video_extensions_work_for_folder_and_direct_imports() {
+    let dir = tempfile::tempdir().unwrap();
+    let paths: Vec<_> = [
+        "phone.MOV",
+        "clip.m4v",
+        "movie.mkv",
+        "capture.webm",
+        "video.mp4",
+    ]
+    .into_iter()
+    .map(|name| dir.path().join(name))
+    .collect();
+    for path in &paths {
+        std::fs::write(path, b"probe on start").unwrap();
+    }
+    assert_eq!(collect_paths(&paths).unwrap().len(), 5);
+    assert_eq!(collect_folder(dir.path()).unwrap().len(), 5);
+}
 
 #[cfg(windows)]
 #[test]

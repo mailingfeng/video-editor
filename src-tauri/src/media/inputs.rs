@@ -15,7 +15,7 @@ pub fn collect_folder(folder: &Path) -> Result<Vec<InputCandidate>, AppError> {
         let entry = entry.map_err(AppError::io)?;
         let file_type = entry.file_type().map_err(AppError::io)?;
         if !(file_type.is_dir() || file_type.is_symlink() && entry.path().is_dir())
-            && is_mp4(&entry.path())
+            && is_supported_video(&entry.path())
         {
             paths.push(entry.path());
         }
@@ -28,10 +28,10 @@ pub fn collect_paths(paths: &[PathBuf]) -> Result<Vec<InputCandidate>, AppError>
     let mut seen = HashSet::new();
     let mut result = Vec::new();
     for path in paths {
-        if !is_mp4(path) || path.is_dir() {
+        if !is_supported_video(path) || path.is_dir() {
             return Err(AppError::new(
                 ErrorCode::UnsupportedInput,
-                "请选择 MP4 文件",
+                "请选择 MP4、MOV、M4V、MKV 或 WebM 视频",
             ));
         }
         let absolute = if path.is_absolute() {
@@ -52,10 +52,12 @@ pub fn collect_paths(paths: &[PathBuf]) -> Result<Vec<InputCandidate>, AppError>
     Ok(result)
 }
 
-fn is_mp4(path: &Path) -> bool {
-    path.extension()
-        .and_then(|s| s.to_str())
-        .is_some_and(|s| s.eq_ignore_ascii_case("mp4"))
+pub fn is_supported_video(path: &Path) -> bool {
+    path.extension().and_then(|s| s.to_str()).is_some_and(|s| {
+        ["mp4", "mov", "m4v", "mkv", "webm"]
+            .iter()
+            .any(|ext| s.eq_ignore_ascii_case(ext))
+    })
 }
 
 fn normalize(path: &Path) -> PathBuf {

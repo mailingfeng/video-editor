@@ -59,6 +59,7 @@ pub fn build_plan(
     pair("-sc_threshold", "0".into());
     pair("-bf", "0".into());
     pair("-fps_mode:v", "passthrough".into());
+    pair("-enc_time_base:v", "demux".into());
     pair("-video_track_timescale", v.time_base.den.to_string());
     pair("-avoid_negative_ts", "disabled".into());
     match v.bit_rate.filter(|b| *b > 0) {
@@ -75,16 +76,34 @@ pub fn build_plan(
             pair(flag, value.clone());
         }
     }
+    if let Some(full_range) = match v.color_range.as_deref() {
+        Some("tv") => Some(0),
+        Some("pc") => Some(1),
+        _ => None,
+    } {
+        pair(
+            "-bsf:v",
+            format!("h264_metadata=video_full_range_flag={full_range}"),
+        );
+    }
     if let Some(a) = &info.audio {
         pair("-c:a", "aac".into());
         pair("-ar", "48000".into());
         pair("-ac", a.channels.to_string());
+        if let Some(layout) = &a.channel_layout {
+            pair("-channel_layout:a", layout.clone());
+        }
+        let bitrate_channels = if a.channels <= 2 {
+            1
+        } else {
+            a.channels as u64
+        };
         pair(
             "-b:a",
             a.bit_rate
                 .filter(|b| *b > 0)
-                .map(|b| b.clamp(64000, 128000))
-                .unwrap_or(96000)
+                .map(|b| b.clamp(64000 * bitrate_channels, 128000 * bitrate_channels))
+                .unwrap_or(96000 * bitrate_channels)
                 .to_string(),
         );
     }

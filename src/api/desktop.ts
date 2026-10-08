@@ -31,7 +31,7 @@ export interface DesktopApi {
 export const desktopApi: DesktopApi = {
   available: isTauri(),
   pickInput: async () => {
-    const selected = await open({multiple: false, directory: false, filters: [{name: 'MP4 视频', extensions: ['mp4']}]});
+    const selected = await open({multiple: false, directory: false, filters: [{name: '视频文件', extensions: ['mp4','mov','m4v','mkv','webm']}]});
     return typeof selected === 'string' ? selected : null;
   },
   pickOutputDirectory: async () => {
