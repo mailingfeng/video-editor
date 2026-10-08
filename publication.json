@@ -1,0 +1,16 @@
+{
+  "version": "0.0.1-beta.3",
+  "tag": "v0.0.1-beta.3",
+  "sourceCommit": "066aff7b8499f88cd23a7f4b4c377a5697124a2c",
+  "releaseId": 406830528,
+  "workflows": {
+    "windows_x64": {
+      "runId": 37778420141,
+      "url": "https://github.com/mailingfeng/video-editor/actions/runs/37778420141"
+    },
+    "mac_intel": {
+      "runId": 37778424501,
+      "url": "https://github.com/mailingfeng/video-editor/actions/runs/37778424501"
+    }
+  }
+}
