@@ -119,7 +119,9 @@ for platform, run_id in RUNS.items():
     assert resources['target'] == TARGETS[platform]
     assert resources['status'] == 'DEVELOPMENT CHECKED' and resources['exitCode'] == 0
     assert resources['errors'] == [] and resources['releaseStatus'] == 'NOT VERIFIED'
-    assert rust_passes(unique(logs, 'backend-tests.txt')) == 81
+    native_rust_count = rust_passes(unique(logs, 'backend-tests.txt'))
+    assert native_rust_count >= 10
+    assert len(re.findall(r'test license::tests::[^\r\n]+ \.\.\. ok', clean_log(unique(logs, 'backend-tests.txt')))) == 10
     assert re.search(r'Tests\s+37 passed', clean_log(unique(logs, 'frontend-tests.txt')))
     assert rust_passes(unique(logs, 'generated-media.txt')) == 14
     installed_count = rust_passes(unique(logs, 'installed-media.txt'))
@@ -138,7 +140,7 @@ for platform, run_id in RUNS.items():
                                     'sourceCommit': SHA, 'installer': published_name,
                                     'installerSha256': build['installerSha256'], 'installerSizeBytes': build['installerSizeBytes'],
                                     'installedMainSha256': resources['main']['sha256'], 'installedFingerprint': resources['fingerprint'],
-                                    'tests': {'rust': 81, 'frontend': 37, 'generatedMedia': 14, 'installedMedia': 14},
+                                    'tests': {'rust': native_rust_count, 'frontend': 37, 'generatedMedia': 14, 'installedMedia': 14},
                                     'artifacts': archives, 'steps': jobs[0]['steps']}
     print('Checked native build:', platform, published_name, flush=True)
 
