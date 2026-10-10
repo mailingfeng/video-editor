@@ -1,0 +1,275 @@
+{
+  "date": "2026-10-10",
+  "scope": "Consolidate user-reported review outcomes and the clarified repeated-processing goal. No new platform test variant generated; a fixed-command C1 repeat was generated only for a reproducibility audit. Local artifact hashes verified; received upload bytes not independently verified.",
+  "artifacts": [
+    {
+      "pair": 1,
+      "label": "v1",
+      "output_path": "${REPO_ROOT}/.media-fixtures/sample-reference/原视频-1_processed_c7d72f19-57bb-4cd6-8c9d-94e031765753.mp4",
+      "output_sha256": "37a6fce07892065ac4d61236c8f04a9bbe241170ab49efb6effb88a20b4f2258",
+      "source_sha256": "a3c0e92cdb373cb42190a67dd304a1e48077a09d1720ad0d1d1b4c3318742307",
+      "reported_outcome": "failed",
+      "review_type": "similarity_visibility_restriction",
+      "feedback_date": "2026-10-09",
+      "uploaded_sha256_independently_verified": false,
+      "audio_reference_zero_lag_correlation": -0.011128991606212576
+    },
+    {
+      "pair": 1,
+      "label": "v2",
+      "output_path": "${REPO_ROOT}/.media-fixtures/sample-phase-v2/pair1-sample-match-v2/原视频-1_processed_a5531a2f-07ee-43d1-be59-fe67df24bdad.mp4",
+      "output_sha256": "c43bf4f35273a6dca43d6f270c2d3aac338b1a4ca8f92369b0a47eeb02b8db3b",
+      "source_sha256": "a3c0e92cdb373cb42190a67dd304a1e48077a09d1720ad0d1d1b4c3318742307",
+      "reported_outcome": "failed",
+      "review_type": "review_type_not_independently_confirmed",
+      "feedback_date": "2026-10-09",
+      "uploaded_sha256_independently_verified": false,
+      "audio_reference_zero_lag_correlation": 0.8555847137628554
+    },
+    {
+      "pair": 2,
+      "label": "v2",
+      "output_path": "${REPO_ROOT}/.media-fixtures/sample-phase-v2/pair2-sample-match-v2/原视频-2_processed_34558f66-f9a6-45ba-9682-9db1cdc86f7e.mp4",
+      "output_sha256": "a9eba3d8f929900f3a47641039058e3a61ff4493fe1b7ea635ae00a084327879",
+      "source_sha256": "01d82ded9b53f1cf3908507c0ede2e83aa375396089398706d304ae73c65e7e8",
+      "reported_outcome": "failed",
+      "review_type": "review_type_not_independently_confirmed",
+      "feedback_date": "2026-10-09",
+      "uploaded_sha256_independently_verified": false,
+      "audio_reference_zero_lag_correlation": 0.8330207404654175
+    },
+    {
+      "pair": 1,
+      "label": "R3-C",
+      "output_path": "${REPO_ROOT}/.media-fixtures/sample-round3-combined/原视频-1_R3-C_组合版.mp4",
+      "output_sha256": "ea12616fa0359050cecf867da925fc59b4cea454a6c371d52e5adb37606e1166",
+      "source_sha256": "a3c0e92cdb373cb42190a67dd304a1e48077a09d1720ad0d1d1b4c3318742307",
+      "reported_outcome": "failed",
+      "review_type": "similarity_visibility_restriction",
+      "feedback_date": "2026-10-10",
+      "uploaded_sha256_independently_verified": false,
+      "audio_reference_zero_lag_correlation": 0.9050977404893531
+    },
+    {
+      "pair": 2,
+      "label": "R3-C",
+      "output_path": "${REPO_ROOT}/.media-fixtures/sample-round3-combined/原视频-2_R3-C_组合版.mp4",
+      "output_sha256": "55d0d699b571ce9e08adacf5569082ba8f2bbee746901c74a0c2e4d1ab751f5b",
+      "source_sha256": "01d82ded9b53f1cf3908507c0ede2e83aa375396089398706d304ae73c65e7e8",
+      "reported_outcome": "passed",
+      "review_type": "originality_declaration",
+      "feedback_date": "2026-10-10",
+      "uploaded_sha256_independently_verified": false,
+      "audio_reference_zero_lag_correlation": 0.8780857167262031
+    },
+    {
+      "pair": 1,
+      "label": "R4-N",
+      "output_path": "${REPO_ROOT}/.media-fixtures/sample-round4/原视频-1_R4-N_组合无高频.mp4",
+      "output_sha256": "dd8f69ff5066196c4d28b2e4d33004df44d6207736b8c8cb737414bd6f572b75",
+      "source_sha256": "a3c0e92cdb373cb42190a67dd304a1e48077a09d1720ad0d1d1b4c3318742307",
+      "reported_outcome": "failed",
+      "review_type": "originality_review_user_reported",
+      "feedback_date": "2026-10-10",
+      "uploaded_sha256_independently_verified": false,
+      "audio_reference_zero_lag_correlation": 0.9190790644833771
+    },
+    {
+      "pair": 1,
+      "label": "R3-D",
+      "output_path": "${REPO_ROOT}/.media-fixtures/sample-round3/原视频-1_R3-D_动态增益.mp4",
+      "output_sha256": "a787834ff202ea4f3da8f48a01e54aa8ad911a6289d17206790d0c9a701e45b3",
+      "source_sha256": "a3c0e92cdb373cb42190a67dd304a1e48077a09d1720ad0d1d1b4c3318742307",
+      "reported_outcome": "no_feedback",
+      "review_type": null,
+      "feedback_date": null,
+      "uploaded_sha256_independently_verified": false,
+      "audio_reference_zero_lag_correlation": 0.9157837666862876
+    },
+    {
+      "pair": 1,
+      "label": "repeat-v1-A",
+      "output_path": "${REPO_ROOT}/.media-fixtures/sample-repeat-variation/pair1-A/原视频-1_processed_d0a3d8bc-42a6-4f89-8a05-b09e6d8db24c.mp4",
+      "output_sha256": "605c46a652bf781ff375c4ed0bc8690502f1c73c3a8bd7cd7b486cf22b904f8b",
+      "source_sha256": "a3c0e92cdb373cb42190a67dd304a1e48077a09d1720ad0d1d1b4c3318742307",
+      "reported_outcome": "originality_review_failed_high_similarity",
+      "review_type": "originality_declaration_user_report",
+      "feedback_date": "2026-10-10",
+      "uploaded_sha256_independently_verified": false,
+      "audio_reference_zero_lag_correlation": null,
+      "feedback": {
+        "date": "2026-10-10",
+        "user_confirmation": "是上次的四份视频，提示仍是高度相似",
+        "outcome": "originality_review_failed_high_similarity",
+        "review_type": "originality_declaration_user_report",
+        "uploaded_sha256_independently_verified": false,
+        "full_current_prompt_independently_obtained": false
+      }
+    },
+    {
+      "pair": 1,
+      "label": "repeat-v1-B",
+      "output_path": "${REPO_ROOT}/.media-fixtures/sample-repeat-variation/pair1-B/原视频-1_processed_8852002f-d38d-47bf-9f67-28ea170e9e0d.mp4",
+      "output_sha256": "d6c853c906020a93ca39095a1ed474c40d02d6ad0b6c96a155f34246320c6bdc",
+      "source_sha256": "a3c0e92cdb373cb42190a67dd304a1e48077a09d1720ad0d1d1b4c3318742307",
+      "reported_outcome": "originality_review_failed_high_similarity",
+      "review_type": "originality_declaration_user_report",
+      "feedback_date": "2026-10-10",
+      "uploaded_sha256_independently_verified": false,
+      "audio_reference_zero_lag_correlation": null,
+      "feedback": {
+        "date": "2026-10-10",
+        "user_confirmation": "是上次的四份视频，提示仍是高度相似",
+        "outcome": "originality_review_failed_high_similarity",
+        "review_type": "originality_declaration_user_report",
+        "uploaded_sha256_independently_verified": false,
+        "full_current_prompt_independently_obtained": false
+      }
+    },
+    {
+      "pair": 2,
+      "label": "repeat-v1-A",
+      "output_path": "${REPO_ROOT}/.media-fixtures/sample-repeat-variation/pair2-A/原视频-2_processed_2d124fd4-a2e5-45c6-b8b2-ecf20c0b95a3.mp4",
+      "output_sha256": "2b8a93bc57fc3acf4c95a5cb97beed819092ccf10a2f5bd84468f2e344c5a97e",
+      "source_sha256": "01d82ded9b53f1cf3908507c0ede2e83aa375396089398706d304ae73c65e7e8",
+      "reported_outcome": "originality_review_failed_high_similarity",
+      "review_type": "originality_declaration_user_report",
+      "feedback_date": "2026-10-10",
+      "uploaded_sha256_independently_verified": false,
+      "audio_reference_zero_lag_correlation": null,
+      "feedback": {
+        "date": "2026-10-10",
+        "user_confirmation": "是上次的四份视频，提示仍是高度相似",
+        "outcome": "originality_review_failed_high_similarity",
+        "review_type": "originality_declaration_user_report",
+        "uploaded_sha256_independently_verified": false,
+        "full_current_prompt_independently_obtained": false
+      }
+    },
+    {
+      "pair": 2,
+      "label": "repeat-v1-B",
+      "output_path": "${REPO_ROOT}/.media-fixtures/sample-repeat-variation/pair2-B/原视频-2_processed_946e8b67-49fc-4e2b-bcaf-dddf3c39de39.mp4",
+      "output_sha256": "96a0ccb8b6602358c629ca6c9b97b35dff061114d52b668905eaa3148597de75",
+      "source_sha256": "01d82ded9b53f1cf3908507c0ede2e83aa375396089398706d304ae73c65e7e8",
+      "reported_outcome": "originality_review_failed_high_similarity",
+      "review_type": "originality_declaration_user_report",
+      "feedback_date": "2026-10-10",
+      "uploaded_sha256_independently_verified": false,
+      "audio_reference_zero_lag_correlation": null,
+      "feedback": {
+        "date": "2026-10-10",
+        "user_confirmation": "是上次的四份视频，提示仍是高度相似",
+        "outcome": "originality_review_failed_high_similarity",
+        "review_type": "originality_declaration_user_report",
+        "uploaded_sha256_independently_verified": false,
+        "full_current_prompt_independently_obtained": false
+      }
+    },
+    {
+      "pair": 1,
+      "label": "repeat-combined-v2",
+      "output_path": "${REPO_ROOT}/.media-fixtures/sample-combined-v2/pair1/原视频-1_processed_7c011a1b-19fc-4652-be1e-f9b307e6e752.mp4",
+      "output_sha256": "b215c8d930b17b3ff7ca5f11f1a7ed821dbd1c47cad2ef90a598edd24ddbca56",
+      "source_sha256": "a3c0e92cdb373cb42190a67dd304a1e48077a09d1720ad0d1d1b4c3318742307",
+      "reported_outcome": "originality_review_failed_high_similarity",
+      "review_type": "originality_declaration_user_report",
+      "feedback_date": "2026-10-10",
+      "uploaded_sha256_independently_verified": false,
+      "audio_reference_zero_lag_correlation": null,
+      "feedback": {
+        "date": "2026-10-10",
+        "user_confirmation": "两份组合版，仍提示高度相似",
+        "outcome": "originality_review_failed_high_similarity",
+        "review_type": "originality_declaration_user_report",
+        "uploaded_sha256_independently_verified": false,
+        "full_current_prompt_independently_obtained": false
+      }
+    },
+    {
+      "pair": 2,
+      "label": "repeat-combined-v2",
+      "output_path": "${REPO_ROOT}/.media-fixtures/sample-combined-v2/pair2/原视频-2_processed_097e9f27-f2a3-4c00-bcab-4558e8416335.mp4",
+      "output_sha256": "97259ab5b4429cc65f79fb51c9391874f98d471bf6e1add6fac5e2f5db8d5edd",
+      "source_sha256": "01d82ded9b53f1cf3908507c0ede2e83aa375396089398706d304ae73c65e7e8",
+      "reported_outcome": "originality_review_failed_high_similarity",
+      "review_type": "originality_declaration_user_report",
+      "feedback_date": "2026-10-10",
+      "uploaded_sha256_independently_verified": false,
+      "audio_reference_zero_lag_correlation": null,
+      "feedback": {
+        "date": "2026-10-10",
+        "user_confirmation": "两份组合版，仍提示高度相似",
+        "outcome": "originality_review_failed_high_similarity",
+        "review_type": "originality_declaration_user_report",
+        "uploaded_sha256_independently_verified": false,
+        "full_current_prompt_independently_obtained": false
+      }
+    }
+  ],
+  "reference_pair1_control": {
+    "path": "${REPO_ROOT}/docs/requirements/20261002-research/编辑后视频-1.mp4",
+    "sha256": "5077d1901cd5c8a7166f80bea2cd272e6d7e44174b4f9e2e0b3f48b71ce5e17b",
+    "historical_feedback": "user_reported_passed",
+    "historical_feedback_date": "2026-10-09",
+    "current_feedback": "user_reported_failed",
+    "current_feedback_date": "2026-10-10",
+    "current_feedback_verbatim": "之前已经传过，所以 “编辑后视频-1.mp4” 现在也不能通过了。",
+    "user_attributed_reason": "previously_uploaded",
+    "causal_reason_independently_verified": false,
+    "current_same_account_and_declaration_control": "not_independently_confirmed",
+    "control_protocol": "Re-uploading the identical historical reference does not test fresh repeated processing. The previous reference-reupload gate is superseded by independently generated reference-software outputs from the same source."
+  },
+  "clarified_requirement": {
+    "date": "2026-10-10",
+    "desired_outcome": "Every arbitrary input and every independently processed output from the same source should pass platform originality review.",
+    "previous_content_constraint_verbatim": "必须保持内容基本不变",
+    "content_constraint_verbatim": "可以尝试改变下视频内容，包括声音变调、视频画面变化等都可以接受",
+    "implementation_status": "not_achieved",
+    "universal_platform_pass_demonstrated": false,
+    "local_repeat_evidence": "${REPO_ROOT}/docs/requirements/20261002-research/evidence/repeat-processing-audit.json",
+    "latest_content_constraint": "User now accepts audible pitch changes and visible layout/color changes; the earlier essentially-unchanged-content constraint has been relaxed."
+  },
+  "assessment": {
+    "carrier_removal": "Did not produce a pass for the uploaded N variant; cannot infer all causal effects of the carrier from two binary failures.",
+    "waveform_fit": "Pair1 audio correlation improved through v2/C/N while uploaded outputs still failed. Audio similarity to the reference is not an acceptance score.",
+    "untested_matching_configuration": "Existing pair1 D combines the preserved v1/v2 Main/GOP300/source-bitrate*1.25 video with dynamic audio and AAC74kbps, no carrier. No platform feedback for this artifact.",
+    "next_gate": "Obtain at least two fresh independently processed reference-software outputs from the identical source, with settings and actual originality-review results for each; retain failures as well as successes. Existing references from two different sources cannot identify per-run variation. Do not substitute re-uploading the historical reference file for this protocol.",
+    "repeat_processing": "The exact C1 command rerun with only its output path changed produced the same SHA256 and file size in the tested environment. This establishes a missing per-run variation mechanism for that chain, not the cause of platform failure or the effectiveness of any future randomization.",
+    "passed_pair2": "Keep exact C2 file/hash/frozen arguments; a single successful source is not proof of a general mechanism or guaranteed pass.",
+    "local_repeat_variation": {
+      "preset_id": "repeat-variant-v1",
+      "status": "local_validation_passed_but_four_delivered_outputs_reported_failed_high_similarity",
+      "evidence": "repeat-variation-measurements.json",
+      "observed": "Two native exports per original have different decoded pictures and H.264 bitstreams; same-source AAC matches the basic conversion; timeline and local quality checks passed.",
+      "universal_pass_goal_achieved": false,
+      "universal_decoded_uniqueness_proven": false
+    },
+    "stronger_combination": {
+      "preset_id": "repeat-combined-v2",
+      "status": "local_validation_passed_but_both_outputs_reported_failed_high_similarity",
+      "evidence": "combined-variation-measurements.json",
+      "delivered_output_count": 2,
+      "observed": "One native export per original preserves full frame timeline and channel layout; decoded picture and audio differ from the identity-matched basic transcode. Both outputs meet the preset's local MAE budget of 12. These are not platform originality scores.",
+      "platform_outcome": "originality_review_failed_high_similarity",
+      "universal_pass_goal_achieved": false
+    },
+    "content_variation": {
+      "preset_id": "content-variation-v1",
+      "status": "local_validation_passed_user_reported_batch_pass",
+      "evidence": "content-variation-measurements.json",
+      "delivered_output_count": 2,
+      "observed": "Two native exports reframe the complete source picture and shift pitch with per-channel tempo compensation; full video timelines, dimensions, source identities and channel layouts are preserved. Controlled decoded tones demonstrate the pitch change, including 7.1 LFE. These are not platform originality scores.",
+      "platform_outcome": "user_reported_batch_pass_exact_files_unspecified",
+      "universal_pass_goal_achieved": false
+    }
+  },
+  "latest_content_variation_feedback": {
+    "date": "2026-10-10",
+    "user_verbatim": "很好，这次通过平台审核了，请提交代码",
+    "reported_outcome": "passed",
+    "scope": "Latest delivered content-variation-v1 batch; exact passed file(s) and review category not individually specified",
+    "uploaded_sha256_independently_verified": false,
+    "universal_pass_goal_achieved": false
+  }
+}

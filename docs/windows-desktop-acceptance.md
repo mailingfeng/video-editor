@@ -1,5 +1,7 @@
 # Windows x64 桌面验收
 
+`0.0.1-beta.4` 使用许可至北京时间 2026-12-31 当天结束。启动时确认许可查询完成后可开始处理；断网时应说明使用本机时间。到期后“开始处理”禁用，悬停或键盘聚焦显示更新许可提示，已保存结果和日志仍可查看。截止时刻、较晚时间和回调时钟已由自动测试覆盖，人工桌面验收仍须独立记录；详见 [许可说明](license.md)。
+
 在 Windows 10／11 x64 的普通用户账户运行。安装与以下检查不需要 Node、Rust 或系统 FFmpeg；检查使用安装目录内的 `ffmpeg.exe`、`ffprobe.exe`。GitHub runner 的安装后回归验证后端和工具，桌面窗口、文件对话框与干净电脑仍由本流程实测。
 
 从同一次 Actions artifact 解压安装器、`build.json`、`installed-resources.json` 和本指南。用 PowerShell 的 `Get-FileHash -Algorithm SHA256` 核对安装器，必须等于 `build.json` 的 `installerSha256`。该开发包尚未签名，正式发行状态仍为 NOT VERIFIED。

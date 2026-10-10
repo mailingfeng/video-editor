@@ -18,6 +18,7 @@ function fakeApi(initial:QueueItem[]=[]){
   let q:QueueSnapshot={version:1,running:false,items:initial};
   const listeners=new Set<(s:JobSnapshot)=>void>();const queues=new Set<(s:QueueSnapshot)=>void>();let drop:(paths:string[])=>void=()=>{};
   const api:DesktopApi={available:true,pickInput:vi.fn(async()=>media.identity.canonicalPath),pickInputFolder:vi.fn(async()=>'/input'),pickOutputDirectory:vi.fn(async()=>'/output'),probeInput:vi.fn(),cancelProbe:vi.fn(),startJob:vi.fn(),getJobSnapshot:vi.fn(),cancelJob:vi.fn(),
+    getLicenseStatus:vi.fn(async()=>({expiresAtMs:1798732800000,effectiveTimeMs:1791630000000,expired:false,ntpAvailable:true})),
     listPresets:vi.fn(async()=>[{presetId:'basic-transcode-v1',version:1,title:'基础转换',evidenceStatus:'checked'}]),getCurrentJobSnapshot:vi.fn(async()=>null),
     getQueueSnapshot:vi.fn(async()=>q),importPaths:vi.fn(async(paths:string[])=>{q={...q,version:q.version+1,items:[...q.items,...paths.filter(path=>!q.items.some(i=>i.inputPath===path)).map((path,index)=>waiting(`added-${q.version}-${index}`,path))]};return q;}),
     importFolder:vi.fn(async()=>{q={...q,version:q.version+1,items:[waiting('a'),waiting('b','/input/b.mp4'),waiting('c','/input/c.mp4')]};return q;}),
@@ -31,6 +32,75 @@ function fakeApi(initial:QueueItem[]=[]){
 async function ready(api:DesktopApi){render(<ProcessingView api={api}/>);const user=userEvent.setup();await screen.findByRole('button',{name:'选择文件夹'});await user.click(screen.getByRole('button',{name:'选择输出目录'}));return user;}
 const row=(name:string)=>screen.getByRole('listitem',{name});
 describe('batch desktop interface',()=>{
+  it('immediately disables processing when the backend detects a newer expired clock',async()=>{
+    const {api}=fakeApi([waiting('a')]);
+    vi.mocked(api.startBatch).mockRejectedValue({code:'license_expired',message:'使用许可已于 2026-12-31 到期，请联系软件提供方更新许可。'});
+    const user=await ready(api);
+    await user.click(screen.getByRole('button',{name:'开始处理'}));
+    await waitFor(()=>expect(screen.getByRole('button',{name:'开始处理'})).toBeDisabled());
+    expect(screen.getAllByRole('alert').some(alert=>alert.textContent?.includes('到期'))).toBe(true);
+  });
+  it('disables processing and explains an expired license even with an output directory',async()=>{
+    const {api}=fakeApi([waiting('a')]);
+    Object.assign(api,{getLicenseStatus:vi.fn(async()=>({expiresAtMs:1798732800000,effectiveTimeMs:1798732800000,expired:true,ntpAvailable:true}))});
+    const user=await ready(api);
+    await waitFor(()=>expect(screen.getByRole('button',{name:'开始处理'})).toBeDisabled());
+    expect(screen.getByRole('alert')).toHaveTextContent('使用许可已于 2026-12-31 到期');
+    await user.hover(screen.getByRole('group',{name:'开始处理'}));
+    expect(screen.getByRole('tooltip')).toHaveTextContent('请联系软件提供方更新许可');
+    expect(api.startBatch).not.toHaveBeenCalled();
+  });
+  it('keeps processing disabled while license time is being checked',async()=>{
+    const {api}=fakeApi([waiting('a')]);
+    const pending=deferred<{expiresAtMs:number;effectiveTimeMs:number;expired:boolean;ntpAvailable:boolean}>();
+    Object.assign(api,{getLicenseStatus:vi.fn(()=>pending.promise)});
+    const user=await ready(api);
+    expect(screen.getByRole('button',{name:'开始处理'})).toBeDisabled();
+    await user.hover(screen.getByRole('group',{name:'开始处理'}));
+    expect(screen.getByRole('tooltip')).toHaveTextContent('正在检查使用许可');
+    await act(async()=>pending.resolve({expiresAtMs:1798732800000,effectiveTimeMs:1791630000000,expired:false,ntpAvailable:false}));
+    await waitFor(()=>expect(screen.getByRole('button',{name:'开始处理'})).toBeEnabled());
+    expect(screen.getByText(/已使用本机时间/)).toBeVisible();
+  });
+  it('does not guess the preset of a running batch restored after remount',async()=>{
+    const item={...waiting('a'),state:'started' as const,jobId:'job-a',snapshot:snapshot()};
+    const {api,emitQueue}=fakeApi([item]);
+    emitQueue({version:2,running:true,items:[item]});
+    render(<ProcessingView api={api}/>);
+    const preset=await screen.findByRole('combobox',{name:'处理预设'});
+    await waitFor(()=>expect(preset).toHaveValue(''));
+    expect(preset).toBeDisabled();
+    expect(screen.getByRole('option',{name:'本批设置已冻结，详见日志'})).toBeInTheDocument();
+    expect(screen.getAllByText('批次设置已冻结')).toHaveLength(2);
+  });
+  it.each([
+    ['sample-match-v1',1,'样本处理（实验）',/降低亮度、调整音频频谱/],
+    ['sample-match-v2',2,'样本处理（相位实验）',/校准音频相位与延迟/],
+    ['repeat-variant-v1',1,'重复处理（实验）',/每次加入不同的轻微画面扰动/],
+    ['repeat-combined-v2',2,'组合变化（实验）',/几何、色调、细节与音频组合处理/],
+    ['content-variation-v1',1,'内容变化（实验）',/声音变调、动态前景与模糊背景/],
+  ] as const)('selects %s and freezes that preset during the batch',async(presetId,version,title,description)=>{
+    const {api}=fakeApi([waiting('a')]);
+    vi.mocked(api.listPresets).mockResolvedValue([
+      {presetId:'basic-transcode-v1',version:1,title:'基础转换',evidenceStatus:'checked'},
+      {presetId,version,title,evidenceStatus:'样本校准'},
+    ]);
+    const pending=deferred<QueueSnapshot>();
+    vi.mocked(api.startBatch).mockReturnValue(pending.promise);
+    const user=await ready(api);
+    const preset=screen.getByRole('combobox',{name:'处理预设'});
+    expect(preset).toHaveValue('basic-transcode-v1');
+    await user.selectOptions(preset,presetId);
+    expect(preset).toHaveValue(presetId);
+    expect(screen.getByText(description)).toBeVisible();
+    await user.click(screen.getByRole('button',{name:'开始处理'}));
+    expect(api.startBatch).toHaveBeenCalledWith({outputDirectory:'/output',presetId,metadata:{mode:'preserve'}});
+    expect(preset).toBeDisabled();
+    fireEvent.change(preset,{target:{value:'basic-transcode-v1'}});
+    expect(preset).toHaveValue(presetId);
+    await act(async()=>pending.resolve({version:2,running:true,items:[{...waiting('a'),state:'started',jobId:'job-a',snapshot:snapshot()}]}));
+    expect(preset).toBeDisabled();
+  });
   it('explains the missing save location on hover and keyboard focus until one is selected',async()=>{
     const {api}=fakeApi([waiting('a')]);
     vi.mocked(api.pickOutputDirectory).mockResolvedValueOnce(null).mockResolvedValue('/output');

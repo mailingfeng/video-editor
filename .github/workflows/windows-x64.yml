@@ -120,7 +120,7 @@ jobs:
       - name: Media regression using installed tools
         run: |
           $env:VIDEO_EDITOR_FIXTURE_DIR = Join-Path $env:GITHUB_WORKSPACE '.media-fixtures'
-          cargo test --locked --manifest-path src-tauri/Cargo.toml --test pipeline_real generated_media_end_to_end -- --ignored --test-threads=1 | Tee-Object .ci-evidence/installed-media.txt
+          cargo test --locked --manifest-path src-tauri/Cargo.toml --test pipeline_real generated_ -- --ignored --test-threads=1 | Tee-Object .ci-evidence/installed-media.txt
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
           cargo test --locked --manifest-path src-tauri/Cargo.toml --test lifecycle_real generated_ -- --ignored --test-threads=1 | Tee-Object .ci-evidence/installed-lifecycle.txt
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }

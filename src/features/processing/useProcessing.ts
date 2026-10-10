@@ -2,6 +2,7 @@ import {useCallback,useEffect,useRef,useState} from 'react';
 import type {DesktopApi} from '../../api/desktop';
 import type {JobSnapshot,LogExcerpt,PresetSummary,QueueSnapshot} from '../../api/contracts';
 import {emptyQueueState,mergeJob,mergeQueue,terminal,type QueueState} from './queueState';
+import {useLicense} from './useLicense';
 
 function message(error:unknown):string {
   if (typeof error==='object' && error!==null && 'message' in error) return String(error.message);
@@ -9,9 +10,11 @@ function message(error:unknown):string {
 }
 
 export function useProcessing(api:DesktopApi) {
+  const license=useLicense(api);
   const [state,setState]=useState(emptyQueueState);
   const stateRef=useRef(state);
   const [presets,setPresets]=useState<PresetSummary[]>([]);
+  const [presetId,setPresetId]=useState<string|null>(null);
   const [outputDirectory,setOutputDirectory]=useState('');
   const [selectedId,setSelectedId]=useState<string|null>(null);
   const selectedRef=useRef<string|null>(null);
@@ -93,6 +96,11 @@ export function useProcessing(api:DesktopApi) {
   },[api,accept,importPaths,update]);
 
   const busy=starting || state.queue.running;
+  const preset=presets.find(p=>p.presetId===presetId)??presets[0]??null;
+  function selectPreset(id:string){
+    if(startLock.current || busy || importing || !presets.some(p=>p.presetId===id))return;
+    setPresetId(id);
+  }
   const selectedItem=state.queue.items.find(i=>i.itemId===selectedId)??null;
   const snapshot=selectedItem?.snapshot??(state.queue.items.length===0?historical:null);
   const previousResult=state.queue.items.length===0 && historical!==null;
@@ -124,10 +132,13 @@ export function useProcessing(api:DesktopApi) {
     catch(e){if(mounted.current && attempt===epoch.current)setError(message(e));}
   }
   async function start(){
-    if(startLock.current || importLock.current || stateRef.current.queue.running || !stateRef.current.queue.items.some(i=>i.state==='waiting') || !outputDirectory || !presets[0])return;
+    if(!license.licenseAllowed || startLock.current || importLock.current || stateRef.current.queue.running || !stateRef.current.queue.items.some(i=>i.state==='waiting') || !outputDirectory || !preset)return;
     startLock.current=true;setStarting(true);setError(null);const attempt=epoch.current;
-    try{const next=await api.startBatch({outputDirectory,presetId:presets[0].presetId,metadata:{mode:'preserve'}});if(mounted.current && attempt===epoch.current)accept(next);}
-    catch(e){if(mounted.current && attempt===epoch.current)setError(message(e));}
+    try{const next=await api.startBatch({outputDirectory,presetId:preset.presetId,metadata:{mode:'preserve'}});if(mounted.current && attempt===epoch.current)accept(next);}
+    catch(e){if(mounted.current && attempt===epoch.current){
+      setError(message(e));
+      if(typeof e==='object' && e!==null && 'code' in e && e.code==='license_expired')license.markLicenseExpired();
+    }}
     finally{if(attempt===epoch.current){startLock.current=false;if(mounted.current)setStarting(false);}}
   }
   async function itemAction(id:string,action:'remove'|'cancel'){
@@ -149,6 +160,6 @@ export function useProcessing(api:DesktopApi) {
     if(snap?.state!=='succeeded')return;const attempt=epoch.current;
     try{await api.revealOutput(snap.jobId);}catch(e){if(mounted.current && attempt===epoch.current)setError(message(e));}
   }
-  return {queue:state.queue,selectedItem,media:selectedItem?.media??null,snapshot,previousResult,presets,outputDirectory,log,logLoading,logError,error,importing,starting,busy,
-    selectItem,selectInput,selectFolder,selectOutput,start,removeItem:(id:string)=>itemAction(id,'remove'),cancelItem:(id:string)=>itemAction(id,'cancel'),refreshLog,reveal};
+  return {...license,queue:state.queue,selectedItem,media:selectedItem?.media??null,snapshot,previousResult,presets,preset,outputDirectory,log,logLoading,logError,error,importing,starting,busy,
+    selectItem,selectPreset,selectInput,selectFolder,selectOutput,start,removeItem:(id:string)=>itemAction(id,'remove'),cancelItem:(id:string)=>itemAction(id,'cancel'),refreshLog,reveal};
 }

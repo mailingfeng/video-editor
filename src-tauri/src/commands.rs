@@ -4,11 +4,17 @@ use crate::contracts::{
 };
 use crate::jobs::log::LogExcerpt;
 use crate::jobs::service::JobService;
+use crate::license::{LicenseService, LicenseStatus};
 use tauri::State;
 
 pub struct DesktopState {
     pub jobs: JobService,
     pub tool_error: Option<AppError>,
+    pub license: LicenseService,
+}
+#[tauri::command]
+pub async fn get_license_status(state: State<'_, DesktopState>) -> Result<LicenseStatus, AppError> {
+    Ok(state.license.status().await)
 }
 impl DesktopState {
     fn require_tools(&self) -> Result<(), AppError> {
@@ -57,6 +63,7 @@ pub async fn start_batch(
     state: State<'_, DesktopState>,
     settings: BatchSettings,
 ) -> Result<QueueSnapshot, AppError> {
+    state.license.require_active().await?;
     state.require_tools()?;
     state.jobs.start_batch(settings).await
 }
@@ -76,6 +83,7 @@ pub async fn start_job(
     state: State<'_, DesktopState>,
     request: StartJobRequest,
 ) -> Result<String, AppError> {
+    state.license.require_active().await?;
     state.require_tools()?;
     state.jobs.start_job(request).await
 }

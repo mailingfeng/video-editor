@@ -17,6 +17,15 @@ export async function generateFixtures() {
   const encode = ['-t','1.2','-c:v','libx264','-pix_fmt','yuv420p','-c:a','aac'];
   make("短片 空格 '引号'.mp4", [...video,...audio,...encode]);
   make('no-audio.mp4', [...video,...encode]);
+  // Pad the uniform signal to a known video bitrate so the sample's ABR pass
+  // does not quantize away the small luminance change under test.
+  make('sample-tones.mp4', ['-f','lavfi','-i','color=gray:size=128x96:rate=25','-f','lavfi','-i','aevalsrc=0.2*sin(2*PI*100*t)+0.2*sin(2*PI*1000*t):s=48000',...encode,'-b:v','300k','-minrate','300k','-maxrate','300k','-bufsize','600k','-x264-params','nal-hrd=cbr']);
+  // Distinct lossless tones expose missing delay, mixing, or channel reordering.
+  // The fourth channel is LFE, so its test tone stays below the AAC LFE cutoff.
+  const channelTones = [610,730,850,90,1090,1230,1370,1490].map(f => `0.2*sin(2*PI*${f}*t)`).join('|');
+  make('phase-surround.mkv', [...video,'-f','lavfi','-i',`aevalsrc=${channelTones}:s=48000:c=7.1`,'-t','1.2','-c:v','libx264','-pix_fmt','yuv420p','-c:a','flac']);
+  make('phase-low-rate.mkv', [...video,'-f','lavfi','-i','aevalsrc=0.2*sin(2*PI*1700*t):s=8000','-t','1.2','-c:v','libx264','-pix_fmt','yuv420p','-c:a','flac']);
+  make('phase-low-rate.mp4', [...video,'-f','lavfi','-i','aevalsrc=0.2*sin(2*PI*1700*t):s=8000','-t','1.2','-c:v','libx264','-pix_fmt','yuv420p','-c:a','aac','-ar','8000','-b:a','32k']);
   make('lifecycle 空格.mp4', [...video,...audio,'-t','10','-c:v','libx264','-pix_fmt','yuv420p','-c:a','aac']);
   make('full-range.mp4', [...video,'-t','1.2','-c:v','mjpeg','-pix_fmt','yuvj420p','-color_range','pc','-colorspace','bt709']);
   make('rgb.mp4', ['-f','lavfi','-i','testsrc=size=128x96:rate=30','-t','1.2','-c:v','libx264rgb','-pix_fmt','rgb24']);

@@ -16,11 +16,16 @@ export function ProcessingView({api}: {api: DesktopApi}) {
   const [showStartHint, setShowStartHint] = useState(false);
   const startHintId = useId();
   const needsOutput = !p.outputDirectory;
-  const startHintVisible = needsOutput && showStartHint;
-  const startDisabled = !api.available || p.busy || p.importing || !p.queue.items.some(item => item.state === 'waiting') || needsOutput || p.presets.length === 0;
+  const startHint = p.licenseHint ?? (needsOutput ? '请先选择保存位置，再开始处理视频。' : null);
+  const startHintVisible = Boolean(startHint) && showStartHint;
+  const startDisabled = !p.licenseAllowed || p.busy || p.importing || !p.queue.items.some(item => item.state === 'waiting') || needsOutput || p.presets.length === 0;
   const [details, setDetails] = useState<{itemId:string;kind:'media'|'logs'}|null>(null);
   const detailsItem = p.queue.items.find(item => item.itemId === details?.itemId);
   const snap = p.snapshot;
+  // A restored running queue does not expose its frozen preset. Local settings
+  // start empty on remount, so show the log entry instead of a guessed default.
+  const restoredBatch = p.queue.running && !p.outputDirectory;
+  const presetLabel = restoredBatch ? '批次设置已冻结' : p.preset ? `${p.preset.title} v${p.preset.version}` : '加载处理预设';
   const previousResult = p.previousResult;
   const percent = (item:QueueItem) => item.snapshot?.progress == null ? null : item.snapshot.state === 'succeeded' ? 100 : Math.min(99, Math.floor(item.snapshot.progress * 100));
   const status = (item:QueueItem) => item.snapshot ? labels[item.snapshot.state] : item.state === 'canceled' ? '已取消' : '待处理';
@@ -41,13 +46,14 @@ export function ProcessingView({api}: {api: DesktopApi}) {
     </header>
     <main className="content">
       {tab === 'logs' && <div className="page-heading"><div><h1>日志与报告</h1><p className="subtitle">查看选中文件的处理记录与结果。</p></div><span className={`ready ${p.busy ? 'active' : ''}`}><i/>{p.busy ? '任务进行中' : '准备就绪'}</span></div>}
-      {tab === 'processing' && <div className="launch-bar"><div className="toolbar-output"><span className="muted">输出目录</span><button className="btn output-selector" disabled={!api.available || p.busy} onClick={() => void p.selectOutput()} aria-label="选择输出目录" title={p.outputDirectory}><Icon name="folder"/><span>{p.outputDirectory || '选择保存位置'}</span></button></div><span className="toolbar-preset muted">基础转换 v1</span><span className={`ready ${p.busy ? 'active' : ''}`} role="status"><i/>{p.busy ? '任务进行中' : '准备就绪'}</span>
-        <div className="start-action" role="group" aria-label="开始处理" tabIndex={needsOutput ? 0 : undefined} aria-describedby={startHintVisible ? startHintId : undefined} onMouseEnter={() => setShowStartHint(true)} onMouseLeave={() => setShowStartHint(false)} onFocus={() => setShowStartHint(true)} onBlur={() => setShowStartHint(false)} onKeyDown={event => {if(event.key === 'Escape')setShowStartHint(false);}}>
+      {tab === 'processing' && <div className="launch-bar"><div className="toolbar-output"><span className="muted">输出目录</span><button className="btn output-selector" disabled={!api.available || p.busy} onClick={() => void p.selectOutput()} aria-label="选择输出目录" title={p.outputDirectory}><Icon name="folder"/><span>{p.outputDirectory || '选择保存位置'}</span></button></div><span className="toolbar-preset muted">{presetLabel}</span><span className={`ready ${p.busy ? 'active' : ''}`} role="status"><i/>{p.busy ? '任务进行中' : '准备就绪'}</span>
+        <div className="start-action" role="group" aria-label="开始处理" tabIndex={startHint ? 0 : undefined} aria-describedby={startHintVisible ? startHintId : undefined} onMouseEnter={() => setShowStartHint(true)} onMouseLeave={() => setShowStartHint(false)} onFocus={() => setShowStartHint(true)} onBlur={() => setShowStartHint(false)} onKeyDown={event => {if(event.key === 'Escape')setShowStartHint(false);}}>
           <button className="btn primary" disabled={startDisabled} aria-describedby={startHintVisible ? startHintId : undefined} onClick={() => void p.start()}><Icon name="play"/>{p.starting ? '正在启动' : '开始处理'}</button>
-          {startHintVisible && <span className="start-tooltip" id={startHintId} role="tooltip">请先选择保存位置，再开始处理视频。</span>}
+          {startHintVisible && <span className="start-tooltip" id={startHintId} role="tooltip">{startHint}</span>}
         </div>
       </div>}
       {!api.available && <div className="notice">请使用桌面应用选择本地视频。此页面仅展示界面。</div>}
+      {p.licenseNotice && <div className={`notice ${p.licenseExpired ? 'error' : ''}`} role={p.licenseExpired ? 'alert' : 'status'}>{p.licenseNotice}</div>}
       {p.error && <div className="notice error" role="alert">{p.error}</div>}
       {tab === 'processing' ? <div className="workspace">
         <div className="configuration">
@@ -64,14 +70,20 @@ export function ProcessingView({api}: {api: DesktopApi}) {
               </li>;
             })}</ul> : <div className="empty"><Icon name="upload"/><h3>添加需要处理的视频</h3><p>支持 MP4、MOV、M4V、MKV、WebM，也可选择文件夹批量添加。</p></div>}
           </section>
-          <section className="panel settings"><div className="panel-head"><h2>处理设置</h2><span className="badge">基础转换 v1</span></div><div className="panel-body">
-            <label className="field"><span>处理预设</span><select value={p.presets[0]?.presetId ?? ''} disabled aria-label="处理预设"><option value={p.presets[0]?.presetId ?? ''}>基础转换</option></select></label><p className="helper preset-description">输出 H.264 / MP4，保留画面尺寸、原始帧与时间轴，支持可变帧率；音频转为 AAC 48 kHz，保留 1–8 声道。</p>
+          <section className="panel settings"><div className="panel-head"><h2>处理设置</h2>{p.preset && <span className="badge">{presetLabel}</span>}</div><div className="panel-body">
+            <label className="field"><span>处理预设</span><select value={restoredBatch ? '' : p.preset?.presetId ?? ''} disabled={!api.available || p.busy || p.importing || p.presets.length < 2} aria-label="处理预设" onChange={event => p.selectPreset(event.target.value)}>{restoredBatch && <option value="">本批设置已冻结，详见日志</option>}{p.presets.map(preset => <option key={preset.presetId} value={preset.presetId}>{preset.title}</option>)}</select></label>
+            {!restoredBatch && p.preset?.presetId === 'sample-match-v1' && <p className="helper preset-description">参照样本降低亮度、调整音频频谱与编码结构，更适合人声视频。已有测试反馈未通过平台审核。</p>}
+            {!restoredBatch && p.preset?.presetId === 'sample-match-v2' && <p className="helper preset-description">参照两组样本校准音频相位与延迟，沿用 v1 的画面处理。两份测试输出均反馈未通过平台审核。</p>}
+            {!restoredBatch && p.preset?.presetId === 'repeat-variant-v1' && <p className="helper preset-description">每次加入不同的轻微画面扰动，保留镜头顺序与声音内容。已有输出反馈未通过平台原创审核。</p>}
+            {!restoredBatch && p.preset?.presetId === 'repeat-combined-v2' && <p className="helper preset-description">几何、色调、细节与音频组合处理，按任务变化参数。画面边缘可能出现细边框，色调和音色可能变化。已有两份输出反馈未通过平台原创审核。</p>}
+            {!restoredBatch && p.preset?.presetId === 'content-variation-v1' && <p className="helper preset-description">声音变调、动态前景与模糊背景，保留完整画面和时间轴。声音音色、画面布局与色彩会明显改变。已有交付批次反馈通过平台审核，不保证每次通过。</p>}
+            <p className="helper preset-description">输出 H.264 / MP4，保留画面尺寸、帧数与时间轴，支持可变帧率；音频转为 AAC 48 kHz，保留 1–8 声道。</p>
             <p className="helper">本批共用以上设置，分别保留每个视频的标题与备注。自动生成新文件，不覆盖已有文件。</p>
           </div></section>
         </div>
       </div> : <section className="panel"><div className="panel-head"><div><h2>任务记录</h2><small>{snap ? `任务 ${snap.jobId}` : '尚无任务记录'}</small></div><button className="btn" disabled={!snap || p.logLoading} onClick={() => void p.refreshLog()}>刷新日志</button></div>{previousResult && <div className="notice">上次结果</div>}<div className="report-summary"><div><span>状态</span><strong>{snap ? labels[snap.state] : p.selectedItem?.state === 'canceled' ? '已取消' : '等待开始'}</strong></div><div><span>结果路径</span><strong>{snap?.outputPath ?? '—'}</strong></div></div>{p.logError && <div className="notice error" role="alert">{p.logError}</div>}<pre className="log-body" aria-busy={p.logLoading}>{p.log?.text || (p.logLoading ? '正在读取日志…' : '执行任务后，此处显示媒体工具、转换参数与校验记录。')}</pre>{p.log?.truncated && <p className="helper log-footer">仅显示最近 64 KiB 日志。</p>}</section>}
     </main>
     {details && detailsItem && <FileDetailsDialog key={`${details.itemId}-${details.kind}`} kind={details.kind} item={detailsItem} status={status(detailsItem)} log={p.log} logLoading={p.logLoading} logError={p.logError} onClose={() => setDetails(null)} onRefresh={() => void p.refreshLog()}/>}
-    <footer className="app-footer"><span>帧序 · 基础转换</span><span>本地处理 · 独立保存 · 完整校验</span></footer>
+    <footer className="app-footer"><span>帧序 · {restoredBatch ? '视频处理' : p.preset?.title ?? '视频处理'}</span><span>本地处理 · 独立保存 · 完整校验</span></footer>
   </div>;
 }

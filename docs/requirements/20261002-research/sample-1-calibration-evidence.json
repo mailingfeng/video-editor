@@ -1,0 +1,958 @@
+{
+  "date": "2026-10-09",
+  "platform_review": {
+    "status": "user_reported_not_passed",
+    "reported_date": "2026-10-09",
+    "evidence_source": "User-provided review notice and explicit confirmation that the uploaded file was the previously supplied test output; platform backend not independently accessed",
+    "platform": "Unconfirmed; prior discussion concerned Baijiahao",
+    "visibility": "作品限制为仅主页可见",
+    "reason": "作品可能存在与站内现有发布内容存在高度相似，导致流量受到影响。",
+    "uploaded_file": "原视频-1_processed_c7d72f19-57bb-4cd6-8c9d-94e031765753.mp4",
+    "uploaded_sha256": null,
+    "local_candidate_sha256": "37a6fce07892065ac4d61236c8f04a9bbe241170ab49efb6effb88a20b4f2258",
+    "uploaded_preset_id": "sample-match-v1",
+    "reference_current_review_result": "user_reported_passed_again",
+    "limitations": "The user identified the supplied test output and reported the reference still passes; local test SHA256 and preset are known. Uploaded bytes, account/declaration records and platform backend were not independently obtained. Platform decision mechanism remains unconfirmed. Local media metrics do not measure originality or predict platform acceptance."
+  },
+  "method": {
+    "video": "Full decoded PSNR and SSIM without scaling; sampled YUV planes at 0, 1, 10, 30, 60, 100, 115 seconds",
+    "audio": "48 kHz float PCM, mean of stereo channels; 4096-point Hann window with 2048-sample hop; compare band power over shared decoded length",
+    "tools": "Bundled FFmpeg 9.0.2-tessus and ffprobe; macOS Intel; Python 3 with NumPy"
+  },
+  "sources": {
+    "source": {
+      "sha256": "a3c0e92cdb373cb42190a67dd304a1e48077a09d1720ad0d1d1b4c3318742307",
+      "metadata": {
+        "streams": [
+          {
+            "index": 0,
+            "codec_name": "h264",
+            "codec_long_name": "H.264 / AVC / MPEG-4 AVC / MPEG-4 part 10",
+            "profile": "High",
+            "codec_type": "video",
+            "codec_tag_string": "avc1",
+            "codec_tag": "0x31637661",
+            "mime_codec_string": "avc1.64001f",
+            "width": 720,
+            "height": 720,
+            "coded_width": 720,
+            "coded_height": 720,
+            "has_b_frames": 2,
+            "sample_aspect_ratio": "1:1",
+            "display_aspect_ratio": "1:1",
+            "pix_fmt": "yuv420p",
+            "level": 31,
+            "color_range": "tv",
+            "color_transfer": "bt709",
+            "color_primaries": "bt709",
+            "chroma_location": "left",
+            "field_order": "progressive",
+            "is_avc": "true",
+            "nal_length_size": "4",
+            "id": "0x1",
+            "r_frame_rate": "25/1",
+            "avg_frame_rate": "25/1",
+            "time_base": "1/12800",
+            "start_pts": 0,
+            "start_time": "0.000000",
+            "duration_ts": 1530880,
+            "duration": "119.600000",
+            "bit_rate": "930665",
+            "bits_per_raw_sample": "8",
+            "nb_frames": "2990",
+            "extradata_size": 44,
+            "disposition": {
+              "default": 1,
+              "dub": 0,
+              "original": 0,
+              "comment": 0,
+              "lyrics": 0,
+              "karaoke": 0,
+              "forced": 0,
+              "hearing_impaired": 0,
+              "visual_impaired": 0,
+              "clean_effects": 0,
+              "attached_pic": 0,
+              "timed_thumbnails": 0,
+              "non_diegetic": 0,
+              "captions": 0,
+              "descriptions": 0,
+              "metadata": 0,
+              "dependent": 0,
+              "still_image": 0,
+              "multilayer": 0
+            },
+            "tags": {
+              "language": "und",
+              "handler_name": "VideoHandler"
+            }
+          },
+          {
+            "index": 1,
+            "codec_name": "aac",
+            "codec_long_name": "AAC (Advanced Audio Coding)",
+            "profile": "LC",
+            "codec_type": "audio",
+            "codec_tag_string": "mp4a",
+            "codec_tag": "0x6134706d",
+            "mime_codec_string": "mp4a.40.2",
+            "sample_fmt": "fltp",
+            "sample_rate": "44100",
+            "channels": 2,
+            "channel_layout": "stereo",
+            "bits_per_sample": 0,
+            "initial_padding": 1024,
+            "id": "0x2",
+            "r_frame_rate": "0/0",
+            "avg_frame_rate": "0/0",
+            "time_base": "1/44100",
+            "start_pts": 0,
+            "start_time": "0.000000",
+            "duration_ts": 5274625,
+            "duration": "119.606009",
+            "bit_rate": "64798",
+            "nb_frames": "5152",
+            "extradata_size": 5,
+            "disposition": {
+              "default": 1,
+              "dub": 0,
+              "original": 0,
+              "comment": 0,
+              "lyrics": 0,
+              "karaoke": 0,
+              "forced": 0,
+              "hearing_impaired": 0,
+              "visual_impaired": 0,
+              "clean_effects": 0,
+              "attached_pic": 0,
+              "timed_thumbnails": 0,
+              "non_diegetic": 0,
+              "captions": 0,
+              "descriptions": 0,
+              "metadata": 0,
+              "dependent": 0,
+              "still_image": 0,
+              "multilayer": 0
+            },
+            "tags": {
+              "language": "und",
+              "handler_name": "SoundHandler"
+            }
+          }
+        ],
+        "format": {
+          "filename": "原视频-1.mp4",
+          "nb_streams": 2,
+          "nb_programs": 0,
+          "nb_stream_groups": 0,
+          "format_name": "mov,mp4,m4a,3gp,3g2,mj2",
+          "format_long_name": "QuickTime / MOV",
+          "start_time": "0.000000",
+          "duration": "119.606009",
+          "size": "14939624",
+          "bit_rate": "999255",
+          "probe_score": 100,
+          "tags": {
+            "major_brand": "isom",
+            "minor_version": "512",
+            "compatible_brands": "isomiso2avc1mp41",
+            "encoder": "Multimedia Cloud Transcode (cloud.baidu.com)"
+          }
+        }
+      },
+      "videoPackets": 2990,
+      "packetTimelineSha256": "33ce4a4a90afd556360657debab9aa4a15b02767bace912771e105d5b5592020",
+      "keyframePts": [
+        0,
+        64000,
+        79360,
+        135680,
+        196096,
+        260096,
+        320000,
+        353280,
+        388096,
+        444416,
+        508416,
+        572416,
+        628736,
+        640000,
+        659456,
+        723456,
+        738816,
+        764928,
+        828928,
+        841216,
+        873984,
+        905216,
+        928256,
+        948736,
+        958976,
+        960000,
+        971776,
+        987136,
+        1051136,
+        1059328,
+        1074688,
+        1100800,
+        1126912,
+        1158144,
+        1184256,
+        1208320,
+        1250816,
+        1271296,
+        1280000,
+        1292800,
+        1341440,
+        1366016,
+        1380352,
+        1407488,
+        1431040,
+        1465344,
+        1488384
+      ],
+      "videoPayloadBytes": 13913446
+    },
+    "reference": {
+      "sha256": "5077d1901cd5c8a7166f80bea2cd272e6d7e44174b4f9e2e0b3f48b71ce5e17b",
+      "metadata": {
+        "streams": [
+          {
+            "index": 0,
+            "codec_name": "h264",
+            "codec_long_name": "H.264 / AVC / MPEG-4 AVC / MPEG-4 part 10",
+            "profile": "Main",
+            "codec_type": "video",
+            "codec_tag_string": "avc1",
+            "codec_tag": "0x31637661",
+            "mime_codec_string": "avc1.4d402a",
+            "width": 720,
+            "height": 720,
+            "coded_width": 720,
+            "coded_height": 720,
+            "has_b_frames": 0,
+            "sample_aspect_ratio": "1:1",
+            "display_aspect_ratio": "1:1",
+            "pix_fmt": "yuv420p",
+            "level": 42,
+            "color_range": "tv",
+            "color_transfer": "bt709",
+            "color_primaries": "bt709",
+            "chroma_location": "left",
+            "field_order": "progressive",
+            "is_avc": "true",
+            "nal_length_size": "4",
+            "id": "0x1",
+            "r_frame_rate": "25/1",
+            "avg_frame_rate": "25/1",
+            "time_base": "1/12800",
+            "start_pts": 0,
+            "start_time": "0.000000",
+            "duration_ts": 1530880,
+            "duration": "119.600000",
+            "bit_rate": "1163943",
+            "bits_per_raw_sample": "8",
+            "nb_frames": "2990",
+            "extradata_size": 39,
+            "disposition": {
+              "default": 1,
+              "dub": 0,
+              "original": 0,
+              "comment": 0,
+              "lyrics": 0,
+              "karaoke": 0,
+              "forced": 0,
+              "hearing_impaired": 0,
+              "visual_impaired": 0,
+              "clean_effects": 0,
+              "attached_pic": 0,
+              "timed_thumbnails": 0,
+              "non_diegetic": 0,
+              "captions": 0,
+              "descriptions": 0,
+              "metadata": 0,
+              "dependent": 0,
+              "still_image": 0,
+              "multilayer": 0
+            },
+            "tags": {
+              "language": "und",
+              "handler_name": "VideoHandler"
+            }
+          },
+          {
+            "index": 1,
+            "codec_name": "aac",
+            "codec_long_name": "AAC (Advanced Audio Coding)",
+            "profile": "LC",
+            "codec_type": "audio",
+            "codec_tag_string": "mp4a",
+            "codec_tag": "0x6134706d",
+            "mime_codec_string": "mp4a.40.2",
+            "sample_fmt": "fltp",
+            "sample_rate": "48000",
+            "channels": 2,
+            "channel_layout": "stereo",
+            "bits_per_sample": 0,
+            "initial_padding": 1024,
+            "id": "0x2",
+            "r_frame_rate": "0/0",
+            "avg_frame_rate": "0/0",
+            "time_base": "1/48000",
+            "start_pts": 0,
+            "start_time": "0.000000",
+            "duration_ts": 5741568,
+            "duration": "119.616000",
+            "bit_rate": "72354",
+            "nb_frames": "5608",
+            "extradata_size": 5,
+            "disposition": {
+              "default": 1,
+              "dub": 0,
+              "original": 0,
+              "comment": 0,
+              "lyrics": 0,
+              "karaoke": 0,
+              "forced": 0,
+              "hearing_impaired": 0,
+              "visual_impaired": 0,
+              "clean_effects": 0,
+              "attached_pic": 0,
+              "timed_thumbnails": 0,
+              "non_diegetic": 0,
+              "captions": 0,
+              "descriptions": 0,
+              "metadata": 0,
+              "dependent": 0,
+              "still_image": 0,
+              "multilayer": 0
+            },
+            "tags": {
+              "language": "und",
+              "handler_name": "SoundHandler"
+            }
+          }
+        ],
+        "format": {
+          "filename": "编辑后视频-1.mp4",
+          "nb_streams": 2,
+          "nb_programs": 0,
+          "nb_stream_groups": 0,
+          "format_name": "mov,mp4,m4a,3gp,3g2,mj2",
+          "format_long_name": "QuickTime / MOV",
+          "start_time": "0.000000",
+          "duration": "119.616000",
+          "size": "18551979",
+          "bit_rate": "1240769",
+          "probe_score": 100,
+          "tags": {
+            "minor_version": "512;512",
+            "major_brand": "isom;isom",
+            "compatible_brands": "isomiso2avc1mp41;isomiso2avc1mp41",
+            "title": "dedup_02677f3b_99883",
+            "comment": "processed_1790922954_8949",
+            "encoder": "Lavf58.20.100"
+          }
+        }
+      },
+      "videoPackets": 2990,
+      "packetTimelineSha256": "33ce4a4a90afd556360657debab9aa4a15b02767bace912771e105d5b5592020",
+      "keyframePts": [
+        0,
+        153600,
+        307200,
+        460800,
+        614400,
+        768000,
+        921600,
+        1075200,
+        1228800,
+        1382400
+      ],
+      "videoPayloadBytes": 17400950
+    }
+  },
+  "configuration": {
+    "presetId": "sample-match-v1",
+    "gopFrames": 300,
+    "videoBitrateMultiplier": 1.25,
+    "monoStereoAudioBitrate": 74000,
+    "videoFilter": "lutyuv=y='clip(0.985*val+0.5,0,255)'",
+    "audioFilter": "firequalizer=gain_entry='entry(0,-60);entry(50,-29.5);entry(75,-20.8);entry(100,-14);entry(150,-6.1);entry(200,-6.7);entry(300,-3.4);entry(450,-1.7);entry(700,-2.4);entry(1000,-3.5);entry(1500,-1.5);entry(2000,-1.5);entry(3000,0.6);entry(4000,-1.4);entry(5000,-3.3);entry(6500,-7.3);entry(8000,-13.6);entry(10000,-14.8);entry(12000,-2.5);entry(16000,-2.5);entry(24000,-3.5)':delay=0.007:zero_phase=on"
+  },
+  "observations": {
+    "video": [
+      {
+        "seconds": 0,
+        "y_slope": 0.9749769601373889,
+        "y_offset": 0.45088210657023353,
+        "y_rmse": 5.315049860107814,
+        "u_shift": 0.6169135802469157,
+        "v_shift": 0.23236882716048513,
+        "linear_residual_rmse": 4.906615650721621
+      },
+      {
+        "seconds": 1,
+        "y_slope": 0.9829922610167603,
+        "y_offset": -0.2158848289590054,
+        "y_rmse": 3.3216818935370456,
+        "u_shift": 0.6214814814814815,
+        "v_shift": 0.5286805555555532,
+        "linear_residual_rmse": 2.8020111121458635
+      },
+      {
+        "seconds": 10,
+        "y_slope": 0.986911654567197,
+        "y_offset": -0.3118725960019191,
+        "y_rmse": 2.564560297907799,
+        "u_shift": 0.5855324074074133,
+        "v_shift": 0.0886496913580288,
+        "linear_residual_rmse": 1.6140292227201225
+      },
+      {
+        "seconds": 30,
+        "y_slope": 0.9846461316638707,
+        "y_offset": -0.13060626062619463,
+        "y_rmse": 2.9129440529394923,
+        "u_shift": 0.37736882716046694,
+        "v_shift": 0.25655092592592155,
+        "linear_residual_rmse": 2.4055773047881037
+      },
+      {
+        "seconds": 60,
+        "y_slope": 0.9806747419004299,
+        "y_offset": -0.030740651657929163,
+        "y_rmse": 2.4546319435701682,
+        "u_shift": 0.21297839506172522,
+        "v_shift": 0.13162808641976653,
+        "linear_residual_rmse": 2.084231078442641
+      },
+      {
+        "seconds": 100,
+        "y_slope": 0.9820584628098238,
+        "y_offset": 0.20841997974703474,
+        "y_rmse": 2.3962511712935948,
+        "u_shift": 0.2747839506172909,
+        "v_shift": 0.1534336419752833,
+        "linear_residual_rmse": 1.7404671364032347
+      },
+      {
+        "seconds": 115,
+        "y_slope": 0.9818037856749838,
+        "y_offset": 0.21358846534511144,
+        "y_rmse": 2.4182139044456594,
+        "u_shift": 0.2626466049382543,
+        "v_shift": 0.3611805555555492,
+        "linear_residual_rmse": 1.5255096428632706
+      }
+    ],
+    "audio": {
+      "source_samples": 5741088,
+      "target_samples": 5741568,
+      "rms_db": -3.676069974899292,
+      "correlation": -0.0067796199929907605,
+      "bands": [
+        {
+          "low": 0,
+          "high": 150,
+          "db": -14.973536638849438
+        },
+        {
+          "low": 150,
+          "high": 500,
+          "db": -3.8097165026224094
+        },
+        {
+          "low": 500,
+          "high": 2000,
+          "db": -3.0984598229357756
+        },
+        {
+          "low": 2000,
+          "high": 5000,
+          "db": -0.12505808724966447
+        },
+        {
+          "low": 5000,
+          "high": 10000,
+          "db": -7.377657071945229
+        },
+        {
+          "low": 10000,
+          "high": 20000,
+          "db": -2.451920156332586
+        }
+      ],
+      "local": [
+        {
+          "seconds": 2,
+          "delay_ms": 6.9375,
+          "correlation": 0.45725012739939025
+        },
+        {
+          "seconds": 10,
+          "delay_ms": 7.020833333333333,
+          "correlation": 0.48905303564535
+        },
+        {
+          "seconds": 30,
+          "delay_ms": 6.875,
+          "correlation": 0.41335814981311236
+        },
+        {
+          "seconds": 60,
+          "delay_ms": 7.229166666666667,
+          "correlation": 0.45716800856464324
+        },
+        {
+          "seconds": 100,
+          "delay_ms": 7.020833333333333,
+          "correlation": 0.42538211944306925
+        },
+        {
+          "seconds": 115,
+          "delay_ms": 7.25,
+          "correlation": 0.41255598111164754
+        }
+      ]
+    }
+  },
+  "baseline": {
+    "referencePSNR": "[Parsed_psnr_0 @ 0x7fda2e112040] PSNR y:38.098358 u:47.887269 v:48.370643 average:39.648512 min:33.677843 max:43.310332",
+    "referenceSSIM": "[Parsed_ssim_0 @ 0x7f88744069c0] SSIM Y:0.976443 (16.278877) U:0.991952 (20.943199) V:0.991904 (20.917317) All:0.981605 (17.352996)",
+    "sourceComparison": {
+      "video": [
+        {
+          "seconds": 0,
+          "y_slope": 0.9944015416159435,
+          "y_offset": 0.5546227742964049,
+          "y_rmse": 3.3356600675757946,
+          "u_shift": 0.14678240740741444,
+          "v_shift": 0.066736111111112,
+          "linear_residual_rmse": 3.322980713746572
+        },
+        {
+          "seconds": 1,
+          "y_slope": 0.993732463811144,
+          "y_offset": 0.9347893327015413,
+          "y_rmse": 3.3290452742898533,
+          "u_shift": 0.24860339506170703,
+          "v_shift": 0.2703086419753049,
+          "linear_residual_rmse": 3.287064305065398
+        },
+        {
+          "seconds": 10,
+          "y_slope": 0.9989460918409098,
+          "y_offset": 0.16126811546185138,
+          "y_rmse": 1.523591486757037,
+          "u_shift": 0.04459876543211294,
+          "v_shift": 0.03192129629630358,
+          "linear_residual_rmse": 1.521732012527999
+        },
+        {
+          "seconds": 30,
+          "y_slope": 0.9983055691292263,
+          "y_offset": 0.1992128822577115,
+          "y_rmse": 1.849814909826733,
+          "u_shift": 0.022137345678999054,
+          "v_shift": 0.039969135802465416,
+          "linear_residual_rmse": 1.8469892349125565
+        },
+        {
+          "seconds": 60,
+          "y_slope": 0.9988045192727437,
+          "y_offset": 0.0962358556299705,
+          "y_rmse": 1.8288312777816855,
+          "u_shift": 0.043202160493819974,
+          "v_shift": 0.03382716049384271,
+          "linear_residual_rmse": 1.8275538790159314
+        },
+        {
+          "seconds": 100,
+          "y_slope": 0.9999274977816316,
+          "y_offset": 0.045865116195969335,
+          "y_rmse": 1.0984337544717766,
+          "u_shift": 0.0308179012345704,
+          "v_shift": 0.0019290123456698893,
+          "linear_residual_rmse": 1.0976853607018464
+        },
+        {
+          "seconds": 115,
+          "y_slope": 0.9999563729035511,
+          "y_offset": 0.10486426128613857,
+          "y_rmse": 1.5285976335545735,
+          "u_shift": 0.03701388888887891,
+          "v_shift": 0.024591049382721053,
+          "linear_residual_rmse": 1.5252476366903887
+        }
+      ],
+      "audio": {
+        "source_samples": 5741088,
+        "target_samples": 5741088,
+        "rms_db": -0.01368892751634121,
+        "correlation": 0.9954651504702444,
+        "bands": [
+          {
+            "low": 0,
+            "high": 150,
+            "db": 0.011535201900762238
+          },
+          {
+            "low": 150,
+            "high": 500,
+            "db": -0.015207844255503918
+          },
+          {
+            "low": 500,
+            "high": 2000,
+            "db": -0.009153639312774915
+          },
+          {
+            "low": 2000,
+            "high": 5000,
+            "db": 0.1584637235698611
+          },
+          {
+            "low": 5000,
+            "high": 10000,
+            "db": -0.35992382893323543
+          },
+          {
+            "low": 10000,
+            "high": 20000,
+            "db": -0.5383051971670025
+          }
+        ],
+        "local": [
+          {
+            "seconds": 2,
+            "delay_ms": 0.0,
+            "correlation": 0.9975233398101016
+          },
+          {
+            "seconds": 10,
+            "delay_ms": 0.0,
+            "correlation": 0.9969079850106484
+          },
+          {
+            "seconds": 30,
+            "delay_ms": 0.0,
+            "correlation": 0.9973297428797228
+          },
+          {
+            "seconds": 60,
+            "delay_ms": 0.0,
+            "correlation": 0.9934750245686714
+          },
+          {
+            "seconds": 100,
+            "delay_ms": 0.0,
+            "correlation": 0.9946551124222364
+          },
+          {
+            "seconds": 115,
+            "delay_ms": 0.0,
+            "correlation": 0.9952037875608821
+          }
+        ]
+      }
+    }
+  },
+  "encodingControl": {
+    "referencePSNR": "[Parsed_psnr_0 @ 0x7f971cd07880] PSNR y:38.246584 u:47.936843 v:48.438695 average:39.792435 min:33.624054 max:43.606215",
+    "description": "Same GOP, video target bitrate and audio bitrate as calibrated preset; no video or audio filters"
+  },
+  "nativeOutput": {
+    "state": "succeeded",
+    "sha256": "37a6fce07892065ac4d61236c8f04a9bbe241170ab49efb6effb88a20b4f2258",
+    "frames": 2990,
+    "durationSeconds": 119.6,
+    "sourceTimestampSha256": "ee30aa475eb6f77f2488070ac207b7595ba30d54d68f3017b8a6f407c6ea51de",
+    "outputTimestampSha256": "ee30aa475eb6f77f2488070ac207b7595ba30d54d68f3017b8a6f407c6ea51de",
+    "comparison": {
+      "native_to_source": {
+        "video": [
+          {
+            "seconds": 0,
+            "y_slope": 0.981934054722858,
+            "y_offset": 0.32756490146998374,
+            "y_rmse": 3.1906979842258982,
+            "u_shift": 0.08861882716047376,
+            "v_shift": 0.021057098765425053,
+            "linear_residual_rmse": 2.830055401021443
+          },
+          {
+            "seconds": 1,
+            "y_slope": 0.9801153206659732,
+            "y_offset": 0.7272167052223466,
+            "y_rmse": 3.261381720269592,
+            "u_shift": 0.19736882716048854,
+            "v_shift": 0.21501543209876672,
+            "linear_residual_rmse": 2.9921014869910887
+          },
+          {
+            "seconds": 10,
+            "y_slope": 0.9828254621831115,
+            "y_offset": 0.6194941664199831,
+            "y_rmse": 2.5434988842289816,
+            "u_shift": -0.0005092592592461642,
+            "v_shift": 0.06745370370370551,
+            "linear_residual_rmse": 1.8718031317745807
+          },
+          {
+            "seconds": 30,
+            "y_slope": 0.9847542867465023,
+            "y_offset": 0.21691751509837331,
+            "y_rmse": 2.3805190908655423,
+            "u_shift": 0.03682098765429487,
+            "v_shift": 0.031219135802473374,
+            "linear_residual_rmse": 1.969685336486347
+          },
+          {
+            "seconds": 60,
+            "y_slope": 0.9820466171372275,
+            "y_offset": 0.29309126144620024,
+            "y_rmse": 1.9264574809545956,
+            "u_shift": 0.05201388888889369,
+            "v_shift": 0.039189814814818646,
+            "linear_residual_rmse": 1.6485212132695053
+          },
+          {
+            "seconds": 100,
+            "y_slope": 0.9829103820923898,
+            "y_offset": 0.34919047687562,
+            "y_rmse": 2.224781512368749,
+            "u_shift": -0.0031635802469054397,
+            "v_shift": 0.038348765432090204,
+            "linear_residual_rmse": 1.674249590994306
+          },
+          {
+            "seconds": 115,
+            "y_slope": 0.9825295576921824,
+            "y_offset": 0.36456718970684676,
+            "y_rmse": 2.165195814855245,
+            "u_shift": 0.03387345679010423,
+            "v_shift": 0.017677469135804813,
+            "linear_residual_rmse": 1.3538976044260702
+          }
+        ],
+        "audio": {
+          "source_samples": 5741088,
+          "target_samples": 5741423,
+          "rms_db": -3.6555066108703613,
+          "correlation": 0.9668145715233476,
+          "bands": [
+            {
+              "low": 0,
+              "high": 150,
+              "db": -14.51821742616479
+            },
+            {
+              "low": 150,
+              "high": 500,
+              "db": -4.147755151959325
+            },
+            {
+              "low": 500,
+              "high": 2000,
+              "db": -2.3627306838218427
+            },
+            {
+              "low": 2000,
+              "high": 5000,
+              "db": -0.7855401400039908
+            },
+            {
+              "low": 5000,
+              "high": 10000,
+              "db": -7.904309614405365
+            },
+            {
+              "low": 10000,
+              "high": 20000,
+              "db": -6.8356160848628456
+            }
+          ],
+          "local": [
+            {
+              "seconds": 2,
+              "delay_ms": 0.0,
+              "correlation": 0.9824114494399747
+            },
+            {
+              "seconds": 10,
+              "delay_ms": 0.0,
+              "correlation": 0.982735592270834
+            },
+            {
+              "seconds": 30,
+              "delay_ms": 0.0,
+              "correlation": 0.9686309656574964
+            },
+            {
+              "seconds": 60,
+              "delay_ms": 0.0,
+              "correlation": 0.9705166727613596
+            },
+            {
+              "seconds": 100,
+              "delay_ms": 0.0,
+              "correlation": 0.963262911709108
+            },
+            {
+              "seconds": 115,
+              "delay_ms": 0.0,
+              "correlation": 0.9767806644861238
+            }
+          ]
+        }
+      },
+      "native_to_reference": {
+        "video": [
+          {
+            "seconds": 0,
+            "y_slope": 0.9922493519575268,
+            "y_offset": 0.18013702479426286,
+            "y_rmse": 4.432002550195371,
+            "u_shift": 0.5282947530864419,
+            "v_shift": 0.21131172839506007,
+            "linear_residual_rmse": 4.392538501090938
+          },
+          {
+            "seconds": 1,
+            "y_slope": 1.0009525961058754,
+            "y_offset": -0.7876103439954107,
+            "y_rmse": 2.88497665116683,
+            "u_shift": 0.424112654320993,
+            "v_shift": 0.31366512345678643,
+            "linear_residual_rmse": 2.7954016637317105
+          },
+          {
+            "seconds": 10,
+            "y_slope": 1.0034884376949094,
+            "y_offset": -0.8574126939684419,
+            "y_rmse": 2.0353696353412407,
+            "u_shift": 0.5860416666666595,
+            "v_shift": 0.02119598765432329,
+            "linear_residual_rmse": 1.9720348688847975
+          },
+          {
+            "seconds": 30,
+            "y_slope": 0.9990840576481849,
+            "y_offset": -0.27945470118923765,
+            "y_rmse": 2.474223596890024,
+            "u_shift": 0.34054783950617207,
+            "v_shift": 0.22533179012344817,
+            "linear_residual_rmse": 2.4479318844850244
+          },
+          {
+            "seconds": 60,
+            "y_slope": 0.9981492067971646,
+            "y_offset": -0.30235640305603795,
+            "y_rmse": 1.9151448265836513,
+            "u_shift": 0.16096450617283153,
+            "v_shift": 0.09243827160494789,
+            "linear_residual_rmse": 1.8734829253460061
+          },
+          {
+            "seconds": 100,
+            "y_slope": 0.9987840973537547,
+            "y_offset": -0.11386971431957704,
+            "y_rmse": 1.751406511498264,
+            "u_shift": 0.2779475308641963,
+            "v_shift": 0.1150848765431931,
+            "linear_residual_rmse": 1.7374918473991652
+          },
+          {
+            "seconds": 115,
+            "y_slope": 0.9990311102440842,
+            "y_offset": -0.1310967563302654,
+            "y_rmse": 1.6728859655408983,
+            "u_shift": 0.22877314814815009,
+            "v_shift": 0.34350308641974436,
+            "linear_residual_rmse": 1.657803071131457
+          }
+        ],
+        "audio": {
+          "source_samples": 5741423,
+          "target_samples": 5741568,
+          "rms_db": -0.02056432142853737,
+          "correlation": -0.011128991606212576,
+          "bands": [
+            {
+              "low": 0,
+              "high": 150,
+              "db": -0.45531921268464803
+            },
+            {
+              "low": 150,
+              "high": 500,
+              "db": 0.3380386493369158
+            },
+            {
+              "low": 500,
+              "high": 2000,
+              "db": -0.7357291391139333
+            },
+            {
+              "low": 2000,
+              "high": 5000,
+              "db": 0.6604820527543265
+            },
+            {
+              "low": 5000,
+              "high": 10000,
+              "db": 0.5266525424601374
+            },
+            {
+              "low": 10000,
+              "high": 20000,
+              "db": 4.383695928530259
+            }
+          ],
+          "local": [
+            {
+              "seconds": 2,
+              "delay_ms": 6.875,
+              "correlation": 0.469188196600606
+            },
+            {
+              "seconds": 10,
+              "delay_ms": 6.958333333333333,
+              "correlation": 0.4953105182115748
+            },
+            {
+              "seconds": 30,
+              "delay_ms": 6.791666666666667,
+              "correlation": 0.4462317778881559
+            },
+            {
+              "seconds": 60,
+              "delay_ms": 7.104166666666667,
+              "correlation": 0.43416771451672626
+            },
+            {
+              "seconds": 100,
+              "delay_ms": 6.9375,
+              "correlation": 0.4507002676795124
+            },
+            {
+              "seconds": 115,
+              "delay_ms": 7.229166666666667,
+              "correlation": 0.3784450591519186
+            }
+          ]
+        }
+      },
+      "psnr": "[Parsed_psnr_0 @ 0x7fcf5ff10e40] PSNR y:39.769982 u:47.940702 v:48.463764 average:41.229484 min:34.087580 max:44.983126",
+      "ssim": "[Parsed_ssim_0 @ 0x7fc700907400] SSIM Y:0.976832 (16.351065) U:0.992137 (21.043955) V:0.992138 (21.044400) All:0.981934 (17.431266)"
+    }
+  },
+  "limitations": [
+    "This pair differs from the 2713-frame sample in analysis-report.md.",
+    "The measured spectral envelope is approximated; original audio phase, nonlinear or dynamic processing is not recovered.",
+    "The 10–20 kHz band contains less than 0.0001% of the measured audio power and does not match the reference gain accurately.",
+    "The original command, encoder build and randomness are unknown; metadata, SEI and compressed bytes are not reproduced.",
+    "Platform review passing for the reference is reported by the user. Platform review of this native output has not been tested."
+  ]
+}

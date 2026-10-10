@@ -63,10 +63,15 @@ fn main() {
                     let _ = queue_handle.emit("queue_snapshot", snapshot);
                 }),
             );
-            app.manage(DesktopState { jobs, tool_error });
+            app.manage(DesktopState {
+                jobs,
+                tool_error,
+                license: Default::default(),
+            });
             Ok(())
         })
         .invoke_handler(tauri::generate_handler![
+            commands::get_license_status,
             commands::probe_input,
             commands::cancel_probe,
             commands::list_presets,

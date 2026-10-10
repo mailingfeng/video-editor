@@ -1,0 +1,2796 @@
+{
+  "date": "2026-10-09",
+  "method": {
+    "ffmpeg": "ffmpeg version 9.0.2-tessus  https://evermeet.cx/ffmpeg/  Copyright (c) 2000-2026 the FFmpeg developers",
+    "sample_seconds": [
+      0,
+      0.04,
+      0.08,
+      1,
+      10,
+      30,
+      60,
+      100,
+      115
+    ],
+    "audio_rate": 48000,
+    "audio_fft_size": 8192,
+    "audio_fft_hop": 4096,
+    "geometry_search": "Integer translations +/-2 pixels; excludes 8-pixel border",
+    "video_control": "Full-frame PSNR and SSIM; no scaling/alignment; same PTS. Pair2 coding control ultrafast/CRF23/GOP250/18threads; optional postdecode Y-1, no additional encoding.",
+    "audio_phase_fit": "Second-order RBJ highpass and lowpass at 48 kHz, Q=.707, a delay and real gain fit to complex Welch transfer. Coordinate search; frequency bins 70-10000 Hz with coherence>.5; weights sqrt(source power/max power). Estimates not recovered commands.",
+    "audio_controls": "Same fixed filter and frozen current preset applied to both source clips before stereo/48k PCM output; no AAC encoding in these controls; positive delay included in PCM timeline; compare common-length mono average at zero lag.",
+    "audio_tail": "Second clip 114-115 seconds; 4096-point Hann PSD/hop2048; tracking 100 ms windows using 65536-point zero-padded FFT over 15-22 kHz. The strongest band peak is not necessarily the added carrier in non-silent speech windows.",
+    "old_audio_local_alignment_correction": "Previous report maximized signed positive correlation at +/-20ms; new probe maximizes absolute correlation at +/-100ms. Negative peaks are alignments of filtered signals, not proof of an explicit polarity-inverting filter."
+  },
+  "pairs": {
+    "1": {
+      "source": {
+        "sha256": "a3c0e92cdb373cb42190a67dd304a1e48077a09d1720ad0d1d1b4c3318742307",
+        "metadata": {
+          "streams": [
+            {
+              "index": 0,
+              "codec_name": "h264",
+              "codec_long_name": "H.264 / AVC / MPEG-4 AVC / MPEG-4 part 10",
+              "profile": "High",
+              "codec_type": "video",
+              "codec_tag_string": "avc1",
+              "codec_tag": "0x31637661",
+              "mime_codec_string": "avc1.64001f",
+              "width": 720,
+              "height": 720,
+              "coded_width": 720,
+              "coded_height": 720,
+              "has_b_frames": 2,
+              "sample_aspect_ratio": "1:1",
+              "display_aspect_ratio": "1:1",
+              "pix_fmt": "yuv420p",
+              "level": 31,
+              "color_range": "tv",
+              "color_transfer": "bt709",
+              "color_primaries": "bt709",
+              "chroma_location": "left",
+              "field_order": "progressive",
+              "is_avc": "true",
+              "nal_length_size": "4",
+              "id": "0x1",
+              "r_frame_rate": "25/1",
+              "avg_frame_rate": "25/1",
+              "time_base": "1/12800",
+              "start_pts": 0,
+              "start_time": "0.000000",
+              "duration_ts": 1530880,
+              "duration": "119.600000",
+              "bit_rate": "930665",
+              "bits_per_raw_sample": "8",
+              "nb_frames": "2990",
+              "extradata_size": 44,
+              "disposition": {
+                "default": 1,
+                "dub": 0,
+                "original": 0,
+                "comment": 0,
+                "lyrics": 0,
+                "karaoke": 0,
+                "forced": 0,
+                "hearing_impaired": 0,
+                "visual_impaired": 0,
+                "clean_effects": 0,
+                "attached_pic": 0,
+                "timed_thumbnails": 0,
+                "non_diegetic": 0,
+                "captions": 0,
+                "descriptions": 0,
+                "metadata": 0,
+                "dependent": 0,
+                "still_image": 0,
+                "multilayer": 0
+              },
+              "tags": {
+                "language": "und",
+                "handler_name": "VideoHandler"
+              }
+            },
+            {
+              "index": 1,
+              "codec_name": "aac",
+              "codec_long_name": "AAC (Advanced Audio Coding)",
+              "profile": "LC",
+              "codec_type": "audio",
+              "codec_tag_string": "mp4a",
+              "codec_tag": "0x6134706d",
+              "mime_codec_string": "mp4a.40.2",
+              "sample_fmt": "fltp",
+              "sample_rate": "44100",
+              "channels": 2,
+              "channel_layout": "stereo",
+              "bits_per_sample": 0,
+              "initial_padding": 1024,
+              "id": "0x2",
+              "r_frame_rate": "0/0",
+              "avg_frame_rate": "0/0",
+              "time_base": "1/44100",
+              "start_pts": 0,
+              "start_time": "0.000000",
+              "duration_ts": 5274625,
+              "duration": "119.606009",
+              "bit_rate": "64798",
+              "nb_frames": "5152",
+              "extradata_size": 5,
+              "disposition": {
+                "default": 1,
+                "dub": 0,
+                "original": 0,
+                "comment": 0,
+                "lyrics": 0,
+                "karaoke": 0,
+                "forced": 0,
+                "hearing_impaired": 0,
+                "visual_impaired": 0,
+                "clean_effects": 0,
+                "attached_pic": 0,
+                "timed_thumbnails": 0,
+                "non_diegetic": 0,
+                "captions": 0,
+                "descriptions": 0,
+                "metadata": 0,
+                "dependent": 0,
+                "still_image": 0,
+                "multilayer": 0
+              },
+              "tags": {
+                "language": "und",
+                "handler_name": "SoundHandler"
+              }
+            }
+          ],
+          "format": {
+            "filename": "原视频-1.mp4",
+            "nb_streams": 2,
+            "nb_programs": 0,
+            "nb_stream_groups": 0,
+            "format_name": "mov,mp4,m4a,3gp,3g2,mj2",
+            "format_long_name": "QuickTime / MOV",
+            "start_time": "0.000000",
+            "duration": "119.606009",
+            "size": "14939624",
+            "bit_rate": "999255",
+            "probe_score": 100,
+            "tags": {
+              "major_brand": "isom",
+              "minor_version": "512",
+              "compatible_brands": "isomiso2avc1mp41",
+              "encoder": "Multimedia Cloud Transcode (cloud.baidu.com)"
+            }
+          }
+        },
+        "packet_count": 2990,
+        "frame_count": 2990,
+        "timeline_sha256": "33ce4a4a90afd556360657debab9aa4a15b02767bace912771e105d5b5592020",
+        "keyframe_indices": [
+          0,
+          125,
+          155,
+          265,
+          383,
+          508,
+          625,
+          690,
+          758,
+          868,
+          993,
+          1118,
+          1228,
+          1250,
+          1288,
+          1413,
+          1443,
+          1494,
+          1619,
+          1643,
+          1707,
+          1768,
+          1813,
+          1853,
+          1873,
+          1875,
+          1898,
+          1928,
+          2053,
+          2069,
+          2099,
+          2150,
+          2201,
+          2262,
+          2313,
+          2360,
+          2443,
+          2483,
+          2500,
+          2525,
+          2620,
+          2668,
+          2696,
+          2749,
+          2795,
+          2862,
+          2907
+        ],
+        "keyframe_intervals": [
+          125,
+          30,
+          110,
+          118,
+          125,
+          117,
+          65,
+          68,
+          110,
+          125,
+          125,
+          110,
+          22,
+          38,
+          125,
+          30,
+          51,
+          125,
+          24,
+          64,
+          61,
+          45,
+          40,
+          20,
+          2,
+          23,
+          30,
+          125,
+          16,
+          30,
+          51,
+          51,
+          61,
+          51,
+          47,
+          83,
+          40,
+          17,
+          25,
+          95,
+          48,
+          28,
+          53,
+          46,
+          67,
+          45
+        ],
+        "picture_types": {
+          "I": 50,
+          "P": 614,
+          "B": 2326
+        },
+        "first_packet_encoder_sei_strings": [
+          "bd264 158 - H.264/MPEG-4 AVC codec - Copyleft 2020-2021 - http://www.baidu.com - options: cpu=1111039  preset=5 input-res=720x720 fps=25/1 bitdepth=8  rc=crf  crf=25.8 vbv_maxrate=2000 vbv_bufsize=4000 vbv_init=0.900000 b_pyramid=2 min-luma=0 max-luma=255 enhance=0 roi-model-path=./roiDetect roi-detect-int=5"
+        ]
+      },
+      "reference": {
+        "sha256": "5077d1901cd5c8a7166f80bea2cd272e6d7e44174b4f9e2e0b3f48b71ce5e17b",
+        "metadata": {
+          "streams": [
+            {
+              "index": 0,
+              "codec_name": "h264",
+              "codec_long_name": "H.264 / AVC / MPEG-4 AVC / MPEG-4 part 10",
+              "profile": "Main",
+              "codec_type": "video",
+              "codec_tag_string": "avc1",
+              "codec_tag": "0x31637661",
+              "mime_codec_string": "avc1.4d402a",
+              "width": 720,
+              "height": 720,
+              "coded_width": 720,
+              "coded_height": 720,
+              "has_b_frames": 0,
+              "sample_aspect_ratio": "1:1",
+              "display_aspect_ratio": "1:1",
+              "pix_fmt": "yuv420p",
+              "level": 42,
+              "color_range": "tv",
+              "color_transfer": "bt709",
+              "color_primaries": "bt709",
+              "chroma_location": "left",
+              "field_order": "progressive",
+              "is_avc": "true",
+              "nal_length_size": "4",
+              "id": "0x1",
+              "r_frame_rate": "25/1",
+              "avg_frame_rate": "25/1",
+              "time_base": "1/12800",
+              "start_pts": 0,
+              "start_time": "0.000000",
+              "duration_ts": 1530880,
+              "duration": "119.600000",
+              "bit_rate": "1163943",
+              "bits_per_raw_sample": "8",
+              "nb_frames": "2990",
+              "extradata_size": 39,
+              "disposition": {
+                "default": 1,
+                "dub": 0,
+                "original": 0,
+                "comment": 0,
+                "lyrics": 0,
+                "karaoke": 0,
+                "forced": 0,
+                "hearing_impaired": 0,
+                "visual_impaired": 0,
+                "clean_effects": 0,
+                "attached_pic": 0,
+                "timed_thumbnails": 0,
+                "non_diegetic": 0,
+                "captions": 0,
+                "descriptions": 0,
+                "metadata": 0,
+                "dependent": 0,
+                "still_image": 0,
+                "multilayer": 0
+              },
+              "tags": {
+                "language": "und",
+                "handler_name": "VideoHandler"
+              }
+            },
+            {
+              "index": 1,
+              "codec_name": "aac",
+              "codec_long_name": "AAC (Advanced Audio Coding)",
+              "profile": "LC",
+              "codec_type": "audio",
+              "codec_tag_string": "mp4a",
+              "codec_tag": "0x6134706d",
+              "mime_codec_string": "mp4a.40.2",
+              "sample_fmt": "fltp",
+              "sample_rate": "48000",
+              "channels": 2,
+              "channel_layout": "stereo",
+              "bits_per_sample": 0,
+              "initial_padding": 1024,
+              "id": "0x2",
+              "r_frame_rate": "0/0",
+              "avg_frame_rate": "0/0",
+              "time_base": "1/48000",
+              "start_pts": 0,
+              "start_time": "0.000000",
+              "duration_ts": 5741568,
+              "duration": "119.616000",
+              "bit_rate": "72354",
+              "nb_frames": "5608",
+              "extradata_size": 5,
+              "disposition": {
+                "default": 1,
+                "dub": 0,
+                "original": 0,
+                "comment": 0,
+                "lyrics": 0,
+                "karaoke": 0,
+                "forced": 0,
+                "hearing_impaired": 0,
+                "visual_impaired": 0,
+                "clean_effects": 0,
+                "attached_pic": 0,
+                "timed_thumbnails": 0,
+                "non_diegetic": 0,
+                "captions": 0,
+                "descriptions": 0,
+                "metadata": 0,
+                "dependent": 0,
+                "still_image": 0,
+                "multilayer": 0
+              },
+              "tags": {
+                "language": "und",
+                "handler_name": "SoundHandler"
+              }
+            }
+          ],
+          "format": {
+            "filename": "编辑后视频-1.mp4",
+            "nb_streams": 2,
+            "nb_programs": 0,
+            "nb_stream_groups": 0,
+            "format_name": "mov,mp4,m4a,3gp,3g2,mj2",
+            "format_long_name": "QuickTime / MOV",
+            "start_time": "0.000000",
+            "duration": "119.616000",
+            "size": "18551979",
+            "bit_rate": "1240769",
+            "probe_score": 100,
+            "tags": {
+              "minor_version": "512;512",
+              "major_brand": "isom;isom",
+              "compatible_brands": "isomiso2avc1mp41;isomiso2avc1mp41",
+              "title": "dedup_02677f3b_99883",
+              "comment": "processed_1790922954_8949",
+              "encoder": "Lavf58.20.100"
+            }
+          }
+        },
+        "packet_count": 2990,
+        "frame_count": 2990,
+        "timeline_sha256": "33ce4a4a90afd556360657debab9aa4a15b02767bace912771e105d5b5592020",
+        "keyframe_indices": [
+          0,
+          300,
+          600,
+          900,
+          1200,
+          1500,
+          1800,
+          2100,
+          2400,
+          2700
+        ],
+        "keyframe_intervals": [
+          300,
+          300,
+          300,
+          300,
+          300,
+          300,
+          300,
+          300,
+          300
+        ],
+        "picture_types": {
+          "I": 10,
+          "P": 2980,
+          "B": 0
+        },
+        "first_packet_encoder_sei_strings": []
+      },
+      "comparison": {
+        "video": [
+          {
+            "frame": 0,
+            "seconds": 0.0,
+            "planes": [
+              {
+                "plane": "y",
+                "slope": 0.9749769601373889,
+                "offset": 0.45088210657023353,
+                "rmse": 5.315049860107814,
+                "residual_rmse": 4.906615650721621,
+                "difference_quantiles": [
+                  -17.0,
+                  -7.0,
+                  -2.0,
+                  4.0,
+                  13.0
+                ]
+              },
+              {
+                "plane": "u",
+                "slope": 0.9923002286324977,
+                "offset": 0.6250256696182004,
+                "rmse": 1.2588881533782297,
+                "residual_rmse": 1.0967835316445174,
+                "difference_quantiles": [
+                  -2.0,
+                  -1.0,
+                  1.0,
+                  2.0,
+                  3.0
+                ]
+              },
+              {
+                "plane": "v",
+                "slope": 0.9981266861129768,
+                "offset": 0.2377693193506314,
+                "rmse": 1.2943997369484999,
+                "residual_rmse": 1.2732824766393582,
+                "difference_quantiles": [
+                  -3.0,
+                  -1.0,
+                  0.0,
+                  2.0,
+                  3.0
+                ]
+              }
+            ],
+            "best_integer_shift": [
+              5.268425888043782,
+              0,
+              0
+            ],
+            "chroma_matrix_u": [
+              0.9559426268975981,
+              -0.030172347162254323,
+              0.7503126984989914
+            ],
+            "chroma_matrix_v": [
+              -0.040058421018052674,
+              0.9819889842332374,
+              0.3264954976431355
+            ]
+          },
+          {
+            "frame": 1,
+            "seconds": 0.04,
+            "planes": [
+              {
+                "plane": "y",
+                "slope": 0.9760675742855031,
+                "offset": 0.21127545943073756,
+                "rmse": 5.454793169178692,
+                "residual_rmse": 5.017293040086185,
+                "difference_quantiles": [
+                  -18.0,
+                  -6.0,
+                  -2.0,
+                  3.0,
+                  13.0
+                ]
+              },
+              {
+                "plane": "u",
+                "slope": 0.9929983517659124,
+                "offset": 0.6136410323026928,
+                "rmse": 1.2648256601671568,
+                "residual_rmse": 1.109647767196252,
+                "difference_quantiles": [
+                  -2.0,
+                  -1.0,
+                  1.0,
+                  2.0,
+                  3.0
+                ]
+              },
+              {
+                "plane": "v",
+                "slope": 0.9987619973627362,
+                "offset": 0.2378682804833625,
+                "rmse": 1.290073689157635,
+                "residual_rmse": 1.2685900000556174,
+                "difference_quantiles": [
+                  -3.0,
+                  -1.0,
+                  0.0,
+                  2.0,
+                  3.0
+                ]
+              }
+            ],
+            "best_integer_shift": [
+              5.367414698371308,
+              0,
+              0
+            ],
+            "chroma_matrix_u": [
+              0.9572977503631511,
+              -0.02950426429244145,
+              0.7382563784297942
+            ],
+            "chroma_matrix_v": [
+              -0.038023228812952295,
+              0.9834508256863574,
+              0.3234186789027247
+            ]
+          },
+          {
+            "frame": 2,
+            "seconds": 0.08,
+            "planes": [
+              {
+                "plane": "y",
+                "slope": 0.9757329475811857,
+                "offset": 0.42722219557450103,
+                "rmse": 5.341037548900535,
+                "residual_rmse": 4.954711544669631,
+                "difference_quantiles": [
+                  -17.0,
+                  -6.0,
+                  -2.0,
+                  3.0,
+                  14.0
+                ]
+              },
+              {
+                "plane": "u",
+                "slope": 0.9904027226878733,
+                "offset": 0.6501823663831472,
+                "rmse": 1.2861471077275917,
+                "residual_rmse": 1.1146452869345862,
+                "difference_quantiles": [
+                  -2.0,
+                  -1.0,
+                  1.0,
+                  2.0,
+                  3.0
+                ]
+              },
+              {
+                "plane": "v",
+                "slope": 1.000754588464313,
+                "offset": 0.2913605405048907,
+                "rmse": 1.3015660083430551,
+                "residual_rmse": 1.2680165472060685,
+                "difference_quantiles": [
+                  -3.0,
+                  -1.0,
+                  0.0,
+                  2.0,
+                  4.0
+                ]
+              }
+            ],
+            "best_integer_shift": [
+              5.26646237701284,
+              0,
+              0
+            ],
+            "chroma_matrix_u": [
+              0.9531068912675861,
+              -0.030820446153994846,
+              0.7787032976730751
+            ],
+            "chroma_matrix_v": [
+              -0.03184805186483832,
+              0.9878819444480537,
+              0.36210590535614556
+            ]
+          },
+          {
+            "frame": 25,
+            "seconds": 1.0,
+            "planes": [
+              {
+                "plane": "y",
+                "slope": 0.9829922610167603,
+                "offset": -0.2158848289590054,
+                "rmse": 3.3216818935370456,
+                "residual_rmse": 2.8020111121458635,
+                "difference_quantiles": [
+                  -10.0,
+                  -4.0,
+                  -2.0,
+                  1.0,
+                  7.0
+                ]
+              },
+              {
+                "plane": "u",
+                "slope": 1.0032511690690185,
+                "offset": 0.6173073918102314,
+                "rmse": 1.0682641394360002,
+                "residual_rmse": 0.868744886345302,
+                "difference_quantiles": [
+                  -1.0,
+                  0.0,
+                  1.0,
+                  2.0,
+                  3.0
+                ]
+              },
+              {
+                "plane": "v",
+                "slope": 0.989168986026926,
+                "offset": 0.5538936684919031,
+                "rmse": 1.0737216056407513,
+                "residual_rmse": 0.9305419006884024,
+                "difference_quantiles": [
+                  -2.0,
+                  0.0,
+                  0.0,
+                  2.0,
+                  3.0
+                ]
+              }
+            ],
+            "best_integer_shift": [
+              3.3101092773222884,
+              0,
+              0
+            ],
+            "chroma_matrix_u": [
+              0.9712897358506555,
+              -0.027778152296383904,
+              0.7230055508970613
+            ],
+            "chroma_matrix_v": [
+              -0.013734177486193778,
+              0.9837346458710914,
+              0.5841770119169252
+            ]
+          },
+          {
+            "frame": 250,
+            "seconds": 10.0,
+            "planes": [
+              {
+                "plane": "y",
+                "slope": 0.986911654567197,
+                "offset": -0.3118725960019191,
+                "rmse": 2.564560297907799,
+                "residual_rmse": 1.6140292227201225,
+                "difference_quantiles": [
+                  -6.0,
+                  -4.0,
+                  -2.0,
+                  0.0,
+                  4.0
+                ]
+              },
+              {
+                "plane": "u",
+                "slope": 1.0254950007702768,
+                "offset": 0.5215517587151104,
+                "rmse": 0.9449875889184347,
+                "residual_rmse": 0.7379219119645,
+                "difference_quantiles": [
+                  -1.0,
+                  0.0,
+                  1.0,
+                  1.0,
+                  2.0
+                ]
+              },
+              {
+                "plane": "v",
+                "slope": 0.9804932128492817,
+                "offset": 0.13932730087132672,
+                "rmse": 0.6652473317088007,
+                "residual_rmse": 0.6537744383634033,
+                "difference_quantiles": [
+                  -1.0,
+                  -1.0,
+                  0.0,
+                  1.0,
+                  2.0
+                ]
+              }
+            ],
+            "best_integer_shift": [
+              2.5642533150842284,
+              0,
+              0
+            ],
+            "chroma_matrix_u": [
+              1.0263151017537795,
+              0.0014425709745088944,
+              0.5157459612215838
+            ],
+            "chroma_matrix_v": [
+              -0.004974587339782929,
+              0.9792130861432055,
+              0.1551369140597313
+            ]
+          },
+          {
+            "frame": 750,
+            "seconds": 30.0,
+            "planes": [
+              {
+                "plane": "y",
+                "slope": 0.9846461316638707,
+                "offset": -0.13060626062619463,
+                "rmse": 2.9129440529394923,
+                "residual_rmse": 2.4055773047881037,
+                "difference_quantiles": [
+                  -9.0,
+                  -4.0,
+                  -1.0,
+                  1.0,
+                  6.0
+                ]
+              },
+              {
+                "plane": "u",
+                "slope": 0.9831470226981577,
+                "offset": 0.38373069605353416,
+                "rmse": 0.9012037560266508,
+                "residual_rmse": 0.814077470125784,
+                "difference_quantiles": [
+                  -1.0,
+                  0.0,
+                  0.0,
+                  1.0,
+                  3.0
+                ]
+              },
+              {
+                "plane": "v",
+                "slope": 1.0074074068619991,
+                "offset": 0.2545365227820657,
+                "rmse": 0.889170962188937,
+                "residual_rmse": 0.8496571146739345,
+                "difference_quantiles": [
+                  -2.0,
+                  -1.0,
+                  0.0,
+                  1.0,
+                  2.0
+                ]
+              }
+            ],
+            "best_integer_shift": [
+              2.911851440132348,
+              0,
+              0
+            ],
+            "chroma_matrix_u": [
+              0.94527298344609,
+              -0.0315736842555008,
+              0.40661414165716
+            ],
+            "chroma_matrix_v": [
+              -0.041444458479731265,
+              0.9840107091143522,
+              0.2765440880414947
+            ]
+          },
+          {
+            "frame": 1500,
+            "seconds": 60.0,
+            "planes": [
+              {
+                "plane": "y",
+                "slope": 0.9806747419004299,
+                "offset": -0.030740651657929163,
+                "rmse": 2.4546319435701682,
+                "residual_rmse": 2.084231078442641,
+                "difference_quantiles": [
+                  -9.0,
+                  -3.0,
+                  -1.0,
+                  1.0,
+                  5.0
+                ]
+              },
+              {
+                "plane": "u",
+                "slope": 0.9755526749102881,
+                "offset": 0.23958674296183946,
+                "rmse": 0.9968313997392803,
+                "residual_rmse": 0.9620459168038672,
+                "difference_quantiles": [
+                  -2.0,
+                  0.0,
+                  0.0,
+                  1.0,
+                  4.0
+                ]
+              },
+              {
+                "plane": "v",
+                "slope": 0.9646262363559586,
+                "offset": 0.1805847202334092,
+                "rmse": 1.0780175850051088,
+                "residual_rmse": 1.0302992691831672,
+                "difference_quantiles": [
+                  -3.0,
+                  -1.0,
+                  0.0,
+                  1.0,
+                  4.0
+                ]
+              }
+            ],
+            "best_integer_shift": [
+              2.486981048435819,
+              0,
+              0
+            ],
+            "chroma_matrix_u": [
+              0.9809893423415565,
+              0.004812723578688132,
+              0.22700878066899294
+            ],
+            "chroma_matrix_v": [
+              0.02973419518947265,
+              0.9838627966808396,
+              0.12159912576767658
+            ]
+          },
+          {
+            "frame": 2500,
+            "seconds": 100.0,
+            "planes": [
+              {
+                "plane": "y",
+                "slope": 0.9820584628098238,
+                "offset": 0.20841997974703474,
+                "rmse": 2.3962511712935948,
+                "residual_rmse": 1.7404671364032347,
+                "difference_quantiles": [
+                  -7.0,
+                  -4.0,
+                  -1.0,
+                  1.0,
+                  4.0
+                ]
+              },
+              {
+                "plane": "u",
+                "slope": 0.9789642846800437,
+                "offset": 0.25575977557479856,
+                "rmse": 0.8338887038270577,
+                "residual_rmse": 0.7805851118873394,
+                "difference_quantiles": [
+                  -2.0,
+                  0.0,
+                  0.0,
+                  1.0,
+                  3.0
+                ]
+              },
+              {
+                "plane": "v",
+                "slope": 0.9927426284785033,
+                "offset": 0.165371178154615,
+                "rmse": 0.8025470641173992,
+                "residual_rmse": 0.7861917445583617,
+                "difference_quantiles": [
+                  -2.0,
+                  0.0,
+                  0.0,
+                  1.0,
+                  2.0
+                ]
+              }
+            ],
+            "best_integer_shift": [
+              2.4171261927148664,
+              0,
+              0
+            ],
+            "chroma_matrix_u": [
+              0.9329825746073884,
+              -0.03522608565242562,
+              0.2721179003328343
+            ],
+            "chroma_matrix_v": [
+              -0.04544873696621213,
+              0.9622386621687263,
+              0.17444397068872522
+            ]
+          },
+          {
+            "frame": 2875,
+            "seconds": 115.0,
+            "planes": [
+              {
+                "plane": "y",
+                "slope": 0.9818037856749838,
+                "offset": 0.21358846534511144,
+                "rmse": 2.4182139044456594,
+                "residual_rmse": 1.5255096428632706,
+                "difference_quantiles": [
+                  -6.0,
+                  -4.0,
+                  -1.0,
+                  1.0,
+                  3.0
+                ]
+              },
+              {
+                "plane": "u",
+                "slope": 1.011534049686718,
+                "offset": 0.17452397340743087,
+                "rmse": 0.8938360594843822,
+                "residual_rmse": 0.8459064910020053,
+                "difference_quantiles": [
+                  -2.0,
+                  0.0,
+                  0.0,
+                  1.0,
+                  3.0
+                ]
+              },
+              {
+                "plane": "v",
+                "slope": 0.9606682931485734,
+                "offset": 0.1903695686813629,
+                "rmse": 0.9811376931091305,
+                "residual_rmse": 0.8233811872161066,
+                "difference_quantiles": [
+                  -2.0,
+                  0.0,
+                  0.0,
+                  1.0,
+                  3.0
+                ]
+              }
+            ],
+            "best_integer_shift": [
+              2.4405500823148847,
+              0,
+              0
+            ],
+            "chroma_matrix_u": [
+              1.0375757645695742,
+              0.029965444019869156,
+              0.10569452830063508
+            ],
+            "chroma_matrix_v": [
+              0.0265488952213651,
+              0.9857228348724256,
+              0.09633793360302663
+            ]
+          }
+        ],
+        "audio": {
+          "shared_samples": 5741088,
+          "rms_db": -3.676070213317871,
+          "zero_lag_correlation": -0.0067796199929907605,
+          "source_stereo_correlation": 0.9968775267853935,
+          "target_stereo_correlation": 0.9974017433998583,
+          "per_channel": [
+            {
+              "channel": 0,
+              "correlation": -0.006736438474510143,
+              "rms_db": -3.6772031784057617
+            },
+            {
+              "channel": 1,
+              "correlation": -0.006793858149130358,
+              "rms_db": -3.6772165298461914
+            }
+          ],
+          "bands": [
+            {
+              "low": 0,
+              "high": 150,
+              "db": -14.676592606298763,
+              "coherence": 0.6112362713574182,
+              "source_energy_fraction": 0.04135155599006301
+            },
+            {
+              "low": 150,
+              "high": 500,
+              "db": -3.8000882431934424,
+              "coherence": 0.8094828159737893,
+              "source_energy_fraction": 0.64630336748473
+            },
+            {
+              "low": 500,
+              "high": 2000,
+              "db": -3.1151892110594837,
+              "coherence": 0.7882342653394004,
+              "source_energy_fraction": 0.2780220785197173
+            },
+            {
+              "low": 2000,
+              "high": 5000,
+              "db": -0.12686468049692318,
+              "coherence": 0.6814700729786799,
+              "source_energy_fraction": 0.019870643353471083
+            },
+            {
+              "low": 5000,
+              "high": 10000,
+              "db": -7.387767395309536,
+              "coherence": 0.6426127589098143,
+              "source_energy_fraction": 0.014451772772121178
+            },
+            {
+              "low": 10000,
+              "high": 20000,
+              "db": -2.4166631889038026,
+              "coherence": 0.004104147416913306,
+              "source_energy_fraction": 5.818772918384167e-07
+            }
+          ],
+          "transfer_points": [
+            {
+              "hz": 50,
+              "db": -29.381530340476342,
+              "coherence": 0.5441469489898495
+            },
+            {
+              "hz": 75,
+              "db": -20.457369792068327,
+              "coherence": 0.6616098030779674
+            },
+            {
+              "hz": 100,
+              "db": -13.713702120763854,
+              "coherence": 0.6634296941521733
+            },
+            {
+              "hz": 150,
+              "db": -6.085771879494049,
+              "coherence": 0.7046284754207395
+            },
+            {
+              "hz": 200,
+              "db": -6.642879083642407,
+              "coherence": 0.7882923483681408
+            },
+            {
+              "hz": 300,
+              "db": -3.3099727832745858,
+              "coherence": 0.8212723591693935
+            },
+            {
+              "hz": 450,
+              "db": -1.6715813634128176,
+              "coherence": 0.8191398769415746
+            },
+            {
+              "hz": 700,
+              "db": -2.188016703356666,
+              "coherence": 0.7537172367407307
+            },
+            {
+              "hz": 1000,
+              "db": -3.511748964511803,
+              "coherence": 0.7644930911449621
+            },
+            {
+              "hz": 1500,
+              "db": -1.4797908597096951,
+              "coherence": 0.6094901343670822
+            },
+            {
+              "hz": 2000,
+              "db": -1.3661606326947684,
+              "coherence": 0.6426198192290484
+            },
+            {
+              "hz": 3000,
+              "db": 0.6133137321785056,
+              "coherence": 0.6929414124300516
+            },
+            {
+              "hz": 4000,
+              "db": -1.3109508968196688,
+              "coherence": 0.6743818272328895
+            },
+            {
+              "hz": 5000,
+              "db": -3.129662963922424,
+              "coherence": 0.7257953577203483
+            },
+            {
+              "hz": 6500,
+              "db": -7.009496962937231,
+              "coherence": 0.7773138616092939
+            },
+            {
+              "hz": 8000,
+              "db": -12.96098283997621,
+              "coherence": 0.41213557031968523
+            },
+            {
+              "hz": 10000,
+              "db": -14.457380559790373,
+              "coherence": 0.42264531681411843
+            }
+          ],
+          "local_alignment": [
+            {
+              "seconds": 2,
+              "delay_ms": 5.6875,
+              "correlation": -0.8037167739617188,
+              "linear_gain": -0.49393507838249207,
+              "rms_db": -4.228656768798828
+            },
+            {
+              "seconds": 10,
+              "delay_ms": 5.6875,
+              "correlation": -0.798362861724571,
+              "linear_gain": -0.4767118990421295,
+              "rms_db": -4.478842735290527
+            },
+            {
+              "seconds": 30,
+              "delay_ms": 5.645833333333333,
+              "correlation": -0.8351748718550808,
+              "linear_gain": -0.5116298794746399,
+              "rms_db": -4.256417751312256
+            },
+            {
+              "seconds": 60,
+              "delay_ms": 5.5625,
+              "correlation": -0.7577015784774009,
+              "linear_gain": -0.47804293036460876,
+              "rms_db": -4.000606060028076
+            },
+            {
+              "seconds": 100,
+              "delay_ms": 5.645833333333333,
+              "correlation": -0.7763875620555443,
+              "linear_gain": -0.5217930674552917,
+              "rms_db": -3.4515669345855713
+            },
+            {
+              "seconds": 114,
+              "delay_ms": 5.541666666666667,
+              "correlation": -0.7057809567566219,
+              "linear_gain": -0.4793209433555603,
+              "rms_db": -3.360844850540161
+            }
+          ],
+          "model_fit": [
+            {
+              "phase_only": false,
+              "highpass_hz": 313.0859375,
+              "lowpass_hz": 5742.1875,
+              "delay_ms": 4.998046875,
+              "normalized_error": 0.06116367688151752,
+              "gain": 0.723642392812685
+            },
+            {
+              "phase_only": true,
+              "highpass_hz": 351.3671875,
+              "lowpass_hz": 6322.265625,
+              "delay_ms": 4.9990234375,
+              "normalized_error": 0.07389530211649836,
+              "gain": 0.9623433368000746
+            }
+          ],
+          "quarter_second_gain_summary": {
+            "included_windows": 464,
+            "minimum_model_power": 1e-07,
+            "gain_5_50_95_quantiles": [
+              0.7116635733244485,
+              0.9670640083824197,
+              3.7507966295808286
+            ],
+            "correlation_5_50_95_quantiles": [
+              0.7442221431598876,
+              0.880661567216771,
+              0.9340031971037986
+            ],
+            "gain_to_model_rms_correlation": -0.8230436954045066,
+            "normalized_residual_after_local_gain": 0.22807753172396972
+          }
+        }
+      }
+    },
+    "2": {
+      "source": {
+        "sha256": "01d82ded9b53f1cf3908507c0ede2e83aa375396089398706d304ae73c65e7e8",
+        "metadata": {
+          "streams": [
+            {
+              "index": 0,
+              "codec_name": "h264",
+              "codec_long_name": "H.264 / AVC / MPEG-4 AVC / MPEG-4 part 10",
+              "profile": "High",
+              "codec_type": "video",
+              "codec_tag_string": "avc1",
+              "codec_tag": "0x31637661",
+              "mime_codec_string": "avc1.640028",
+              "width": 1080,
+              "height": 1440,
+              "coded_width": 1080,
+              "coded_height": 1440,
+              "has_b_frames": 2,
+              "sample_aspect_ratio": "1:1",
+              "display_aspect_ratio": "3:4",
+              "pix_fmt": "yuv420p",
+              "level": 40,
+              "color_range": "tv",
+              "color_space": "bt709",
+              "color_transfer": "bt709",
+              "color_primaries": "bt709",
+              "chroma_location": "left",
+              "field_order": "progressive",
+              "is_avc": "true",
+              "nal_length_size": "4",
+              "id": "0x1",
+              "r_frame_rate": "30/1",
+              "avg_frame_rate": "30/1",
+              "time_base": "1/15360",
+              "start_pts": 0,
+              "start_time": "0.000000",
+              "duration_ts": 1795584,
+              "duration": "116.900000",
+              "bit_rate": "1850398",
+              "bits_per_raw_sample": "8",
+              "nb_frames": "3507",
+              "extradata_size": 45,
+              "disposition": {
+                "default": 1,
+                "dub": 0,
+                "original": 0,
+                "comment": 0,
+                "lyrics": 0,
+                "karaoke": 0,
+                "forced": 0,
+                "hearing_impaired": 0,
+                "visual_impaired": 0,
+                "clean_effects": 0,
+                "attached_pic": 0,
+                "timed_thumbnails": 0,
+                "non_diegetic": 0,
+                "captions": 0,
+                "descriptions": 0,
+                "metadata": 0,
+                "dependent": 0,
+                "still_image": 0,
+                "multilayer": 0
+              },
+              "tags": {
+                "language": "und",
+                "handler_name": "VideoHandler"
+              }
+            },
+            {
+              "index": 1,
+              "codec_name": "aac",
+              "codec_long_name": "AAC (Advanced Audio Coding)",
+              "profile": "LC",
+              "codec_type": "audio",
+              "codec_tag_string": "mp4a",
+              "codec_tag": "0x6134706d",
+              "mime_codec_string": "mp4a.40.2",
+              "sample_fmt": "fltp",
+              "sample_rate": "44100",
+              "channels": 2,
+              "channel_layout": "stereo",
+              "bits_per_sample": 0,
+              "initial_padding": 1024,
+              "id": "0x2",
+              "r_frame_rate": "0/0",
+              "avg_frame_rate": "0/0",
+              "time_base": "1/44100",
+              "start_pts": 0,
+              "start_time": "0.000000",
+              "duration_ts": 5155819,
+              "duration": "116.911995",
+              "bit_rate": "128560",
+              "nb_frames": "5036",
+              "extradata_size": 5,
+              "disposition": {
+                "default": 1,
+                "dub": 0,
+                "original": 0,
+                "comment": 0,
+                "lyrics": 0,
+                "karaoke": 0,
+                "forced": 0,
+                "hearing_impaired": 0,
+                "visual_impaired": 0,
+                "clean_effects": 0,
+                "attached_pic": 0,
+                "timed_thumbnails": 0,
+                "non_diegetic": 0,
+                "captions": 0,
+                "descriptions": 0,
+                "metadata": 0,
+                "dependent": 0,
+                "still_image": 0,
+                "multilayer": 0
+              },
+              "tags": {
+                "language": "und",
+                "handler_name": "SoundHandler"
+              }
+            }
+          ],
+          "format": {
+            "filename": "原视频-2.mp4",
+            "nb_streams": 2,
+            "nb_programs": 0,
+            "nb_stream_groups": 0,
+            "format_name": "mov,mp4,m4a,3gp,3g2,mj2",
+            "format_long_name": "QuickTime / MOV",
+            "start_time": "0.000000",
+            "duration": "116.911995",
+            "size": "28980142",
+            "bit_rate": "1983039",
+            "probe_score": 100,
+            "tags": {
+              "major_brand": "isom",
+              "minor_version": "512",
+              "compatible_brands": "isomiso2avc1mp41",
+              "encoder": "Multimedia Cloud Transcode (cloud.baidu.com)",
+              "comment": "Content Adaptive Encoding 3.1"
+            }
+          }
+        },
+        "packet_count": 3507,
+        "frame_count": 3507,
+        "timeline_sha256": "875513020ce0e7ef40f4b9e42801dcbc1ce7402c898eca5334f4ad965952fe1f",
+        "keyframe_indices": [
+          0,
+          77,
+          138,
+          229,
+          302,
+          372,
+          427,
+          501,
+          580,
+          600,
+          629,
+          676,
+          707,
+          772,
+          801,
+          862,
+          901,
+          961,
+          982,
+          1008,
+          1043,
+          1105,
+          1173,
+          1200,
+          1234,
+          1264,
+          1288,
+          1324,
+          1369,
+          1390,
+          1421,
+          1452,
+          1483,
+          1588,
+          1637,
+          1701,
+          1795,
+          1800,
+          1831,
+          1854,
+          1876,
+          1925,
+          1947,
+          2008,
+          2029,
+          2046,
+          2065,
+          2104,
+          2123,
+          2139,
+          2158,
+          2175,
+          2203,
+          2225,
+          2258,
+          2291,
+          2320,
+          2381,
+          2400,
+          2466,
+          2491,
+          2539,
+          2565,
+          2593,
+          2633,
+          2652,
+          2675,
+          2713,
+          2731,
+          2768,
+          2808,
+          2833,
+          2861,
+          2893,
+          2927,
+          2988,
+          3000,
+          3033,
+          3055,
+          3079,
+          3119,
+          3138,
+          3151,
+          3200,
+          3247,
+          3329,
+          3438
+        ],
+        "keyframe_intervals": [
+          77,
+          61,
+          91,
+          73,
+          70,
+          55,
+          74,
+          79,
+          20,
+          29,
+          47,
+          31,
+          65,
+          29,
+          61,
+          39,
+          60,
+          21,
+          26,
+          35,
+          62,
+          68,
+          27,
+          34,
+          30,
+          24,
+          36,
+          45,
+          21,
+          31,
+          31,
+          31,
+          105,
+          49,
+          64,
+          94,
+          5,
+          31,
+          23,
+          22,
+          49,
+          22,
+          61,
+          21,
+          17,
+          19,
+          39,
+          19,
+          16,
+          19,
+          17,
+          28,
+          22,
+          33,
+          33,
+          29,
+          61,
+          19,
+          66,
+          25,
+          48,
+          26,
+          28,
+          40,
+          19,
+          23,
+          38,
+          18,
+          37,
+          40,
+          25,
+          28,
+          32,
+          34,
+          61,
+          12,
+          33,
+          22,
+          24,
+          40,
+          19,
+          13,
+          49,
+          47,
+          82,
+          109
+        ],
+        "picture_types": {
+          "I": 91,
+          "P": 1360,
+          "B": 2056
+        },
+        "first_packet_encoder_sei_strings": [
+          "bd264 158 - H.264/MPEG-4 AVC codec - Copyleft 2020-2021 - http://www.baidu.com - options: cpu=1176575  preset=5 input-res=1080x1440 fps=30/1 bitdepth=8  rc=crf  crf=26.9 vbv_maxrate=5625 vbv_bufsize=11250 vbv_init=0.900000 b_pyramid=2 min-luma=0 max-luma=255 enhance=0 roi-model-path=./roiDetect roi-detect-int=5"
+        ]
+      },
+      "reference": {
+        "sha256": "610ab9b3ad3c519bdafc194ed45a6b00522f387d63cec784f8821cba767157fe",
+        "metadata": {
+          "streams": [
+            {
+              "index": 0,
+              "codec_name": "h264",
+              "codec_long_name": "H.264 / AVC / MPEG-4 AVC / MPEG-4 part 10",
+              "profile": "Constrained Baseline",
+              "codec_type": "video",
+              "codec_tag_string": "avc1",
+              "codec_tag": "0x31637661",
+              "mime_codec_string": "avc1.42c028",
+              "width": 1080,
+              "height": 1440,
+              "coded_width": 1080,
+              "coded_height": 1440,
+              "has_b_frames": 0,
+              "sample_aspect_ratio": "1:1",
+              "display_aspect_ratio": "3:4",
+              "pix_fmt": "yuv420p",
+              "level": 40,
+              "color_range": "tv",
+              "color_space": "bt709",
+              "color_transfer": "bt709",
+              "color_primaries": "bt709",
+              "chroma_location": "left",
+              "field_order": "progressive",
+              "is_avc": "true",
+              "nal_length_size": "4",
+              "id": "0x1",
+              "r_frame_rate": "30/1",
+              "avg_frame_rate": "30/1",
+              "time_base": "1/15360",
+              "start_pts": 0,
+              "start_time": "0.000000",
+              "duration_ts": 1795584,
+              "duration": "116.900000",
+              "bit_rate": "7118084",
+              "bits_per_raw_sample": "8",
+              "nb_frames": "3507",
+              "extradata_size": 43,
+              "disposition": {
+                "default": 1,
+                "dub": 0,
+                "original": 0,
+                "comment": 0,
+                "lyrics": 0,
+                "karaoke": 0,
+                "forced": 0,
+                "hearing_impaired": 0,
+                "visual_impaired": 0,
+                "clean_effects": 0,
+                "attached_pic": 0,
+                "timed_thumbnails": 0,
+                "non_diegetic": 0,
+                "captions": 0,
+                "descriptions": 0,
+                "metadata": 0,
+                "dependent": 0,
+                "still_image": 0,
+                "multilayer": 0
+              },
+              "tags": {
+                "language": "und",
+                "handler_name": "VideoHandler",
+                "encoder": "Lavc62.28.100 libx264"
+              }
+            },
+            {
+              "index": 1,
+              "codec_name": "aac",
+              "codec_long_name": "AAC (Advanced Audio Coding)",
+              "profile": "LC",
+              "codec_type": "audio",
+              "codec_tag_string": "mp4a",
+              "codec_tag": "0x6134706d",
+              "mime_codec_string": "mp4a.40.2",
+              "sample_fmt": "fltp",
+              "sample_rate": "48000",
+              "channels": 2,
+              "channel_layout": "stereo",
+              "bits_per_sample": 0,
+              "initial_padding": 1024,
+              "id": "0x2",
+              "r_frame_rate": "0/0",
+              "avg_frame_rate": "0/0",
+              "time_base": "1/48000",
+              "start_pts": 0,
+              "start_time": "0.000000",
+              "duration_ts": 5612544,
+              "duration": "116.928000",
+              "bit_rate": "192692",
+              "nb_frames": "5482",
+              "extradata_size": 5,
+              "disposition": {
+                "default": 1,
+                "dub": 0,
+                "original": 0,
+                "comment": 0,
+                "lyrics": 0,
+                "karaoke": 0,
+                "forced": 0,
+                "hearing_impaired": 0,
+                "visual_impaired": 0,
+                "clean_effects": 0,
+                "attached_pic": 0,
+                "timed_thumbnails": 0,
+                "non_diegetic": 0,
+                "captions": 0,
+                "descriptions": 0,
+                "metadata": 0,
+                "dependent": 0,
+                "still_image": 0,
+                "multilayer": 0
+              },
+              "tags": {
+                "language": "und",
+                "handler_name": "SoundHandler"
+              }
+            }
+          ],
+          "format": {
+            "filename": "编辑后视频-2.mp4",
+            "nb_streams": 2,
+            "nb_programs": 0,
+            "nb_stream_groups": 0,
+            "format_name": "mov,mp4,m4a,3gp,3g2,mj2",
+            "format_long_name": "QuickTime / MOV",
+            "start_time": "0.000000",
+            "duration": "116.928000",
+            "size": "106932316",
+            "bit_rate": "7316113",
+            "probe_score": 100,
+            "tags": {
+              "major_brand": "isom",
+              "minor_version": "512",
+              "compatible_brands": "isomiso2avc1mp41",
+              "title": "dedup_582979ee_78554",
+              "encoder": "Lavf62.12.100",
+              "comment": "processed_1791550533_8394"
+            }
+          }
+        },
+        "packet_count": 3507,
+        "frame_count": 3507,
+        "timeline_sha256": "875513020ce0e7ef40f4b9e42801dcbc1ce7402c898eca5334f4ad965952fe1f",
+        "keyframe_indices": [
+          0,
+          250,
+          500,
+          750,
+          1000,
+          1250,
+          1500,
+          1750,
+          2000,
+          2250,
+          2500,
+          2750,
+          3000,
+          3250,
+          3500
+        ],
+        "keyframe_intervals": [
+          250,
+          250,
+          250,
+          250,
+          250,
+          250,
+          250,
+          250,
+          250,
+          250,
+          250,
+          250,
+          250,
+          250
+        ],
+        "picture_types": {
+          "I": 15,
+          "P": 3492,
+          "B": 0
+        },
+        "first_packet_encoder_sei_strings": [
+          "x264 - core 165 r3223 0480cb0 - H.264/MPEG-4 AVC codec - Copyleft 2003-2025 - http://www.videolan.org/x264.html - options: cabac=0 ref=1 deblock=0:0:0 analyse=0:0 me=dia subme=0 psy=1 psy_rd=1.00:0.00 mixed_ref=0 me_range=16 chroma_me=1 trellis=0 8x8dct=0 cqm=0 deadzone=21,11 fast_pskip=1 chroma_qp_offset=0 threads=18 lookahead_threads=3 sliced_threads=0 nr=0 decimate=1 interlaced=0 bluray_compat=0 constrained_intra=0 bframes=0 weightp=0 keyint=250 keyint_min=25 scenecut=0 intra_refresh=0 rc=crf mbtree=0 crf=23.0 qcomp=0.60 qpmin=0 qpmax=69 qpstep=4 ip_ratio=1.40 aq=0"
+        ]
+      },
+      "comparison": {
+        "video": [
+          {
+            "frame": 0,
+            "seconds": 0.0,
+            "planes": [
+              {
+                "plane": "y",
+                "slope": 1.0028149292274322,
+                "offset": -0.9740328520335595,
+                "rmse": 1.429578055105023,
+                "residual_rmse": 1.2976805008610315,
+                "difference_quantiles": [
+                  -4.0,
+                  -2.0,
+                  -1.0,
+                  1.0,
+                  3.0
+                ]
+              },
+              {
+                "plane": "u",
+                "slope": 1.0117132082200193,
+                "offset": 0.3675901615322701,
+                "rmse": 0.7061440386296418,
+                "residual_rmse": 0.6384406993138638,
+                "difference_quantiles": [
+                  -1.0,
+                  0.0,
+                  0.0,
+                  1.0,
+                  2.0
+                ]
+              },
+              {
+                "plane": "v",
+                "slope": 1.0038694834213353,
+                "offset": -0.23081845187188677,
+                "rmse": 0.6660857808793939,
+                "residual_rmse": 0.6313488724980789,
+                "difference_quantiles": [
+                  -2.0,
+                  -1.0,
+                  0.0,
+                  0.0,
+                  1.0
+                ]
+              }
+            ],
+            "best_integer_shift": [
+              1.42986762180955,
+              0,
+              0
+            ],
+            "chroma_matrix_u": [
+              1.0178523225946525,
+              0.008017302516423321,
+              0.37856033652950793
+            ],
+            "chroma_matrix_v": [
+              -0.009857475517658587,
+              0.992965434240194,
+              -0.2602463108429996
+            ]
+          },
+          {
+            "frame": 1,
+            "seconds": 0.03333333333333333,
+            "planes": [
+              {
+                "plane": "y",
+                "slope": 1.0025921577858226,
+                "offset": -0.9717071543855695,
+                "rmse": 2.2981732826840533,
+                "residual_rmse": 2.211527224665784,
+                "difference_quantiles": [
+                  -7.0,
+                  -3.0,
+                  -1.0,
+                  2.0,
+                  6.0
+                ]
+              },
+              {
+                "plane": "u",
+                "slope": 1.0114844685508284,
+                "offset": 0.36439105039726094,
+                "rmse": 0.7905108521756089,
+                "residual_rmse": 0.7315592717358446,
+                "difference_quantiles": [
+                  -2.0,
+                  0.0,
+                  0.0,
+                  1.0,
+                  2.0
+                ]
+              },
+              {
+                "plane": "v",
+                "slope": 1.0041408360582795,
+                "offset": -0.22720163777804192,
+                "rmse": 0.7356986964895758,
+                "residual_rmse": 0.7057100446009155,
+                "difference_quantiles": [
+                  -2.0,
+                  -1.0,
+                  0.0,
+                  0.0,
+                  2.0
+                ]
+              }
+            ],
+            "best_integer_shift": [
+              2.296142405872133,
+              0,
+              0
+            ],
+            "chroma_matrix_u": [
+              1.0163989253493315,
+              0.006419096108201218,
+              0.37309140822319475
+            ],
+            "chroma_matrix_v": [
+              -0.010678072955340932,
+              0.9923235122570195,
+              -0.25885829300502905
+            ]
+          },
+          {
+            "frame": 2,
+            "seconds": 0.06666666666666667,
+            "planes": [
+              {
+                "plane": "y",
+                "slope": 1.002036982881203,
+                "offset": -0.8544972425572439,
+                "rmse": 2.4046258414237336,
+                "residual_rmse": 2.333478880628277,
+                "difference_quantiles": [
+                  -7.0,
+                  -3.0,
+                  -1.0,
+                  2.0,
+                  6.0
+                ]
+              },
+              {
+                "plane": "u",
+                "slope": 1.009882791868021,
+                "offset": 0.3275972757918719,
+                "rmse": 0.8452055536871129,
+                "residual_rmse": 0.8007191339582096,
+                "difference_quantiles": [
+                  -2.0,
+                  -1.0,
+                  0.0,
+                  1.0,
+                  2.0
+                ]
+              },
+              {
+                "plane": "v",
+                "slope": 1.004527914251078,
+                "offset": -0.23596704660945633,
+                "rmse": 0.7990831938022999,
+                "residual_rmse": 0.7695616274736273,
+                "difference_quantiles": [
+                  -2.0,
+                  -1.0,
+                  0.0,
+                  1.0,
+                  2.0
+                ]
+              }
+            ],
+            "best_integer_shift": [
+              2.4046781390789067,
+              0,
+              0
+            ],
+            "chroma_matrix_u": [
+              1.0159664647373798,
+              0.007970987117373537,
+              0.33772866885843567
+            ],
+            "chroma_matrix_v": [
+              -0.01261495339287074,
+              0.9905223871981141,
+              -0.27208876212403366
+            ]
+          },
+          {
+            "frame": 30,
+            "seconds": 1.0,
+            "planes": [
+              {
+                "plane": "y",
+                "slope": 1.0025267497573,
+                "offset": -0.9618788166679053,
+                "rmse": 2.5399027475630223,
+                "residual_rmse": 2.4618416572100332,
+                "difference_quantiles": [
+                  -7.0,
+                  -3.0,
+                  -1.0,
+                  2.0,
+                  6.0
+                ]
+              },
+              {
+                "plane": "u",
+                "slope": 1.0065320864421166,
+                "offset": 0.6620120193651973,
+                "rmse": 1.1039642838052757,
+                "residual_rmse": 0.9164434834927856,
+                "difference_quantiles": [
+                  -1.0,
+                  0.0,
+                  1.0,
+                  2.0,
+                  3.0
+                ]
+              },
+              {
+                "plane": "v",
+                "slope": 1.0034383174172716,
+                "offset": 0.1809341593690279,
+                "rmse": 0.8976406546363456,
+                "residual_rmse": 0.87497127036718,
+                "difference_quantiles": [
+                  -2.0,
+                  -1.0,
+                  0.0,
+                  1.0,
+                  2.0
+                ]
+              }
+            ],
+            "best_integer_shift": [
+              2.538418425346256,
+              0,
+              0
+            ],
+            "chroma_matrix_u": [
+              1.0036562522629406,
+              -0.0038260277573584633,
+              0.6555834316067007
+            ],
+            "chroma_matrix_v": [
+              -0.014738519356390135,
+              0.9872824753608234,
+              0.13252425118906272
+            ]
+          },
+          {
+            "frame": 300,
+            "seconds": 10.0,
+            "planes": [
+              {
+                "plane": "y",
+                "slope": 1.000530449722908,
+                "offset": -0.9116933885360936,
+                "rmse": 3.1834120077861225,
+                "residual_rmse": 3.0721694625097284,
+                "difference_quantiles": [
+                  -9.0,
+                  -4.0,
+                  -1.0,
+                  3.0,
+                  7.0
+                ]
+              },
+              {
+                "plane": "u",
+                "slope": 0.9948496474598297,
+                "offset": 0.5826011859817406,
+                "rmse": 1.2943123044936975,
+                "residual_rmse": 1.124329676109151,
+                "difference_quantiles": [
+                  -2.0,
+                  -1.0,
+                  1.0,
+                  2.0,
+                  3.0
+                ]
+              },
+              {
+                "plane": "v",
+                "slope": 1.0098061332313197,
+                "offset": -0.07444750667575484,
+                "rmse": 1.0955214197221153,
+                "residual_rmse": 1.0909148685009378,
+                "difference_quantiles": [
+                  -3.0,
+                  -1.0,
+                  0.0,
+                  1.0,
+                  3.0
+                ]
+              }
+            ],
+            "best_integer_shift": [
+              3.17617949466174,
+              0,
+              0
+            ],
+            "chroma_matrix_u": [
+              0.9666207978250139,
+              -0.036708773465645564,
+              0.6939627333154
+            ],
+            "chroma_matrix_v": [
+              -0.021512125946622128,
+              0.9849506377956174,
+              -0.025015606866117236
+            ]
+          },
+          {
+            "frame": 900,
+            "seconds": 30.0,
+            "planes": [
+              {
+                "plane": "y",
+                "slope": 1.0037008160358083,
+                "offset": -1.0643193268983282,
+                "rmse": 1.4755598522499913,
+                "residual_rmse": 1.3856454531970073,
+                "difference_quantiles": [
+                  -5.0,
+                  -2.0,
+                  0.0,
+                  1.0,
+                  3.0
+                ]
+              },
+              {
+                "plane": "u",
+                "slope": 0.9887568105005764,
+                "offset": 0.48874546445023714,
+                "rmse": 0.9732084944463604,
+                "residual_rmse": 0.809176484775246,
+                "difference_quantiles": [
+                  -1.0,
+                  0.0,
+                  1.0,
+                  1.0,
+                  2.0
+                ]
+              },
+              {
+                "plane": "v",
+                "slope": 0.9998202953326325,
+                "offset": -0.19006230335298824,
+                "rmse": 0.7732656819068171,
+                "residual_rmse": 0.7493625436827308,
+                "difference_quantiles": [
+                  -2.0,
+                  -1.0,
+                  0.0,
+                  1.0,
+                  2.0
+                ]
+              }
+            ],
+            "best_integer_shift": [
+              1.4791156624481343,
+              0,
+              0
+            ],
+            "chroma_matrix_u": [
+              0.9771318392786512,
+              -0.016925959005357857,
+              0.5071774861300887
+            ],
+            "chroma_matrix_v": [
+              0.007632826998346768,
+              1.008660377360304,
+              -0.19315916243932252
+            ]
+          },
+          {
+            "frame": 1800,
+            "seconds": 60.0,
+            "planes": [
+              {
+                "plane": "y",
+                "slope": 1.0014129900815718,
+                "offset": -0.7715453436577775,
+                "rmse": 2.725127064089324,
+                "residual_rmse": 2.663833545937346,
+                "difference_quantiles": [
+                  -9.0,
+                  -3.0,
+                  -1.0,
+                  2.0,
+                  8.0
+                ]
+              },
+              {
+                "plane": "u",
+                "slope": 0.9805900246767714,
+                "offset": 0.3075154062244836,
+                "rmse": 1.1317811175056716,
+                "residual_rmse": 1.071753518901317,
+                "difference_quantiles": [
+                  -2.0,
+                  -1.0,
+                  0.0,
+                  2.0,
+                  3.0
+                ]
+              },
+              {
+                "plane": "v",
+                "slope": 0.9823821440956503,
+                "offset": -0.21906211993170205,
+                "rmse": 1.1179557696441564,
+                "residual_rmse": 1.0873854544308126,
+                "difference_quantiles": [
+                  -3.0,
+                  -1.0,
+                  0.0,
+                  1.0,
+                  3.0
+                ]
+              }
+            ],
+            "best_integer_shift": [
+              2.7258362322552707,
+              0,
+              0
+            ],
+            "chroma_matrix_u": [
+              0.9737614821755133,
+              -0.009342796168373387,
+              0.300795675556529
+            ],
+            "chroma_matrix_v": [
+              -0.003358494781779676,
+              0.9800912381589824,
+              -0.22331121237525114
+            ]
+          },
+          {
+            "frame": 3000,
+            "seconds": 100.0,
+            "planes": [
+              {
+                "plane": "y",
+                "slope": 1.0029081677704554,
+                "offset": -1.046809074844873,
+                "rmse": 1.1813488619983752,
+                "residual_rmse": 0.9993511842632711,
+                "difference_quantiles": [
+                  -3.0,
+                  -2.0,
+                  -1.0,
+                  0.0,
+                  2.0
+                ]
+              },
+              {
+                "plane": "u",
+                "slope": 1.0133931176642108,
+                "offset": 0.4779996909189004,
+                "rmse": 0.8740117876426333,
+                "residual_rmse": 0.6996207514663999,
+                "difference_quantiles": [
+                  -1.0,
+                  0.0,
+                  1.0,
+                  1.0,
+                  2.0
+                ]
+              },
+              {
+                "plane": "v",
+                "slope": 1.0019541673797288,
+                "offset": -0.140068357558766,
+                "rmse": 0.6536086123262115,
+                "residual_rmse": 0.635507457122399,
+                "difference_quantiles": [
+                  -2.0,
+                  -1.0,
+                  0.0,
+                  0.0,
+                  1.0
+                ]
+              }
+            ],
+            "best_integer_shift": [
+              1.181747621296946,
+              0,
+              0
+            ],
+            "chroma_matrix_u": [
+              1.0093701050886343,
+              -0.005419183977548864,
+              0.45586130523057766
+            ],
+            "chroma_matrix_v": [
+              0.003190886384130131,
+              1.0037600103458266,
+              -0.13638684070019233
+            ]
+          },
+          {
+            "frame": 3450,
+            "seconds": 115.0,
+            "planes": [
+              {
+                "plane": "y",
+                "slope": 1.0028955347589061,
+                "offset": -0.9826053480668406,
+                "rmse": 1.466114163610986,
+                "residual_rmse": 1.3487416095868694,
+                "difference_quantiles": [
+                  -4.0,
+                  -2.0,
+                  -1.0,
+                  1.0,
+                  3.0
+                ]
+              },
+              {
+                "plane": "u",
+                "slope": 0.9876701425961328,
+                "offset": 0.44309985971544474,
+                "rmse": 0.9115217570525933,
+                "residual_rmse": 0.7569182291606263,
+                "difference_quantiles": [
+                  -1.0,
+                  0.0,
+                  0.0,
+                  1.0,
+                  2.0
+                ]
+              },
+              {
+                "plane": "v",
+                "slope": 1.0012897460901045,
+                "offset": -0.17609545676057792,
+                "rmse": 0.781454602837744,
+                "residual_rmse": 0.7629496008197503,
+                "difference_quantiles": [
+                  -2.0,
+                  -1.0,
+                  0.0,
+                  1.0,
+                  2.0
+                ]
+              }
+            ],
+            "best_integer_shift": [
+              1.4659928810003484,
+              0,
+              0
+            ],
+            "chroma_matrix_u": [
+              0.9638602464902524,
+              -0.024577296085374768,
+              0.4711948189768021
+            ],
+            "chroma_matrix_v": [
+              6.051797268567121e-05,
+              1.0013334589795015,
+              -0.17606008529952527
+            ]
+          }
+        ],
+        "audio": {
+          "shared_samples": 5611776,
+          "rms_db": -4.309726238250732,
+          "zero_lag_correlation": -0.013402565907489379,
+          "source_stereo_correlation": 0.9905310585855802,
+          "target_stereo_correlation": 0.979219616519445,
+          "per_channel": [
+            {
+              "channel": 0,
+              "correlation": -0.013559936204428896,
+              "rms_db": -4.278728485107422
+            },
+            {
+              "channel": 1,
+              "correlation": -0.012662481773705101,
+              "rms_db": -4.291236877441406
+            }
+          ],
+          "bands": [
+            {
+              "low": 0,
+              "high": 150,
+              "db": -12.532236479752008,
+              "coherence": 0.7752255265614529,
+              "source_energy_fraction": 0.30981969292144845
+            },
+            {
+              "low": 150,
+              "high": 500,
+              "db": -4.192060576145403,
+              "coherence": 0.7883275109118439,
+              "source_energy_fraction": 0.4647702019601721
+            },
+            {
+              "low": 500,
+              "high": 2000,
+              "db": -0.790675450817123,
+              "coherence": 0.7381064234760939,
+              "source_energy_fraction": 0.1447546492289812
+            },
+            {
+              "low": 2000,
+              "high": 5000,
+              "db": -0.5382997385685444,
+              "coherence": 0.7582580345591359,
+              "source_energy_fraction": 0.04653715902650469
+            },
+            {
+              "low": 5000,
+              "high": 10000,
+              "db": -7.194017329100334,
+              "coherence": 0.7762777896008746,
+              "source_energy_fraction": 0.033076929889647354
+            },
+            {
+              "low": 10000,
+              "high": 20000,
+              "db": 8.55926223255916,
+              "coherence": 0.7308737698091738,
+              "source_energy_fraction": 0.001041366964722424
+            }
+          ],
+          "transfer_points": [
+            {
+              "hz": 50,
+              "db": -25.98998373136101,
+              "coherence": 0.39649221525473816
+            },
+            {
+              "hz": 75,
+              "db": -18.21151564045752,
+              "coherence": 0.7658768371011007
+            },
+            {
+              "hz": 100,
+              "db": -13.756775879297702,
+              "coherence": 0.8152454382677651
+            },
+            {
+              "hz": 150,
+              "db": -8.242046906551428,
+              "coherence": 0.7924339982523236
+            },
+            {
+              "hz": 200,
+              "db": -5.435684431925521,
+              "coherence": 0.8029724917590789
+            },
+            {
+              "hz": 300,
+              "db": -3.1550081146272873,
+              "coherence": 0.7729110435075953
+            },
+            {
+              "hz": 450,
+              "db": -2.8796264374469045,
+              "coherence": 0.7764562675024583
+            },
+            {
+              "hz": 700,
+              "db": -0.8402646472804023,
+              "coherence": 0.7509234634762241
+            },
+            {
+              "hz": 1000,
+              "db": -1.118668384623131,
+              "coherence": 0.7159350279185586
+            },
+            {
+              "hz": 1500,
+              "db": 1.073179462713335,
+              "coherence": 0.7215808044691129
+            },
+            {
+              "hz": 2000,
+              "db": 1.5555066330397225,
+              "coherence": 0.733080638883594
+            },
+            {
+              "hz": 3000,
+              "db": 0.27047525148254187,
+              "coherence": 0.7526400897354276
+            },
+            {
+              "hz": 4000,
+              "db": -1.7702413203215797,
+              "coherence": 0.7465488272690123
+            },
+            {
+              "hz": 5000,
+              "db": -4.061035865929209,
+              "coherence": 0.7668799021310835
+            },
+            {
+              "hz": 6500,
+              "db": -7.7515433440757056,
+              "coherence": 0.7846372374237448
+            },
+            {
+              "hz": 8000,
+              "db": -10.890236168825314,
+              "coherence": 0.765498079100593
+            },
+            {
+              "hz": 10000,
+              "db": -14.377383460250318,
+              "coherence": 0.7670947781641597
+            }
+          ],
+          "local_alignment": [
+            {
+              "seconds": 2,
+              "delay_ms": 5.604166666666667,
+              "correlation": -0.6380810966071727,
+              "linear_gain": -0.4283261001110077,
+              "rms_db": -3.4620234966278076
+            },
+            {
+              "seconds": 10,
+              "delay_ms": 5.458333333333333,
+              "correlation": -0.6357992329756454,
+              "linear_gain": -0.41381552815437317,
+              "rms_db": -3.730177640914917
+            },
+            {
+              "seconds": 30,
+              "delay_ms": 5.75,
+              "correlation": -0.5767874842704611,
+              "linear_gain": -0.3589566946029663,
+              "rms_db": -4.119314670562744
+            },
+            {
+              "seconds": 60,
+              "delay_ms": 5.708333333333333,
+              "correlation": -0.5348430623289746,
+              "linear_gain": -0.3343485891819,
+              "rms_db": -4.080531120300293
+            },
+            {
+              "seconds": 100,
+              "delay_ms": 5.354166666666667,
+              "correlation": -0.5158972336703821,
+              "linear_gain": -0.25621622800827026,
+              "rms_db": -6.079014778137207
+            },
+            {
+              "seconds": 114,
+              "delay_ms": 5.020833333333333,
+              "correlation": 0.011115868742095239,
+              "linear_gain": 0.7302930951118469,
+              "rms_db": 36.35247039794922
+            }
+          ],
+          "model_fit": [
+            {
+              "phase_only": false,
+              "highpass_hz": 313.28125,
+              "lowpass_hz": 5250.0,
+              "delay_ms": 4.9921875,
+              "normalized_error": 0.056411513335197415,
+              "gain": 0.8277106650531477
+            },
+            {
+              "phase_only": true,
+              "highpass_hz": 330.078125,
+              "lowpass_hz": 7417.96875,
+              "delay_ms": 5.0,
+              "normalized_error": 0.12255784646789512,
+              "gain": 0.9367188230905287
+            }
+          ],
+          "quarter_second_gain_summary": {
+            "included_windows": 456,
+            "minimum_model_power": 1e-07,
+            "gain_5_50_95_quantiles": [
+              0.77778762101273,
+              1.1010344894106239,
+              1.7222175380613962
+            ],
+            "correlation_5_50_95_quantiles": [
+              0.7795190695549423,
+              0.862037235325359,
+              0.9178693484470066
+            ],
+            "gain_to_model_rms_correlation": -0.8672341800432688,
+            "normalized_residual_after_local_gain": 0.25616126295675545
+          }
+        }
+      }
+    }
+  },
+  "platform_review": {
+    "evidence_source": "User reports; not independently accessed on platform",
+    "reference_pair1_current_result": "user_reported_passed_again",
+    "reference_pair2_result": "user_reported_passed",
+    "current_preset_pair1_result": "user_reported_not_passed_homepage_only",
+    "platform_causality": "Unknown; measured media differences do not identify review thresholds or causal rules"
+  },
+  "audio_controls": {
+    "hypothesis_filter": "highpass=f=300,lowpass=f=5500,adelay=5:all=1,volume=0.8",
+    "current_filter": "firequalizer=gain_entry='entry(0,-60);entry(50,-29.5);entry(75,-20.8);entry(100,-14);entry(150,-6.1);entry(200,-6.7);entry(300,-3.4);entry(450,-1.7);entry(700,-2.4);entry(1000,-3.5);entry(1500,-1.5);entry(2000,-1.5);entry(3000,0.6);entry(4000,-1.4);entry(5000,-3.3);entry(6500,-7.3);entry(8000,-13.6);entry(10000,-14.8);entry(12000,-2.5);entry(16000,-2.5);entry(24000,-3.5)':delay=0.007:zero_phase=on",
+    "pairs": {
+      "1": {
+        "source_to_reference": {
+          "correlation": -0.0067796199929907605,
+          "optimal_gain": -0.004440494813024998,
+          "rms_ratio_db": 3.676069974899292,
+          "normalized_error_after_gain": 0.9999539852142334
+        },
+        "current_preset_to_reference": {
+          "correlation": 0.39955567935853326,
+          "optimal_gain": 0.3979889154434204,
+          "rms_ratio_db": 0.03493306040763855,
+          "normalized_error_after_gain": 0.8403552770614624
+        },
+        "fixed_phase_hypothesis_to_reference": {
+          "correlation": 0.8575136306210828,
+          "optimal_gain": 0.9329438209533691,
+          "rms_ratio_db": -0.7315320372581482,
+          "normalized_error_after_gain": 0.26467037200927734
+        }
+      },
+      "2": {
+        "source_to_reference": {
+          "correlation": -0.013402565907489379,
+          "optimal_gain": -0.00816059485077858,
+          "rms_ratio_db": 4.309725761413574,
+          "normalized_error_after_gain": 0.999820351600647
+        },
+        "current_preset_to_reference": {
+          "correlation": 0.16089443900747197,
+          "optimal_gain": 0.17493543028831482,
+          "rms_ratio_db": -0.726204514503479,
+          "normalized_error_after_gain": 0.9741129875183105
+        },
+        "fixed_phase_hypothesis_to_reference": {
+          "correlation": 0.8392024730922288,
+          "optimal_gain": 1.0452824831008911,
+          "rms_ratio_db": -1.906839370727539,
+          "normalized_error_after_gain": 0.29573923349380493
+        }
+      }
+    },
+    "pair2_quiet_tail_114_115_seconds": {
+      "source": {
+        "rms_dbfs": -72.11193689169845,
+        "stereo_correlation": 0.9999999999999998,
+        "excess_kurtosis": 68.23083096271235,
+        "one_sample_autocorrelation": 0.6402847049086708,
+        "top_frequencies_hz": [
+          7687.5,
+          7675.78125,
+          7699.21875,
+          7664.0625,
+          7710.9375,
+          7722.65625,
+          7652.34375,
+          7734.375
+        ],
+        "one_second_rms_dbfs": [
+          -77.05046266477295,
+          -76.93831495028364,
+          -67.51191975037584,
+          -75.25453517564686,
+          -76.16965641120443,
+          -75.48792860030717,
+          -77.15556074897526,
+          -78.85986499826194,
+          -65.73306789590384,
+          -77.95993112026268
+        ]
+      },
+      "reference": {
+        "rms_dbfs": -36.49450216876234,
+        "stereo_correlation": 0.9999999999999999,
+        "excess_kurtosis": -1.4960135705606559,
+        "one_sample_autocorrelation": -0.7764857263281778,
+        "top_frequencies_hz": [
+          19394.53125,
+          18257.8125,
+          18269.53125,
+          19406.25,
+          19382.8125,
+          18246.09375,
+          18281.25,
+          19417.96875
+        ],
+        "one_second_rms_dbfs": [
+          -36.49907627903035,
+          -36.50354542204998,
+          -36.47827133728193,
+          -36.499136888841704,
+          -36.512517032894436,
+          -36.479589503976165,
+          -36.48910659134102,
+          -36.49407103864296,
+          -36.499091710560045,
+          -36.490730920467605
+        ]
+      }
+    }
+  },
+  "video_controls_pair2": {
+    "source": {
+      "psnr": 43.902799,
+      "ssim": 0.986883
+    },
+    "encoding_control": {
+      "psnr": 43.303126,
+      "ssim": 0.984637
+    },
+    "encoding_control_y_minus_one": {
+      "psnr": 43.461705,
+      "ssim": 0.98467
+    }
+  },
+  "carrier_peak_track_pair2": [
+    {
+      "seconds": 0,
+      "peak_frequency_hz": 18309.08203125,
+      "rms_dbfs": -18.466840344175324
+    },
+    {
+      "seconds": 1,
+      "peak_frequency_hz": 19500.732421875,
+      "rms_dbfs": -20.801253891850784
+    },
+    {
+      "seconds": 10,
+      "peak_frequency_hz": 18256.34765625,
+      "rms_dbfs": -20.597115421911983
+    },
+    {
+      "seconds": 30,
+      "peak_frequency_hz": 19491.943359375,
+      "rms_dbfs": -18.44303110364186
+    },
+    {
+      "seconds": 60,
+      "peak_frequency_hz": 18830.56640625,
+      "rms_dbfs": -19.930316622400742
+    },
+    {
+      "seconds": 100,
+      "peak_frequency_hz": 15467.28515625,
+      "rms_dbfs": -19.85644111821433
+    },
+    {
+      "seconds": 113,
+      "peak_frequency_hz": 19485.3515625,
+      "rms_dbfs": -21.708420640523087
+    },
+    {
+      "seconds": 114,
+      "peak_frequency_hz": 19398.92578125,
+      "rms_dbfs": -36.49907627903035
+    },
+    {
+      "seconds": 114.1,
+      "peak_frequency_hz": 19398.92578125,
+      "rms_dbfs": -36.50354542204998
+    },
+    {
+      "seconds": 114.2,
+      "peak_frequency_hz": 19398.92578125,
+      "rms_dbfs": -36.47827133728193
+    },
+    {
+      "seconds": 114.3,
+      "peak_frequency_hz": 19398.92578125,
+      "rms_dbfs": -36.4991368888417
+    },
+    {
+      "seconds": 114.4,
+      "peak_frequency_hz": 19398.92578125,
+      "rms_dbfs": -36.512517032894436
+    },
+    {
+      "seconds": 114.5,
+      "peak_frequency_hz": 18262.939453125,
+      "rms_dbfs": -36.479589503976165
+    },
+    {
+      "seconds": 114.6,
+      "peak_frequency_hz": 18262.939453125,
+      "rms_dbfs": -36.48910659134102
+    },
+    {
+      "seconds": 114.7,
+      "peak_frequency_hz": 18262.939453125,
+      "rms_dbfs": -36.49407103864296
+    },
+    {
+      "seconds": 114.8,
+      "peak_frequency_hz": 18262.939453125,
+      "rms_dbfs": -36.499091710560045
+    },
+    {
+      "seconds": 114.9,
+      "peak_frequency_hz": 18262.939453125,
+      "rms_dbfs": -36.490730920467605
+    },
+    {
+      "seconds": 115,
+      "peak_frequency_hz": 19462.646484375,
+      "rms_dbfs": -36.565439608239096
+    },
+    {
+      "seconds": 116,
+      "peak_frequency_hz": 19500.0,
+      "rms_dbfs": -54.07157982353407
+    }
+  ]
+}

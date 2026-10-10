@@ -1,5 +1,6 @@
 export type JobState = 'probing'|'preparing'|'running'|'validating'|'committing'|'succeeded'|'failed'|'canceling'|'canceled';
-export type ErrorCode = 'unsupported_input'|'damaged_media'|'tool_missing'|'output_permission'|'disk_full'|'process_exit'|'validation_failed'|'output_conflict'|'input_changed'|'busy'|'canceled'|'cleanup_pending';
+export type ErrorCode = 'unsupported_input'|'damaged_media'|'tool_missing'|'output_permission'|'disk_full'|'process_exit'|'validation_failed'|'output_conflict'|'input_changed'|'busy'|'canceled'|'cleanup_pending'|'license_expired';
+export interface LicenseStatus {expiresAtMs:number;effectiveTimeMs:number;expired:boolean;ntpAvailable:boolean}
 export interface AppError {code:ErrorCode;message:string;details:string|null}
 export interface Rational {num:number;den:number}
 export interface FileIdentity {canonicalPath:string;sizeBytes:number;modifiedNs:string;sha256:string}

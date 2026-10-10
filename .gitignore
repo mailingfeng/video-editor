@@ -12,3 +12,4 @@ src-tauri/binaries/
 .env.*
 .ci-evidence/
 .ci-artifacts/
+docs/requirements/20261002-research/*.mp4

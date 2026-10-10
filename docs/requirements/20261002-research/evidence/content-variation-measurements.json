@@ -1,0 +1,1456 @@
+{
+  "date": "2026-10-10",
+  "preset_id": "content-variation-v1",
+  "scope": "Two actual JobService content-variation exports, one per supplied original; audible pitch change and visible reframing are intended. No platform approval claimed.",
+  "artifacts": [
+    {
+      "frame_timeline_equal": true,
+      "log_path": "${REPO_ROOT}/.media-fixtures/sample-content-v1/pair1/06842f0a-4ad9-4266-b0fd-80048560d6e9.log",
+      "native_validation_succeeded": true,
+      "output": {
+        "audio": {
+          "bitRate": 194250,
+          "channelLayout": "stereo",
+          "channels": 2,
+          "codec": "aac",
+          "durationTicks": 5741088,
+          "sampleRate": 48000,
+          "startPts": 0,
+          "streamIndex": 1,
+          "timeBase": {
+            "den": 48000,
+            "num": 1
+          }
+        },
+        "comment": "video-editor/content-variation-v1",
+        "container": "mov,mp4,m4a,3gp,3g2,mj2",
+        "identity": {
+          "canonicalPath": "${REPO_ROOT}/.media-fixtures/sample-content-v1/pair1/原视频-1_processed_06842f0a-4ad9-4266-b0fd-80048560d6e9.mp4",
+          "modifiedNs": "1791634448493417119",
+          "sha256": "fcb43cc7a374f9d4baef2ad103344b663bfcadf4b855b1831f18beb3aa2a89b6",
+          "sizeBytes": 18347000
+        },
+        "title": null,
+        "video": {
+          "bitDepth": 8,
+          "bitRate": 1028326,
+          "codec": "h264",
+          "colorPrimaries": "bt709",
+          "colorRange": "tv",
+          "colorSpace": null,
+          "colorTransfer": "bt709",
+          "durationTicks": 1530880,
+          "frameCount": 2990,
+          "frameRate": {
+            "den": 1,
+            "num": 25
+          },
+          "height": 720,
+          "pixelFormat": "yuv420p",
+          "startPts": 0,
+          "streamIndex": 0,
+          "timeBase": {
+            "den": 12800,
+            "num": 1
+          },
+          "timeline": {
+            "timestampSha256": "ee30aa475eb6f77f2488070ac207b7595ba30d54d68f3017b8a6f407c6ea51de",
+            "variableFrameRate": false
+          },
+          "width": 720
+        }
+      },
+      "pair": 1,
+      "plan": {
+        "args": [
+          "-hide_banner",
+          "-n",
+          "-copyts",
+          "-i",
+          "${REPO_ROOT}/docs/requirements/20261002-research/原视频-1.mp4",
+          "-map",
+          "0:0",
+          "-map",
+          "0:1",
+          "-c:v",
+          "libx264",
+          "-preset",
+          "veryfast",
+          "-profile:v",
+          "main",
+          "-pix_fmt",
+          "yuv420p",
+          "-g",
+          "214",
+          "-keyint_min",
+          "25",
+          "-sc_threshold",
+          "0",
+          "-bf",
+          "0",
+          "-fps_mode:v",
+          "passthrough",
+          "-enc_time_base:v",
+          "demux",
+          "-video_track_timescale",
+          "12800",
+          "-avoid_negative_ts",
+          "disabled",
+          "-crf",
+          "22",
+          "-vf",
+          "format=yuv420p,split=2[bg][fg];[bg]gblur=sigma=21.600:steps=2,eq=brightness=-0.14:saturation=0.35[back];[fg]scale=612:612:flags=lanczos,eq=contrast=1.071451:brightness=-0.011843:saturation=1.040000,hue=h='-1.662745+4*sin(2*PI*if(isnan(t),0,t)/9.411765+5.322228)',noise=all_seed=451624715:alls=5:allf=t+u[front];[back][front]overlay=x='(W-w)/2+10.800000*sin(2*PI*if(isnan(t),0,t)/9.411765+5.322228)':y='(H-h)/2+10.800000*cos(2*PI*if(isnan(t),0,t)/9.411765+5.322228)':shortest=1:repeatlast=0,format=yuv420p",
+          "-color_range",
+          "tv",
+          "-color_primaries",
+          "bt709",
+          "-color_trc",
+          "bt709",
+          "-bsf:v",
+          "h264_metadata=video_full_range_flag=0",
+          "-c:a",
+          "aac",
+          "-ar",
+          "48000",
+          "-ac",
+          "2",
+          "-channel_layout:a",
+          "stereo",
+          "-b:a",
+          "192000",
+          "-af",
+          "aresample=48000,asetpts=PTS-STARTPTS,asplit=2[channel0][channel1];[channel0]pan=mono|c0=c0,asetrate=54702,aresample=48000,atempo=0.877481627728,apad=whole_len=5741088,atrim=end_sample=5741088,aformat=sample_fmts=fltp:sample_rates=48000:channel_layouts=mono[shifted0];[channel1]pan=mono|c0=c1,asetrate=54702,aresample=48000,atempo=0.877481627728,apad=whole_len=5741088,atrim=end_sample=5741088,aformat=sample_fmts=fltp:sample_rates=48000:channel_layouts=mono[shifted1];[shifted0][shifted1]amerge=inputs=2,pan=stereo|c0=c0|c1=c1,asetpts=PTS+0.000000000/TB,highpass=f=45,lowpass=f=12864,acompressor=threshold=0.18:ratio=1.6:attack=10:release=100:makeup=1:link=average:detection=rms,volume='0.90+0.03*sin(2*PI*if(isnan(t),0,t)/8.039216+2.808953)':eval=frame,alimiter=limit=0.95:level=0:latency=1",
+          "-map_metadata",
+          "-1",
+          "-metadata",
+          "comment=video-editor/content-variation-v1",
+          "-movflags",
+          "+faststart",
+          "-progress",
+          "pipe:1",
+          "-nostats",
+          "${REPO_ROOT}/.media-fixtures/sample-content-v1/pair1/.video-editor-06842f0a-4ad9-4266-b0fd-80048560d6e9/output.mp4"
+        ],
+        "jobId": "06842f0a-4ad9-4266-b0fd-80048560d6e9",
+        "policy": {
+          "audioDurationSeconds": 119.6060090702948,
+          "audioToleranceSeconds": 0.05,
+          "channels": 2,
+          "frameCount": 2990,
+          "frameRate": {
+            "den": 1,
+            "num": 25
+          },
+          "height": 720,
+          "videoDurationSeconds": 119.6,
+          "videoToleranceSeconds": 0.04,
+          "width": 720
+        },
+        "presetId": "content-variation-v1",
+        "source": {
+          "audio": {
+            "bitRate": 64798,
+            "channelLayout": "stereo",
+            "channels": 2,
+            "codec": "aac",
+            "durationTicks": 5274625,
+            "sampleRate": 44100,
+            "startPts": 0,
+            "streamIndex": 1,
+            "timeBase": {
+              "den": 44100,
+              "num": 1
+            }
+          },
+          "comment": null,
+          "container": "mov,mp4,m4a,3gp,3g2,mj2",
+          "identity": {
+            "canonicalPath": "${REPO_ROOT}/docs/requirements/20261002-research/原视频-1.mp4",
+            "modifiedNs": "1791258178399667541",
+            "sha256": "a3c0e92cdb373cb42190a67dd304a1e48077a09d1720ad0d1d1b4c3318742307",
+            "sizeBytes": 14939624
+          },
+          "title": null,
+          "video": {
+            "bitDepth": 8,
+            "bitRate": 930665,
+            "codec": "h264",
+            "colorPrimaries": "bt709",
+            "colorRange": "tv",
+            "colorSpace": null,
+            "colorTransfer": "bt709",
+            "durationTicks": 1530880,
+            "frameCount": 2990,
+            "frameRate": {
+              "den": 1,
+              "num": 25
+            },
+            "height": 720,
+            "pixelFormat": "yuv420p",
+            "startPts": 0,
+            "streamIndex": 0,
+            "timeBase": {
+              "den": 12800,
+              "num": 1
+            },
+            "timeline": {
+              "timestampSha256": "ee30aa475eb6f77f2488070ac207b7595ba30d54d68f3017b8a6f407c6ea51de",
+              "variableFrameRate": false
+            },
+            "width": 720
+          }
+        },
+        "version": 1,
+        "workspace": {
+          "directory": "${REPO_ROOT}/.media-fixtures/sample-content-v1/pair1/.video-editor-06842f0a-4ad9-4266-b0fd-80048560d6e9",
+          "directoryIdentity": {
+            "fileId": "259824570",
+            "volumeId": "16777220"
+          },
+          "finalPath": "${REPO_ROOT}/.media-fixtures/sample-content-v1/pair1/原视频-1_processed_06842f0a-4ad9-4266-b0fd-80048560d6e9.mp4",
+          "jobId": "06842f0a-4ad9-4266-b0fd-80048560d6e9",
+          "recordPath": "${REPO_ROOT}/.media-fixtures/sample-content-v1/pair1/records/06842f0a-4ad9-4266-b0fd-80048560d6e9.json",
+          "tempPath": "${REPO_ROOT}/.media-fixtures/sample-content-v1/pair1/.video-editor-06842f0a-4ad9-4266-b0fd-80048560d6e9/output.mp4"
+        }
+      },
+      "platform_review": "batch_reported_pass_individual_file_unspecified",
+      "preset_id": "content-variation-v1",
+      "snapshot": {
+        "cleanupPending": false,
+        "endedAtMs": 1791634461381,
+        "error": null,
+        "jobId": "06842f0a-4ad9-4266-b0fd-80048560d6e9",
+        "outputPath": "${REPO_ROOT}/.media-fixtures/sample-content-v1/pair1/原视频-1_processed_06842f0a-4ad9-4266-b0fd-80048560d6e9.mp4",
+        "progress": 1.0,
+        "startedAtMs": 1791634423187,
+        "state": "succeeded",
+        "version": 46
+      },
+      "source": {
+        "audio": {
+          "bitRate": 64798,
+          "channelLayout": "stereo",
+          "channels": 2,
+          "codec": "aac",
+          "durationTicks": 5274625,
+          "sampleRate": 44100,
+          "startPts": 0,
+          "streamIndex": 1,
+          "timeBase": {
+            "den": 44100,
+            "num": 1
+          }
+        },
+        "comment": null,
+        "container": "mov,mp4,m4a,3gp,3g2,mj2",
+        "identity": {
+          "canonicalPath": "${REPO_ROOT}/docs/requirements/20261002-research/原视频-1.mp4",
+          "modifiedNs": "1791258178399667541",
+          "sha256": "a3c0e92cdb373cb42190a67dd304a1e48077a09d1720ad0d1d1b4c3318742307",
+          "sizeBytes": 14939624
+        },
+        "title": null,
+        "video": {
+          "bitDepth": 8,
+          "bitRate": 930665,
+          "codec": "h264",
+          "colorPrimaries": "bt709",
+          "colorRange": "tv",
+          "colorSpace": null,
+          "colorTransfer": "bt709",
+          "durationTicks": 1530880,
+          "frameCount": 2990,
+          "frameRate": {
+            "den": 1,
+            "num": 25
+          },
+          "height": 720,
+          "pixelFormat": "yuv420p",
+          "startPts": 0,
+          "streamIndex": 0,
+          "timeBase": {
+            "den": 12800,
+            "num": 1
+          },
+          "timeline": {
+            "timestampSha256": "ee30aa475eb6f77f2488070ac207b7595ba30d54d68f3017b8a6f407c6ea51de",
+            "variableFrameRate": false
+          },
+          "width": 720
+        }
+      },
+      "source_unchanged": true,
+      "validation": {
+        "audioDurationSeconds": 119.606,
+        "checks": [
+          "完整解码",
+          "输出规格",
+          "帧数与时间轴",
+          "输入身份"
+        ],
+        "colorInformationComplete": false,
+        "decodedFrames": 2990,
+        "inputSha256": "a3c0e92cdb373cb42190a67dd304a1e48077a09d1720ad0d1d1b4c3318742307",
+        "outputPath": "${REPO_ROOT}/.media-fixtures/sample-content-v1/pair1/原视频-1_processed_06842f0a-4ad9-4266-b0fd-80048560d6e9.mp4",
+        "outputSha256": "fcb43cc7a374f9d4baef2ad103344b663bfcadf4b855b1831f18beb3aa2a89b6",
+        "videoDurationSeconds": 119.6
+      },
+      "decoded_video_sha256": "18f6f80c793ad73e23337a071b380bfc0bea03a41575b1e6199450aee3b4cc77",
+      "h264_bitstream_sha256": "8d0f0722db25eac37440f4fe3bd060e53d34c248741cf04718cb6efa9f7de231",
+      "aac_adts_sha256": "8d5609d507f1d01c1dbcc189c5bdb2852d50c43761556553217b3976a24836d1",
+      "quality_to_source": {
+        "full_frame_count": 2990,
+        "mae_8bit": 21.268777762541806,
+        "mae_plane_Y_U_V": [
+          30.458894615384615,
+          2.8174803444816052,
+          2.9596077692307694
+        ],
+        "psnr_average_db": 16.748546,
+        "rmse_8bit": 37.07770804533537,
+        "ssim_all": 0.571609,
+        "source_mae_budget_applicable": false
+      },
+      "audio": {
+        "decoded_pcm_sha256": "eb7532c684c05612b80a897fb2f640e6cb2b39110a7df56092dfb56dcf18ee80",
+        "decoded_float_samples": 11482176,
+        "peak": 0.5123119354248047,
+        "rms": 0.11283669352696565,
+        "rms_ratio_to_basic": 0.792295706389048,
+        "configured_pitch_rate": 54702,
+        "configured_pitch_semitones": 2.2627101069763635,
+        "difference_in_sample_frames_to_basic": 0
+      },
+      "basic_audio": {
+        "decoded_pcm_sha256": "a259f28d0a917441864a5c978c0592dc0cf57a789974c193bfe9b6a038732aa2",
+        "decoded_float_samples": 11482176,
+        "peak": 0.6279923915863037,
+        "rms": 0.14241739872758877
+      },
+      "changes_from_basic": {
+        "different_decoded_video": true,
+        "different_h264_bitstream": true,
+        "different_aac_bitstream": true,
+        "different_decoded_pcm": true
+      },
+      "contact_sheet_path": "${REPO_ROOT}/.media-fixtures/sample-content-v1/pair1/compare.png",
+      "aspect": {
+        "source": {
+          "sample_aspect_ratio": "1:1",
+          "display_aspect_ratio": "1:1"
+        },
+        "output": {
+          "sample_aspect_ratio": "1:1",
+          "display_aspect_ratio": "1:1"
+        }
+      }
+    },
+    {
+      "frame_timeline_equal": true,
+      "log_path": "${REPO_ROOT}/.media-fixtures/sample-content-v1/pair2/1ba9dc8e-1de8-4bc6-a282-4ff776ee666c.log",
+      "native_validation_succeeded": true,
+      "output": {
+        "audio": {
+          "bitRate": 195186,
+          "channelLayout": "stereo",
+          "channels": 2,
+          "codec": "aac",
+          "durationTicks": 5611776,
+          "sampleRate": 48000,
+          "startPts": 0,
+          "streamIndex": 1,
+          "timeBase": {
+            "den": 48000,
+            "num": 1
+          }
+        },
+        "comment": "Content Adaptive Encoding 3.1; video-editor/content-variation-v1",
+        "container": "mov,mp4,m4a,3gp,3g2,mj2",
+        "identity": {
+          "canonicalPath": "${REPO_ROOT}/.media-fixtures/sample-content-v1/pair2/原视频-2_processed_1ba9dc8e-1de8-4bc6-a282-4ff776ee666c.mp4",
+          "modifiedNs": "1791634612912782565",
+          "sha256": "49c7bae63d54b304178c60961ada9e59dd51459a62cf26a465d3da2513efb336",
+          "sizeBytes": 67466954
+        },
+        "title": null,
+        "video": {
+          "bitDepth": 8,
+          "bitRate": 4414821,
+          "codec": "h264",
+          "colorPrimaries": "bt709",
+          "colorRange": "tv",
+          "colorSpace": "bt709",
+          "colorTransfer": "bt709",
+          "durationTicks": 1795584,
+          "frameCount": 3507,
+          "frameRate": {
+            "den": 1,
+            "num": 30
+          },
+          "height": 1440,
+          "pixelFormat": "yuv420p",
+          "startPts": 0,
+          "streamIndex": 0,
+          "timeBase": {
+            "den": 15360,
+            "num": 1
+          },
+          "timeline": {
+            "timestampSha256": "1c835e19e5abb13b43c721e6ef5bcedd690b27289cb0b065335246d9261b7ae5",
+            "variableFrameRate": false
+          },
+          "width": 1080
+        }
+      },
+      "pair": 2,
+      "plan": {
+        "args": [
+          "-hide_banner",
+          "-n",
+          "-copyts",
+          "-i",
+          "${REPO_ROOT}/docs/requirements/20261002-research/原视频-2.mp4",
+          "-map",
+          "0:0",
+          "-map",
+          "0:1",
+          "-c:v",
+          "libx264",
+          "-preset",
+          "veryfast",
+          "-profile:v",
+          "main",
+          "-pix_fmt",
+          "yuv420p",
+          "-g",
+          "223",
+          "-keyint_min",
+          "25",
+          "-sc_threshold",
+          "0",
+          "-bf",
+          "0",
+          "-fps_mode:v",
+          "passthrough",
+          "-enc_time_base:v",
+          "demux",
+          "-video_track_timescale",
+          "15360",
+          "-avoid_negative_ts",
+          "disabled",
+          "-crf",
+          "20",
+          "-vf",
+          "format=yuv420p,split=2[bg][fg];[bg]gblur=sigma=28.000:steps=2,eq=brightness=-0.14:saturation=0.35[back];[fg]scale=916:1222:flags=lanczos,eq=contrast=1.089569:brightness=-0.009176:saturation=1.096471,hue=h='3.482353+4*sin(2*PI*if(isnan(t),0,t)/11.458824+4.114870)',noise=all_seed=1348297939:alls=4:allf=t+u[front];[back][front]overlay=x='(W-w)/2+16.200000*sin(2*PI*if(isnan(t),0,t)/11.458824+4.114870)':y='(H-h)/2+21.600000*cos(2*PI*if(isnan(t),0,t)/11.458824+4.114870)':shortest=1:repeatlast=0,format=yuv420p",
+          "-color_range",
+          "tv",
+          "-colorspace",
+          "bt709",
+          "-color_primaries",
+          "bt709",
+          "-color_trc",
+          "bt709",
+          "-bsf:v",
+          "h264_metadata=video_full_range_flag=0",
+          "-c:a",
+          "aac",
+          "-ar",
+          "48000",
+          "-ac",
+          "2",
+          "-channel_layout:a",
+          "stereo",
+          "-b:a",
+          "192000",
+          "-af",
+          "aresample=48000,asetpts=PTS-STARTPTS,asplit=2[channel0][channel1];[channel0]pan=mono|c0=c0,asetrate=42618,aresample=48000,atempo=1.126284668450,apad=whole_len=5611776,atrim=end_sample=5611776,aformat=sample_fmts=fltp:sample_rates=48000:channel_layouts=mono[shifted0];[channel1]pan=mono|c0=c1,asetrate=42618,aresample=48000,atempo=1.126284668450,apad=whole_len=5611776,atrim=end_sample=5611776,aformat=sample_fmts=fltp:sample_rates=48000:channel_layouts=mono[shifted1];[shifted0][shifted1]amerge=inputs=2,pan=stereo|c0=c0|c1=c1,asetpts=PTS+0.000000000/TB,highpass=f=45,lowpass=f=12128,acompressor=threshold=0.18:ratio=1.6:attack=10:release=100:makeup=1:link=average:detection=rms,volume='0.90+0.03*sin(2*PI*if(isnan(t),0,t)/10.705882+2.414714)':eval=frame,alimiter=limit=0.95:level=0:latency=1",
+          "-map_metadata",
+          "-1",
+          "-metadata",
+          "comment=Content Adaptive Encoding 3.1; video-editor/content-variation-v1",
+          "-movflags",
+          "+faststart",
+          "-progress",
+          "pipe:1",
+          "-nostats",
+          "${REPO_ROOT}/.media-fixtures/sample-content-v1/pair2/.video-editor-1ba9dc8e-1de8-4bc6-a282-4ff776ee666c/output.mp4"
+        ],
+        "jobId": "1ba9dc8e-1de8-4bc6-a282-4ff776ee666c",
+        "policy": {
+          "audioDurationSeconds": 116.9119954648526,
+          "audioToleranceSeconds": 0.05,
+          "channels": 2,
+          "frameCount": 3507,
+          "frameRate": {
+            "den": 1,
+            "num": 30
+          },
+          "height": 1440,
+          "videoDurationSeconds": 116.9,
+          "videoToleranceSeconds": 0.03333333333333333,
+          "width": 1080
+        },
+        "presetId": "content-variation-v1",
+        "source": {
+          "audio": {
+            "bitRate": 128560,
+            "channelLayout": "stereo",
+            "channels": 2,
+            "codec": "aac",
+            "durationTicks": 5155819,
+            "sampleRate": 44100,
+            "startPts": 0,
+            "streamIndex": 1,
+            "timeBase": {
+              "den": 44100,
+              "num": 1
+            }
+          },
+          "comment": "Content Adaptive Encoding 3.1",
+          "container": "mov,mp4,m4a,3gp,3g2,mj2",
+          "identity": {
+            "canonicalPath": "${REPO_ROOT}/docs/requirements/20261002-research/原视频-2.mp4",
+            "modifiedNs": "1791550508000000000",
+            "sha256": "01d82ded9b53f1cf3908507c0ede2e83aa375396089398706d304ae73c65e7e8",
+            "sizeBytes": 28980142
+          },
+          "title": null,
+          "video": {
+            "bitDepth": 8,
+            "bitRate": 1850398,
+            "codec": "h264",
+            "colorPrimaries": "bt709",
+            "colorRange": "tv",
+            "colorSpace": "bt709",
+            "colorTransfer": "bt709",
+            "durationTicks": 1795584,
+            "frameCount": 3507,
+            "frameRate": {
+              "den": 1,
+              "num": 30
+            },
+            "height": 1440,
+            "pixelFormat": "yuv420p",
+            "startPts": 0,
+            "streamIndex": 0,
+            "timeBase": {
+              "den": 15360,
+              "num": 1
+            },
+            "timeline": {
+              "timestampSha256": "1c835e19e5abb13b43c721e6ef5bcedd690b27289cb0b065335246d9261b7ae5",
+              "variableFrameRate": false
+            },
+            "width": 1080
+          }
+        },
+        "version": 1,
+        "workspace": {
+          "directory": "${REPO_ROOT}/.media-fixtures/sample-content-v1/pair2/.video-editor-1ba9dc8e-1de8-4bc6-a282-4ff776ee666c",
+          "directoryIdentity": {
+            "fileId": "259829068",
+            "volumeId": "16777220"
+          },
+          "finalPath": "${REPO_ROOT}/.media-fixtures/sample-content-v1/pair2/原视频-2_processed_1ba9dc8e-1de8-4bc6-a282-4ff776ee666c.mp4",
+          "jobId": "1ba9dc8e-1de8-4bc6-a282-4ff776ee666c",
+          "recordPath": "${REPO_ROOT}/.media-fixtures/sample-content-v1/pair2/records/1ba9dc8e-1de8-4bc6-a282-4ff776ee666c.json",
+          "tempPath": "${REPO_ROOT}/.media-fixtures/sample-content-v1/pair2/.video-editor-1ba9dc8e-1de8-4bc6-a282-4ff776ee666c/output.mp4"
+        }
+      },
+      "platform_review": "batch_reported_pass_individual_file_unspecified",
+      "preset_id": "content-variation-v1",
+      "snapshot": {
+        "cleanupPending": false,
+        "endedAtMs": 1791634689813,
+        "error": null,
+        "jobId": "1ba9dc8e-1de8-4bc6-a282-4ff776ee666c",
+        "outputPath": "${REPO_ROOT}/.media-fixtures/sample-content-v1/pair2/原视频-2_processed_1ba9dc8e-1de8-4bc6-a282-4ff776ee666c.mp4",
+        "progress": 1.0,
+        "startedAtMs": 1791634499457,
+        "state": "succeeded",
+        "version": 177
+      },
+      "source": {
+        "audio": {
+          "bitRate": 128560,
+          "channelLayout": "stereo",
+          "channels": 2,
+          "codec": "aac",
+          "durationTicks": 5155819,
+          "sampleRate": 44100,
+          "startPts": 0,
+          "streamIndex": 1,
+          "timeBase": {
+            "den": 44100,
+            "num": 1
+          }
+        },
+        "comment": "Content Adaptive Encoding 3.1",
+        "container": "mov,mp4,m4a,3gp,3g2,mj2",
+        "identity": {
+          "canonicalPath": "${REPO_ROOT}/docs/requirements/20261002-research/原视频-2.mp4",
+          "modifiedNs": "1791550508000000000",
+          "sha256": "01d82ded9b53f1cf3908507c0ede2e83aa375396089398706d304ae73c65e7e8",
+          "sizeBytes": 28980142
+        },
+        "title": null,
+        "video": {
+          "bitDepth": 8,
+          "bitRate": 1850398,
+          "codec": "h264",
+          "colorPrimaries": "bt709",
+          "colorRange": "tv",
+          "colorSpace": "bt709",
+          "colorTransfer": "bt709",
+          "durationTicks": 1795584,
+          "frameCount": 3507,
+          "frameRate": {
+            "den": 1,
+            "num": 30
+          },
+          "height": 1440,
+          "pixelFormat": "yuv420p",
+          "startPts": 0,
+          "streamIndex": 0,
+          "timeBase": {
+            "den": 15360,
+            "num": 1
+          },
+          "timeline": {
+            "timestampSha256": "1c835e19e5abb13b43c721e6ef5bcedd690b27289cb0b065335246d9261b7ae5",
+            "variableFrameRate": false
+          },
+          "width": 1080
+        }
+      },
+      "source_unchanged": true,
+      "validation": {
+        "audioDurationSeconds": 116.912,
+        "checks": [
+          "完整解码",
+          "输出规格",
+          "帧数与时间轴",
+          "输入身份"
+        ],
+        "colorInformationComplete": true,
+        "decodedFrames": 3507,
+        "inputSha256": "01d82ded9b53f1cf3908507c0ede2e83aa375396089398706d304ae73c65e7e8",
+        "outputPath": "${REPO_ROOT}/.media-fixtures/sample-content-v1/pair2/原视频-2_processed_1ba9dc8e-1de8-4bc6-a282-4ff776ee666c.mp4",
+        "outputSha256": "49c7bae63d54b304178c60961ada9e59dd51459a62cf26a465d3da2513efb336",
+        "videoDurationSeconds": 116.9
+      },
+      "decoded_video_sha256": "e750fa897b088b84308770c5d904e25107c71f685380a282779bbc8cdf0a6e37",
+      "h264_bitstream_sha256": "ec103ac7225e6bc45a73fdb43d385bd6a5ab5476ede1a7b78489862481ebb0cd",
+      "aac_adts_sha256": "082ee8d0bc14777762b371cd11401f4f27ab7e3607a9d9a8e7e4df84253f5d99",
+      "quality_to_source": {
+        "full_frame_count": 3507,
+        "mae_8bit": 25.27229662484555,
+        "mae_plane_Y_U_V": [
+          34.99038126603935,
+          6.0684512403763895,
+          5.603803444539493
+        ],
+        "psnr_average_db": 15.745006,
+        "rmse_8bit": 41.618831283435085,
+        "ssim_all": 0.745703,
+        "source_mae_budget_applicable": false
+      },
+      "audio": {
+        "decoded_pcm_sha256": "05bc668e6915928fc591fbbdb40feb433806b16db6e67aca46c9a50b108fc877",
+        "decoded_float_samples": 11223552,
+        "peak": 0.5619497895240784,
+        "rms": 0.11459407007639724,
+        "rms_ratio_to_basic": 0.7781427217066252,
+        "configured_pitch_rate": 42618,
+        "configured_pitch_semitones": -2.0588581761482585,
+        "difference_in_sample_frames_to_basic": 0
+      },
+      "basic_audio": {
+        "decoded_pcm_sha256": "cb132bc3090011e18892a494ef895e06ec0a6e25e6d60d42f465df3a7389825d",
+        "decoded_float_samples": 11223552,
+        "peak": 0.5164745450019836,
+        "rms": 0.1472661336792679
+      },
+      "changes_from_basic": {
+        "different_decoded_video": true,
+        "different_h264_bitstream": true,
+        "different_aac_bitstream": true,
+        "different_decoded_pcm": true
+      },
+      "contact_sheet_path": "${REPO_ROOT}/.media-fixtures/sample-content-v1/pair2/compare.png",
+      "aspect": {
+        "source": {
+          "sample_aspect_ratio": "1:1",
+          "display_aspect_ratio": "3:4"
+        },
+        "output": {
+          "sample_aspect_ratio": "1:1",
+          "display_aspect_ratio": "3:4"
+        }
+      }
+    }
+  ],
+  "measurement_commands": [
+    [
+      "${REPO_ROOT}/src-tauri/binaries/ffmpeg-x86_64-apple-darwin",
+      "-v",
+      "error",
+      "-i",
+      "${REPO_ROOT}/.media-fixtures/sample-content-v1/pair1/原视频-1_processed_06842f0a-4ad9-4266-b0fd-80048560d6e9.mp4",
+      "-map",
+      "0:v:0",
+      "-pix_fmt",
+      "yuv420p",
+      "-c:v",
+      "rawvideo",
+      "-fps_mode",
+      "passthrough",
+      "-f",
+      "hash",
+      "-hash",
+      "sha256",
+      "pipe:1"
+    ],
+    [
+      "${REPO_ROOT}/src-tauri/binaries/ffmpeg-x86_64-apple-darwin",
+      "-v",
+      "error",
+      "-i",
+      "${REPO_ROOT}/.media-fixtures/sample-content-v1/pair1/原视频-1_processed_06842f0a-4ad9-4266-b0fd-80048560d6e9.mp4",
+      "-map",
+      "0:v:0",
+      "-c:v",
+      "copy",
+      "-f",
+      "h264",
+      "pipe:1"
+    ],
+    [
+      "${REPO_ROOT}/src-tauri/binaries/ffmpeg-x86_64-apple-darwin",
+      "-v",
+      "error",
+      "-i",
+      "${REPO_ROOT}/.media-fixtures/sample-content-v1/pair1/原视频-1_processed_06842f0a-4ad9-4266-b0fd-80048560d6e9.mp4",
+      "-map",
+      "0:a:0",
+      "-c:a",
+      "copy",
+      "-f",
+      "adts",
+      "pipe:1"
+    ],
+    [
+      "${REPO_ROOT}/src-tauri/binaries/ffmpeg-x86_64-apple-darwin",
+      "-hide_banner",
+      "-nostats",
+      "-i",
+      "${REPO_ROOT}/docs/requirements/20261002-research/原视频-1.mp4",
+      "-i",
+      "${REPO_ROOT}/.media-fixtures/sample-content-v1/pair1/原视频-1_processed_06842f0a-4ad9-4266-b0fd-80048560d6e9.mp4",
+      "-filter_complex",
+      "[0:v:0]format=yuv420p,setpts=PTS-STARTPTS,split=3[a0][a1][a2];[1:v:0]format=yuv420p,setpts=PTS-STARTPTS,split=3[b0][b1][b2];[a0][b0]psnr[p];[a1][b1]ssim[s];[a2][b2]blend=all_mode=difference:shortest=1,signalstats,metadata=mode=print:file='${REPO_ROOT}/.media-fixtures/sample-content-v1/pair1/mae-frames.txt'[d]",
+      "-map",
+      "[p]",
+      "-map",
+      "[s]",
+      "-map",
+      "[d]",
+      "-an",
+      "-fps_mode",
+      "passthrough",
+      "-f",
+      "null",
+      "-"
+    ],
+    [
+      "${REPO_ROOT}/src-tauri/binaries/ffmpeg-x86_64-apple-darwin",
+      "-v",
+      "error",
+      "-i",
+      "${REPO_ROOT}/.media-fixtures/sample-content-v1/pair1/原视频-1_processed_06842f0a-4ad9-4266-b0fd-80048560d6e9.mp4",
+      "-map",
+      "0:a:0",
+      "-f",
+      "f32le",
+      "pipe:1"
+    ],
+    [
+      "${REPO_ROOT}/src-tauri/binaries/ffmpeg-x86_64-apple-darwin",
+      "-v",
+      "error",
+      "-i",
+      "${REPO_ROOT}/.media-fixtures/sample-repeat-variation/pair1-basic/原视频-1_processed_dad4c778-07b4-45e8-accb-cbc6cd484c2c.mp4",
+      "-map",
+      "0:a:0",
+      "-f",
+      "f32le",
+      "pipe:1"
+    ],
+    [
+      "${REPO_ROOT}/src-tauri/binaries/ffmpeg-x86_64-apple-darwin",
+      "-v",
+      "error",
+      "-ss",
+      "1.0",
+      "-i",
+      "${REPO_ROOT}/docs/requirements/20261002-research/原视频-1.mp4",
+      "-ss",
+      "1.0",
+      "-i",
+      "${REPO_ROOT}/.media-fixtures/sample-content-v1/pair1/原视频-1_processed_06842f0a-4ad9-4266-b0fd-80048560d6e9.mp4",
+      "-filter_complex",
+      "[0:v]scale=320:-2[l];[1:v]scale=320:-2[r];[l][r]hstack",
+      "-frames:v",
+      "1",
+      "-update",
+      "1",
+      "-y",
+      "${REPO_ROOT}/.media-fixtures/sample-content-v1/pair1/compare-1.0s.png"
+    ],
+    [
+      "${REPO_ROOT}/src-tauri/binaries/ffmpeg-x86_64-apple-darwin",
+      "-v",
+      "error",
+      "-ss",
+      "59.8",
+      "-i",
+      "${REPO_ROOT}/docs/requirements/20261002-research/原视频-1.mp4",
+      "-ss",
+      "59.8",
+      "-i",
+      "${REPO_ROOT}/.media-fixtures/sample-content-v1/pair1/原视频-1_processed_06842f0a-4ad9-4266-b0fd-80048560d6e9.mp4",
+      "-filter_complex",
+      "[0:v]scale=320:-2[l];[1:v]scale=320:-2[r];[l][r]hstack",
+      "-frames:v",
+      "1",
+      "-update",
+      "1",
+      "-y",
+      "${REPO_ROOT}/.media-fixtures/sample-content-v1/pair1/compare-59.8s.png"
+    ],
+    [
+      "${REPO_ROOT}/src-tauri/binaries/ffmpeg-x86_64-apple-darwin",
+      "-v",
+      "error",
+      "-ss",
+      "118.6",
+      "-i",
+      "${REPO_ROOT}/docs/requirements/20261002-research/原视频-1.mp4",
+      "-ss",
+      "118.6",
+      "-i",
+      "${REPO_ROOT}/.media-fixtures/sample-content-v1/pair1/原视频-1_processed_06842f0a-4ad9-4266-b0fd-80048560d6e9.mp4",
+      "-filter_complex",
+      "[0:v]scale=320:-2[l];[1:v]scale=320:-2[r];[l][r]hstack",
+      "-frames:v",
+      "1",
+      "-update",
+      "1",
+      "-y",
+      "${REPO_ROOT}/.media-fixtures/sample-content-v1/pair1/compare-118.6s.png"
+    ],
+    [
+      "${REPO_ROOT}/src-tauri/binaries/ffmpeg-x86_64-apple-darwin",
+      "-v",
+      "error",
+      "-i",
+      "${REPO_ROOT}/.media-fixtures/sample-content-v1/pair1/compare-1.0s.png",
+      "-i",
+      "${REPO_ROOT}/.media-fixtures/sample-content-v1/pair1/compare-59.8s.png",
+      "-i",
+      "${REPO_ROOT}/.media-fixtures/sample-content-v1/pair1/compare-118.6s.png",
+      "-filter_complex",
+      "[0:v][1:v][2:v]vstack=inputs=3",
+      "-frames:v",
+      "1",
+      "-update",
+      "1",
+      "-y",
+      "${REPO_ROOT}/.media-fixtures/sample-content-v1/pair1/compare.png"
+    ],
+    [
+      "${REPO_ROOT}/src-tauri/binaries/ffmpeg-x86_64-apple-darwin",
+      "-v",
+      "error",
+      "-i",
+      "${REPO_ROOT}/.media-fixtures/sample-content-v1/pair2/原视频-2_processed_1ba9dc8e-1de8-4bc6-a282-4ff776ee666c.mp4",
+      "-map",
+      "0:v:0",
+      "-pix_fmt",
+      "yuv420p",
+      "-c:v",
+      "rawvideo",
+      "-fps_mode",
+      "passthrough",
+      "-f",
+      "hash",
+      "-hash",
+      "sha256",
+      "pipe:1"
+    ],
+    [
+      "${REPO_ROOT}/src-tauri/binaries/ffmpeg-x86_64-apple-darwin",
+      "-v",
+      "error",
+      "-i",
+      "${REPO_ROOT}/.media-fixtures/sample-content-v1/pair2/原视频-2_processed_1ba9dc8e-1de8-4bc6-a282-4ff776ee666c.mp4",
+      "-map",
+      "0:v:0",
+      "-c:v",
+      "copy",
+      "-f",
+      "h264",
+      "pipe:1"
+    ],
+    [
+      "${REPO_ROOT}/src-tauri/binaries/ffmpeg-x86_64-apple-darwin",
+      "-v",
+      "error",
+      "-i",
+      "${REPO_ROOT}/.media-fixtures/sample-content-v1/pair2/原视频-2_processed_1ba9dc8e-1de8-4bc6-a282-4ff776ee666c.mp4",
+      "-map",
+      "0:a:0",
+      "-c:a",
+      "copy",
+      "-f",
+      "adts",
+      "pipe:1"
+    ],
+    [
+      "${REPO_ROOT}/src-tauri/binaries/ffmpeg-x86_64-apple-darwin",
+      "-hide_banner",
+      "-nostats",
+      "-i",
+      "${REPO_ROOT}/docs/requirements/20261002-research/原视频-2.mp4",
+      "-i",
+      "${REPO_ROOT}/.media-fixtures/sample-content-v1/pair2/原视频-2_processed_1ba9dc8e-1de8-4bc6-a282-4ff776ee666c.mp4",
+      "-filter_complex",
+      "[0:v:0]format=yuv420p,setpts=PTS-STARTPTS,split=3[a0][a1][a2];[1:v:0]format=yuv420p,setpts=PTS-STARTPTS,split=3[b0][b1][b2];[a0][b0]psnr[p];[a1][b1]ssim[s];[a2][b2]blend=all_mode=difference:shortest=1,signalstats,metadata=mode=print:file='${REPO_ROOT}/.media-fixtures/sample-content-v1/pair2/mae-frames.txt'[d]",
+      "-map",
+      "[p]",
+      "-map",
+      "[s]",
+      "-map",
+      "[d]",
+      "-an",
+      "-fps_mode",
+      "passthrough",
+      "-f",
+      "null",
+      "-"
+    ],
+    [
+      "${REPO_ROOT}/src-tauri/binaries/ffmpeg-x86_64-apple-darwin",
+      "-v",
+      "error",
+      "-i",
+      "${REPO_ROOT}/.media-fixtures/sample-content-v1/pair2/原视频-2_processed_1ba9dc8e-1de8-4bc6-a282-4ff776ee666c.mp4",
+      "-map",
+      "0:a:0",
+      "-f",
+      "f32le",
+      "pipe:1"
+    ],
+    [
+      "${REPO_ROOT}/src-tauri/binaries/ffmpeg-x86_64-apple-darwin",
+      "-v",
+      "error",
+      "-i",
+      "${REPO_ROOT}/.media-fixtures/sample-repeat-variation/pair2-basic/原视频-2_processed_adf5e194-f233-4bb3-98c7-450d3b0c02bd.mp4",
+      "-map",
+      "0:a:0",
+      "-f",
+      "f32le",
+      "pipe:1"
+    ],
+    [
+      "${REPO_ROOT}/src-tauri/binaries/ffmpeg-x86_64-apple-darwin",
+      "-v",
+      "error",
+      "-ss",
+      "1.0",
+      "-i",
+      "${REPO_ROOT}/docs/requirements/20261002-research/原视频-2.mp4",
+      "-ss",
+      "1.0",
+      "-i",
+      "${REPO_ROOT}/.media-fixtures/sample-content-v1/pair2/原视频-2_processed_1ba9dc8e-1de8-4bc6-a282-4ff776ee666c.mp4",
+      "-filter_complex",
+      "[0:v]scale=320:-2[l];[1:v]scale=320:-2[r];[l][r]hstack",
+      "-frames:v",
+      "1",
+      "-update",
+      "1",
+      "-y",
+      "${REPO_ROOT}/.media-fixtures/sample-content-v1/pair2/compare-1.0s.png"
+    ],
+    [
+      "${REPO_ROOT}/src-tauri/binaries/ffmpeg-x86_64-apple-darwin",
+      "-v",
+      "error",
+      "-ss",
+      "58.45",
+      "-i",
+      "${REPO_ROOT}/docs/requirements/20261002-research/原视频-2.mp4",
+      "-ss",
+      "58.45",
+      "-i",
+      "${REPO_ROOT}/.media-fixtures/sample-content-v1/pair2/原视频-2_processed_1ba9dc8e-1de8-4bc6-a282-4ff776ee666c.mp4",
+      "-filter_complex",
+      "[0:v]scale=320:-2[l];[1:v]scale=320:-2[r];[l][r]hstack",
+      "-frames:v",
+      "1",
+      "-update",
+      "1",
+      "-y",
+      "${REPO_ROOT}/.media-fixtures/sample-content-v1/pair2/compare-58.5s.png"
+    ],
+    [
+      "${REPO_ROOT}/src-tauri/binaries/ffmpeg-x86_64-apple-darwin",
+      "-v",
+      "error",
+      "-ss",
+      "115.9",
+      "-i",
+      "${REPO_ROOT}/docs/requirements/20261002-research/原视频-2.mp4",
+      "-ss",
+      "115.9",
+      "-i",
+      "${REPO_ROOT}/.media-fixtures/sample-content-v1/pair2/原视频-2_processed_1ba9dc8e-1de8-4bc6-a282-4ff776ee666c.mp4",
+      "-filter_complex",
+      "[0:v]scale=320:-2[l];[1:v]scale=320:-2[r];[l][r]hstack",
+      "-frames:v",
+      "1",
+      "-update",
+      "1",
+      "-y",
+      "${REPO_ROOT}/.media-fixtures/sample-content-v1/pair2/compare-115.9s.png"
+    ],
+    [
+      "${REPO_ROOT}/src-tauri/binaries/ffmpeg-x86_64-apple-darwin",
+      "-v",
+      "error",
+      "-i",
+      "${REPO_ROOT}/.media-fixtures/sample-content-v1/pair2/compare-1.0s.png",
+      "-i",
+      "${REPO_ROOT}/.media-fixtures/sample-content-v1/pair2/compare-58.5s.png",
+      "-i",
+      "${REPO_ROOT}/.media-fixtures/sample-content-v1/pair2/compare-115.9s.png",
+      "-filter_complex",
+      "[0:v][1:v][2:v]vstack=inputs=3",
+      "-frames:v",
+      "1",
+      "-update",
+      "1",
+      "-y",
+      "${REPO_ROOT}/.media-fixtures/sample-content-v1/pair2/compare.png"
+    ]
+  ],
+  "method": {
+    "picture_quality": "Both source and output decoded as yuv420p and aligned at start; full PSNR/SSIM plus pixel absolute differences from blend=all_mode=difference, signalstats. MAE weights Y=2/3, U=V=1/6. Whole-frame MAE is descriptive because this preset deliberately reframes the image; the older preset MAE/RMSE budgets do not apply.",
+    "audio": "Fully decoded float32 PCM at each output native rate; compares with existing source-identity-matched basic transcode. No downmix.",
+    "frame_order": "Original full-frame timestamp hash equals output; unchanged application validation policy."
+  },
+  "tools": {
+    "ffmpeg_sha256": "a45b462cf91ed89148ae218c4577e30896485d7a6792c3673bcf5f823fa01b63",
+    "ffprobe_sha256": "a29f8c2e03553223a8b480b1a1f04c42f680c138fa952c20086718a075db38cb"
+  },
+  "platform_review_status": "user_reported_batch_pass_exact_files_unspecified",
+  "universal_pass_goal_achieved": false,
+  "universal_decoded_uniqueness_proven": false,
+  "previous_platform_feedback": {
+    "date": "2026-10-10",
+    "preset_id": "repeat-combined-v2",
+    "delivered_output_count": 2,
+    "reported_outcome": "originality_review_failed_high_similarity",
+    "raw_user_confirmation": "两份组合版，仍提示高度相似",
+    "uploaded_sha256_independently_verified": false,
+    "full_current_platform_prompt_independently_verified": false,
+    "evidence": "combined-variation-measurements.json"
+  },
+  "content_constraint_update": {
+    "previous": "必须保持内容基本不变",
+    "current_user_request": "还是无法通过平台审核，可以尝试改变下视频内容，包括声音变调、视频画面变化等都可以接受",
+    "preserved_in_this_experiment": [
+      "shot order",
+      "complete source frame in foreground",
+      "original output dimensions",
+      "full video frame count and timestamps",
+      "audio start and duration within unchanged validation policy",
+      "channel layout and index order"
+    ]
+  },
+  "implementation": {
+    "git_head": "23a1cc42ca7d316a717f53fb3028083004bc24fa",
+    "source_has_uncommitted_changes": true,
+    "file_sha256": {
+      "src-tauri/src/presets/content.rs": "bb4fc01d77195bcb96718b70d0014d11c52e445216dd3a113a22d826c09e14f8",
+      "src-tauri/src/presets/basic.rs": "a1743b403ab7a3f9207ee3c3714173f85488e64172e5b6a768b2545f01b33bb6",
+      "src-tauri/src/presets/mod.rs": "bbea119c8b42ee363099d80c4285ab3b1bc0b9a7c41541093ee2684543d49c47",
+      "src/features/processing/ProcessingView.tsx": "23d5c103a6e7e1685f75bd478bf78237f4204e8fd183e17f28fbf2e6fffb51b9",
+      "src-tauri/tests/basic_plan.rs": "4f30acb14e14f0b29c93c121ea1d8ac8bfb5048da305c1e586c28378d923bc0d",
+      "src-tauri/tests/pipeline_real.rs": "dcaf6939aba0d60ebf5d00079dbe12e68b46902129327bb9d21878b0f715fe4a",
+      "src/features/processing/ProcessingView.test.tsx": "99bea6129ea7618c5c8d36fb82cc3f2c2c8647585fe7dbf06a389073e4050e58"
+    }
+  },
+  "verification": {
+    "rust": {
+      "passed": 71,
+      "failed": 0,
+      "ignored": 20
+    },
+    "frontend": {
+      "passed": 30,
+      "failed": 0
+    },
+    "generated_media": {
+      "pipeline_passed": 8,
+      "lifecycle_passed": 3,
+      "batch_passed": 3,
+      "failed": 0
+    },
+    "provided_h264": {
+      "passed": true,
+      "test_count": 1,
+      "frame_count": 754,
+      "preset_ids": [
+        "basic-transcode-v1",
+        "sample-match-v1",
+        "sample-match-v2",
+        "repeat-variant-v1",
+        "repeat-combined-v2",
+        "content-variation-v1"
+      ],
+      "seconds": 408.03
+    },
+    "desktop_clippy_warnings_denied": true,
+    "frontend_production_build": true,
+    "mac_intel": {
+      "version": "0.0.1-beta.3",
+      "built_from_dirty_workspace": true,
+      "native_app_build_passed": true,
+      "development_resource_check": {
+        "exitCode": 0,
+        "status": "DEVELOPMENT CHECKED",
+        "releaseStatus": "NOT VERIFIED",
+        "target": "x86_64-apple-darwin",
+        "host": "x86_64-apple-darwin",
+        "osRelease": "23.6.0",
+        "verifiedAt": "2026-10-10T12:19:29.885Z",
+        "artifact": "${REPO_ROOT}/src-tauri/target/x86_64-apple-darwin/release/bundle/macos/帧序.app",
+        "tools": {
+          "ffmpeg": {
+            "architecture": "x86_64-apple-darwin",
+            "sha256": "a45b462cf91ed89148ae218c4577e30896485d7a6792c3673bcf5f823fa01b63",
+            "sizeBytes": 80827688,
+            "version": "ffmpeg version 9.0.2-tessus  https://evermeet.cx/ffmpeg/  Copyright (c) 2000-2026 the FFmpeg developers",
+            "buildconf": "\n  configuration:\n    --cc=/usr/bin/clang\n    --prefix=/opt/ffmpeg\n    --extra-version=tessus\n    --enable-avisynth\n    --enable-fontconfig\n    --enable-gpl\n    --enable-libaom\n    --enable-libass\n    --enable-libbluray\n    --enable-libdav1d\n    --enable-libfreetype\n    --enable-libgsm\n    --enable-libharfbuzz\n    --enable-libmodplug\n    --enable-libmp3lame\n    --enable-libmysofa\n    --enable-libopencore-amrnb\n    --enable-libopencore-amrwb\n    --enable-libopenh264\n    --enable-libopenjpeg\n    --enable-libopus\n    --enable-librubberband\n    --enable-libshine\n    --enable-libsnappy\n    --enable-libsoxr\n    --enable-libspeex\n    --enable-libtheora\n    --enable-libtwolame\n    --enable-libvidstab\n    --enable-libvmaf\n    --enable-libvo-amrwbenc\n    --enable-libvorbis\n    --enable-libvpx\n    --enable-libwebp\n    --enable-libx264\n    --enable-libx265\n    --enable-libxavs\n    --enable-libxml2\n    --enable-libxvid\n    --enable-libzimg\n    --enable-libzmq\n    --enable-libzvbi\n    --enable-version3\n    --pkg-config-flags=--static\n    --disable-ffplay\n\nExiting with exit code 0\nffmpeg version 9.0.2-tessus  https://evermeet.cx/ffmpeg/  Copyright (c) 2000-2026 the FFmpeg developers\n  built with Apple clang version 17.0.0 (clang-1700.6.4.2)\n  configuration: --cc=/usr/bin/clang --prefix=/opt/ffmpeg --extra-version=tessus --enable-avisynth --enable-fontconfig --enable-gpl --enable-libaom --enable-libass --enable-libbluray --enable-libdav1d --enable-libfreetype --enable-libgsm --enable-libharfbuzz --enable-libmodplug --enable-libmp3lame --enable-libmysofa --enable-libopencore-amrnb --enable-libopencore-amrwb --enable-libopenh264 --enable-libopenjpeg --enable-libopus --enable-librubberband --enable-libshine --enable-libsnappy --enable-libsoxr --enable-libspeex --enable-libtheora --enable-libtwolame --enable-libvidstab --enable-libvmaf --enable-libvo-amrwbenc --enable-libvorbis --enable-libvpx --enable-libwebp --enable-libx264 --enable-libx265 --enable-libxavs --enable-libxml2 --enable-libxvid --enable-libzimg --enable-libzmq --enable-libzvbi --enable-version3 --pkg-config-flags=--static --disable-ffplay\n  libavutil      61.  1.102 / 61.  1.102\n  libavcodec     63.  1.102 / 63.  1.102\n  libavformat    63.  1.102 / 63.  1.102\n  libavdevice    63.  1.102 / 63.  1.102\n  libavfilter    12.  1.102 / 12.  1.102\n  libswscale     10.  1.102 / 10.  1.102\n  libswresample   7.  1.102 /  7.  1.102\n",
+            "license": "ffmpeg is free software; you can redistribute it and/or modify\nit under the terms of the GNU General Public License as published by\nthe Free Software Foundation; either version 3 of the License, or\n(at your option) any later version.\n\nffmpeg is distributed in the hope that it will be useful,\nbut WITHOUT ANY WARRANTY; without even the implied warranty of\nMERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the\nGNU General Public License for more details.\n\nYou should have received a copy of the GNU General Public License\nalong with ffmpeg.  If not, see <http://www.gnu.org/licenses/>.\nffmpeg version 9.0.2-tessus  https://evermeet.cx/ffmpeg/  Copyright (c) 2000-2026 the FFmpeg developers\n  built with Apple clang version 17.0.0 (clang-1700.6.4.2)\n  configuration: --cc=/usr/bin/clang --prefix=/opt/ffmpeg --extra-version=tessus --enable-avisynth --enable-fontconfig --enable-gpl --enable-libaom --enable-libass --enable-libbluray --enable-libdav1d --enable-libfreetype --enable-libgsm --enable-libharfbuzz --enable-libmodplug --enable-libmp3lame --enable-libmysofa --enable-libopencore-amrnb --enable-libopencore-amrwb --enable-libopenh264 --enable-libopenjpeg --enable-libopus --enable-librubberband --enable-libshine --enable-libsnappy --enable-libsoxr --enable-libspeex --enable-libtheora --enable-libtwolame --enable-libvidstab --enable-libvmaf --enable-libvo-amrwbenc --enable-libvorbis --enable-libvpx --enable-libwebp --enable-libx264 --enable-libx265 --enable-libxavs --enable-libxml2 --enable-libxvid --enable-libzimg --enable-libzmq --enable-libzvbi --enable-version3 --pkg-config-flags=--static --disable-ffplay\n  libavutil      61.  1.102 / 61.  1.102\n  libavcodec     63.  1.102 / 63.  1.102\n  libavformat    63.  1.102 / 63.  1.102\n  libavdevice    63.  1.102 / 63.  1.102\n  libavfilter    12.  1.102 / 12.  1.102\n  libswscale     10.  1.102 / 10.  1.102\n  libswresample   7.  1.102 /  7.  1.102\n"
+          },
+          "ffprobe": {
+            "architecture": "x86_64-apple-darwin",
+            "sha256": "a29f8c2e03553223a8b480b1a1f04c42f680c138fa952c20086718a075db38cb",
+            "sizeBytes": 80641376,
+            "version": "ffprobe version 9.0.2-tessus  https://evermeet.cx/ffmpeg/  Copyright (c) 2007-2026 the FFmpeg developers",
+            "buildconf": "\n  configuration:\n    --cc=/usr/bin/clang\n    --prefix=/opt/ffmpeg\n    --extra-version=tessus\n    --enable-avisynth\n    --enable-fontconfig\n    --enable-gpl\n    --enable-libaom\n    --enable-libass\n    --enable-libbluray\n    --enable-libdav1d\n    --enable-libfreetype\n    --enable-libgsm\n    --enable-libharfbuzz\n    --enable-libmodplug\n    --enable-libmp3lame\n    --enable-libmysofa\n    --enable-libopencore-amrnb\n    --enable-libopencore-amrwb\n    --enable-libopenh264\n    --enable-libopenjpeg\n    --enable-libopus\n    --enable-librubberband\n    --enable-libshine\n    --enable-libsnappy\n    --enable-libsoxr\n    --enable-libspeex\n    --enable-libtheora\n    --enable-libtwolame\n    --enable-libvidstab\n    --enable-libvmaf\n    --enable-libvo-amrwbenc\n    --enable-libvorbis\n    --enable-libvpx\n    --enable-libwebp\n    --enable-libx264\n    --enable-libx265\n    --enable-libxavs\n    --enable-libxml2\n    --enable-libxvid\n    --enable-libzimg\n    --enable-libzmq\n    --enable-libzvbi\n    --enable-version3\n    --pkg-config-flags=--static\n    --disable-ffplay\nffprobe version 9.0.2-tessus  https://evermeet.cx/ffmpeg/  Copyright (c) 2007-2026 the FFmpeg developers\n  built with Apple clang version 17.0.0 (clang-1700.6.4.2)\n  configuration: --cc=/usr/bin/clang --prefix=/opt/ffmpeg --extra-version=tessus --enable-avisynth --enable-fontconfig --enable-gpl --enable-libaom --enable-libass --enable-libbluray --enable-libdav1d --enable-libfreetype --enable-libgsm --enable-libharfbuzz --enable-libmodplug --enable-libmp3lame --enable-libmysofa --enable-libopencore-amrnb --enable-libopencore-amrwb --enable-libopenh264 --enable-libopenjpeg --enable-libopus --enable-librubberband --enable-libshine --enable-libsnappy --enable-libsoxr --enable-libspeex --enable-libtheora --enable-libtwolame --enable-libvidstab --enable-libvmaf --enable-libvo-amrwbenc --enable-libvorbis --enable-libvpx --enable-libwebp --enable-libx264 --enable-libx265 --enable-libxavs --enable-libxml2 --enable-libxvid --enable-libzimg --enable-libzmq --enable-libzvbi --enable-version3 --pkg-config-flags=--static --disable-ffplay\n  libavutil      61.  1.102 / 61.  1.102\n  libavcodec     63.  1.102 / 63.  1.102\n  libavformat    63.  1.102 / 63.  1.102\n  libavdevice    63.  1.102 / 63.  1.102\n  libavfilter    12.  1.102 / 12.  1.102\n  libswscale     10.  1.102 / 10.  1.102\n  libswresample   7.  1.102 /  7.  1.102\n",
+            "license": "ffprobe is free software; you can redistribute it and/or modify\nit under the terms of the GNU General Public License as published by\nthe Free Software Foundation; either version 3 of the License, or\n(at your option) any later version.\n\nffprobe is distributed in the hope that it will be useful,\nbut WITHOUT ANY WARRANTY; without even the implied warranty of\nMERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the\nGNU General Public License for more details.\n\nYou should have received a copy of the GNU General Public License\nalong with ffprobe.  If not, see <http://www.gnu.org/licenses/>.\nffprobe version 9.0.2-tessus  https://evermeet.cx/ffmpeg/  Copyright (c) 2007-2026 the FFmpeg developers\n  built with Apple clang version 17.0.0 (clang-1700.6.4.2)\n  configuration: --cc=/usr/bin/clang --prefix=/opt/ffmpeg --extra-version=tessus --enable-avisynth --enable-fontconfig --enable-gpl --enable-libaom --enable-libass --enable-libbluray --enable-libdav1d --enable-libfreetype --enable-libgsm --enable-libharfbuzz --enable-libmodplug --enable-libmp3lame --enable-libmysofa --enable-libopencore-amrnb --enable-libopencore-amrwb --enable-libopenh264 --enable-libopenjpeg --enable-libopus --enable-librubberband --enable-libshine --enable-libsnappy --enable-libsoxr --enable-libspeex --enable-libtheora --enable-libtwolame --enable-libvidstab --enable-libvmaf --enable-libvo-amrwbenc --enable-libvorbis --enable-libvpx --enable-libwebp --enable-libx264 --enable-libx265 --enable-libxavs --enable-libxml2 --enable-libxvid --enable-libzimg --enable-libzmq --enable-libzvbi --enable-version3 --pkg-config-flags=--static --disable-ffplay\n  libavutil      61.  1.102 / 61.  1.102\n  libavcodec     63.  1.102 / 63.  1.102\n  libavformat    63.  1.102 / 63.  1.102\n  libavdevice    63.  1.102 / 63.  1.102\n  libavfilter    12.  1.102 / 12.  1.102\n  libswscale     10.  1.102 / 10.  1.102\n  libswresample   7.  1.102 /  7.  1.102\n"
+          }
+        },
+        "main": {
+          "architecture": "x86_64-apple-darwin",
+          "sha256": "00c16d2fb56edac1a9a3edc4a241481230716a71807d387432f7f762657eff6d",
+          "sizeBytes": 12328404
+        },
+        "fingerprint": "897c2d957fde50fdc9669df57db2b160ede2532eeae93cdc612eaad25634af88",
+        "errors": [],
+        "warnings": [
+          "license material missing from lock manifest",
+          "corresponding-source material missing from lock manifest",
+          "resource distribution status: development-only; corresponding source and license materials require release verification",
+          "video-editor signature: /usr/bin/codesign: exit 1: src-tauri/target/x86_64-apple-darwin/release/bundle/macos/帧序.app/Contents/MacOS/video-editor: code object is not signed at all\nIn architecture: x86_64\n",
+          "ffmpeg signature: /usr/bin/codesign: exit 1: src-tauri/target/x86_64-apple-darwin/release/bundle/macos/帧序.app/Contents/MacOS/ffmpeg: code object is not signed at all\nIn architecture: x86_64\n",
+          "ffprobe signature: /usr/bin/codesign: exit 1: src-tauri/target/x86_64-apple-darwin/release/bundle/macos/帧序.app/Contents/MacOS/ffprobe: code object is not signed at all\nIn architecture: x86_64\n",
+          "bundle assessment/notarization: /usr/bin/codesign: exit 1: src-tauri/target/x86_64-apple-darwin/release/bundle/macos/帧序.app: code object is not signed at all\nIn architecture: x86_64\n",
+          "native installation receipt missing"
+        ],
+        "signatures": {},
+        "installation": null
+      }
+    },
+    "windows_native_build_executed": false,
+    "live_desktop_interaction_executed": false,
+    "new_release_published": false,
+    "platform_upload_executed": false,
+    "log_records": {
+      "rust": {
+        "path": "/tmp/video-editor-content-rust.log",
+        "sha256": "cb9ad15a04eede9dc0166d18a6c1410f408a981de367aa4df5db3c499c98727d"
+      },
+      "frontend": {
+        "path": "/tmp/video-editor-content-ui-green.log",
+        "sha256": "07c3ec6cde7d8b20b248d1d1143fe028014ae228372573a68177488a6b642b8e"
+      },
+      "media": {
+        "path": "/tmp/video-editor-content-media-green.log",
+        "sha256": "aec0464ddcf8adb2b240c0467d34f773ad881f6e4803f441a16e6ab362b85159"
+      },
+      "provided_h264": {
+        "path": "/tmp/video-editor-content-h264.log",
+        "sha256": "536bffb4cf427bfcb3e3523335958544ca945f3a47a1c1b0df58eef5f6285e00"
+      },
+      "desktop_clippy": {
+        "path": "/tmp/video-editor-content-clippy.log",
+        "sha256": "fe0f216cd05d9ee0ecbf48fba2df620eb678db3243f12f503c09d3348fb4b1dc"
+      },
+      "frontend_build": {
+        "path": "/tmp/video-editor-content-build.log",
+        "sha256": "57c34711a2212f0d09c6b89cd24720ca7c78c49a7417b7560407850838c2a7f3"
+      },
+      "app_build": {
+        "path": "/tmp/video-editor-content-app-build.log",
+        "sha256": "22a63ed97e8bc50d3f6b086c44402dbbf95d870c10927acf1cb2e646a8b0faf8"
+      },
+      "app_resource_check": {
+        "path": "/tmp/video-editor-content-app-verification.log",
+        "sha256": "d682b73682442190c083323159b8a183232c13537a657bac975b4cb2b906affa"
+      },
+      "native_exports": {
+        "path": "/tmp/video-editor-content-native-export.log",
+        "sha256": "0121d8f2e3dd7fa4eb2ba0dcbb546a2b3c644a9d99aece9e8e49dd8a1a25c509"
+      },
+      "full_measurements": {
+        "path": "/tmp/video-editor-content-measure.log",
+        "sha256": "249b3d321283c2ed4ba40f44789a7ed9a6be144faa72965fd236a3fa3d888c24"
+      },
+      "channel_pitch_targeted": {
+        "path": "/tmp/video-editor-content-channel-format.log",
+        "sha256": "20d30bfd74c6db1de8610544909017fb179807ba6114bec74ccb02dd06008b83"
+      }
+    }
+  },
+  "synthetic_pitch_checks": {
+    "method": "Decoded AAC float32 PCM from 0.2 to 0.9s at 48 kHz; Hann-windowed Goertzel dominant-frequency scan at 0.5 Hz spacing. Every fourth sample is used for these controlled low-frequency tone fixtures. No downmix.",
+    "accepted_ratio_ranges": [
+      [
+        0.83,
+        0.9
+      ],
+      [
+        1.11,
+        1.2
+      ]
+    ],
+    "per_channel_rms_bounds": [
+      0.06,
+      0.2
+    ],
+    "decoded_peak_upper_bound": 1.01,
+    "tail_check": "Every source channel retains RMS >0.04 in the decoded 1.0–1.15s window of the 1.2s fixture.",
+    "results": [
+      {
+        "fixture": "phase-surround.mkv",
+        "run": 1,
+        "channel": 0,
+        "source_hz": 610.0,
+        "decoded_dominant_hz": 541.5,
+        "ratio": 0.8877049180327868
+      },
+      {
+        "fixture": "phase-surround.mkv",
+        "run": 1,
+        "channel": 1,
+        "source_hz": 730.0,
+        "decoded_dominant_hz": 648.0,
+        "ratio": 0.8876712328767123
+      },
+      {
+        "fixture": "phase-surround.mkv",
+        "run": 1,
+        "channel": 2,
+        "source_hz": 850.0,
+        "decoded_dominant_hz": 754.5,
+        "ratio": 0.8876470588235295
+      },
+      {
+        "fixture": "phase-surround.mkv",
+        "run": 1,
+        "channel": 3,
+        "source_hz": 90.0,
+        "decoded_dominant_hz": 80.0,
+        "ratio": 0.8888888888888888
+      },
+      {
+        "fixture": "phase-surround.mkv",
+        "run": 1,
+        "channel": 4,
+        "source_hz": 1090.0,
+        "decoded_dominant_hz": 968.0,
+        "ratio": 0.8880733944954129
+      },
+      {
+        "fixture": "phase-surround.mkv",
+        "run": 1,
+        "channel": 5,
+        "source_hz": 1230.0,
+        "decoded_dominant_hz": 1092.0,
+        "ratio": 0.8878048780487805
+      },
+      {
+        "fixture": "phase-surround.mkv",
+        "run": 1,
+        "channel": 6,
+        "source_hz": 1370.0,
+        "decoded_dominant_hz": 1216.0,
+        "ratio": 0.8875912408759125
+      },
+      {
+        "fixture": "phase-surround.mkv",
+        "run": 1,
+        "channel": 7,
+        "source_hz": 1490.0,
+        "decoded_dominant_hz": 1323.0,
+        "ratio": 0.8879194630872483
+      },
+      {
+        "fixture": "phase-surround.mkv",
+        "run": 2,
+        "channel": 0,
+        "source_hz": 610.0,
+        "decoded_dominant_hz": 515.0,
+        "ratio": 0.8442622950819673
+      },
+      {
+        "fixture": "phase-surround.mkv",
+        "run": 2,
+        "channel": 1,
+        "source_hz": 730.0,
+        "decoded_dominant_hz": 616.5,
+        "ratio": 0.8445205479452055
+      },
+      {
+        "fixture": "phase-surround.mkv",
+        "run": 2,
+        "channel": 2,
+        "source_hz": 850.0,
+        "decoded_dominant_hz": 717.5,
+        "ratio": 0.8441176470588235
+      },
+      {
+        "fixture": "phase-surround.mkv",
+        "run": 2,
+        "channel": 3,
+        "source_hz": 90.0,
+        "decoded_dominant_hz": 76.0,
+        "ratio": 0.8444444444444444
+      },
+      {
+        "fixture": "phase-surround.mkv",
+        "run": 2,
+        "channel": 4,
+        "source_hz": 1090.0,
+        "decoded_dominant_hz": 920.5,
+        "ratio": 0.8444954128440367
+      },
+      {
+        "fixture": "phase-surround.mkv",
+        "run": 2,
+        "channel": 5,
+        "source_hz": 1230.0,
+        "decoded_dominant_hz": 1038.5,
+        "ratio": 0.8443089430894309
+      },
+      {
+        "fixture": "phase-surround.mkv",
+        "run": 2,
+        "channel": 6,
+        "source_hz": 1370.0,
+        "decoded_dominant_hz": 1156.5,
+        "ratio": 0.8441605839416059
+      },
+      {
+        "fixture": "phase-surround.mkv",
+        "run": 2,
+        "channel": 7,
+        "source_hz": 1490.0,
+        "decoded_dominant_hz": 1258.0,
+        "ratio": 0.8442953020134228
+      },
+      {
+        "fixture": "phase-low-rate.mp4",
+        "run": 1,
+        "channel": 0,
+        "source_hz": 1700.0,
+        "decoded_dominant_hz": 1474.0,
+        "ratio": 0.8670588235294118
+      },
+      {
+        "fixture": "phase-low-rate.mp4",
+        "run": 2,
+        "channel": 0,
+        "source_hz": 1700.0,
+        "decoded_dominant_hz": 1960.0,
+        "ratio": 1.1529411764705881
+      }
+    ],
+    "final_full_generated_suite_passed_with_fresh_jobs": true
+  },
+  "diagnostic_findings": [
+    {
+      "stage": "whole-track tempo compensation",
+      "observation": "7.1 main-channel ratio approximately 1.188, but 90 Hz LFE dominant ratio 1.238889; rejected by the existing target range.",
+      "resolution": "Independent per-channel pitch/tempo compensation with pure indexed extraction and reassembly.",
+      "log": "/tmp/video-editor-content-media.log"
+    },
+    {
+      "stage": "per-channel merge format negotiation",
+      "observation": "amerge could not choose the layout/format of a shifted mono branch.",
+      "resolution": "Declare mono / 48000 / fltp explicitly after each shift before merge.",
+      "log": "/tmp/video-editor-content-channel-green.log"
+    }
+  ],
+  "visual_samples": {
+    "layout": "source left, content variation right",
+    "times_seconds_by_pair": {
+      "1": [
+        1.0,
+        59.8,
+        118.6
+      ],
+      "2": [
+        1.0,
+        58.5,
+        115.9
+      ]
+    },
+    "observed_subject_and_subtitles_intact_at_sampled_frames": true,
+    "observed_visible_foreground_reframing_and_background_change": true,
+    "all_frames_subjectively_reviewed": false,
+    "subjective_audio_listening_performed": false
+  },
+  "local_review": {
+    "mode": "sequential review in main thread",
+    "independent_agent_review": false,
+    "reviewed_scopes": [
+      "unchanged legacy processing arguments and validation policies",
+      "frozen per-job audio/video settings",
+      "foreground bounds and pixel aspect ratio",
+      "channel index order and sample-duration compensation",
+      "UI/API/JobService preset parity",
+      "artifact identity and full decoded measurement provenance"
+    ],
+    "blocking_issues_identified": false,
+    "limitations": [
+      "Windows native execution not performed this round",
+      "live desktop GUI and subjective listening not performed this round",
+      "new outputs not uploaded to platform; no platform outcome inferred"
+    ]
+  },
+  "latest_platform_feedback": {
+    "date": "2026-10-10",
+    "user_verbatim": "很好，这次通过平台审核了，请提交代码",
+    "reported_outcome": "passed",
+    "scope": "Latest delivered content-variation-v1 batch; exact passed file(s) and review category not individually specified",
+    "uploaded_sha256_independently_verified": false,
+    "universal_pass_goal_achieved": false
+  }
+}

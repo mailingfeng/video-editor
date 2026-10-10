@@ -1,0 +1,374 @@
+{
+  "artifacts": [
+    {
+      "arm": "N",
+      "control_C_path": "${REPO_ROOT}/.media-fixtures/sample-round3-combined/原视频-1_R3-C_组合版.mp4",
+      "control_C_sha256": "ea12616fa0359050cecf867da925fc59b4cea454a6c371d52e5adb37606e1166",
+      "experiment_id": "pair1-R4-N",
+      "generation_log": "${REPO_ROOT}/.media-fixtures/sample-round4/pair1-R4-N.log",
+      "output": {
+        "audio": {
+          "bitRate": 192511,
+          "channelLayout": "stereo",
+          "channels": 2,
+          "codec": "aac",
+          "durationTicks": 5741327,
+          "sampleRate": 48000,
+          "startPts": 0,
+          "streamIndex": 1,
+          "timeBase": {
+            "den": 48000,
+            "num": 1
+          }
+        },
+        "comment": "video-editor/sample-match-v2",
+        "container": "mov,mp4,m4a,3gp,3g2,mj2",
+        "identity": {
+          "canonicalPath": "${REPO_ROOT}/.media-fixtures/sample-round4/原视频-1_R4-N_组合无高频.mp4",
+          "modifiedNs": "1791561701490235019",
+          "sha256": "dd8f69ff5066196c4d28b2e4d33004df44d6207736b8c8cb737414bd6f572b75",
+          "sizeBytes": 46774386
+        },
+        "title": null,
+        "video": {
+          "bitDepth": 8,
+          "bitRate": 2931556,
+          "codec": "h264",
+          "colorPrimaries": "bt709",
+          "colorRange": "tv",
+          "colorSpace": null,
+          "colorTransfer": "bt709",
+          "durationTicks": 1530880,
+          "frameCount": 2990,
+          "frameRate": {
+            "den": 1,
+            "num": 25
+          },
+          "height": 720,
+          "pixelFormat": "yuv420p",
+          "startPts": 0,
+          "streamIndex": 0,
+          "timeBase": {
+            "den": 12800,
+            "num": 1
+          },
+          "timeline": {
+            "timestampSha256": "ee30aa475eb6f77f2488070ac207b7595ba30d54d68f3017b8a6f407c6ea51de",
+            "variableFrameRate": false
+          },
+          "width": 720
+        }
+      },
+      "output_path": "${REPO_ROOT}/.media-fixtures/sample-round4/原视频-1_R4-N_组合无高频.mp4",
+      "output_sha256": "dd8f69ff5066196c4d28b2e4d33004df44d6207736b8c8cb737414bd6f572b75",
+      "pair": 1,
+      "plan": {
+        "args": [
+          "-hide_banner",
+          "-n",
+          "-copyts",
+          "-i",
+          "${REPO_ROOT}/docs/requirements/20261002-research/原视频-1.mp4",
+          "-i",
+          "${REPO_ROOT}/.media-fixtures/sample-round3-combined/原视频-1_R3-C_组合版.mp4",
+          "-map",
+          "1:0",
+          "-map",
+          "0:1",
+          "-c:v",
+          "copy",
+          "-fps_mode:v",
+          "passthrough",
+          "-enc_time_base:v",
+          "demux",
+          "-video_track_timescale",
+          "12800",
+          "-avoid_negative_ts",
+          "disabled",
+          "-c:a",
+          "aac",
+          "-map_metadata",
+          "-1",
+          "-metadata",
+          "comment=video-editor/sample-match-v2",
+          "-movflags",
+          "+faststart",
+          "-progress",
+          "pipe:1",
+          "-nostats",
+          "-ar",
+          "48000",
+          "-ac",
+          "2",
+          "-channel_layout:a",
+          "stereo",
+          "-b:a",
+          "192000",
+          "-cutoff",
+          "20000",
+          "-af",
+          "highpass=f=300,lowpass=f=5500,adelay=5:all=1,acompressor=threshold=0.016:ratio=3:attack=5:release=50:makeup=1:link=average:detection=rms,volume=4.32574521,aresample=48000",
+          "${REPO_ROOT}/.media-fixtures/sample-round4/原视频-1_R4-N_组合无高频.mp4"
+        ],
+        "jobId": "pair1-R4-N",
+        "policy": {
+          "audioDurationSeconds": 119.6060090702948,
+          "audioToleranceSeconds": 0.05,
+          "channels": 2,
+          "frameCount": 2990,
+          "frameRate": {
+            "den": 1,
+            "num": 25
+          },
+          "height": 720,
+          "videoDurationSeconds": 119.6,
+          "videoToleranceSeconds": 0.04,
+          "width": 720
+        },
+        "presetId": "research-round4-no-carrier",
+        "source": {
+          "audio": {
+            "bitRate": 64798,
+            "channelLayout": "stereo",
+            "channels": 2,
+            "codec": "aac",
+            "durationTicks": 5274625,
+            "sampleRate": 44100,
+            "startPts": 0,
+            "streamIndex": 1,
+            "timeBase": {
+              "den": 44100,
+              "num": 1
+            }
+          },
+          "comment": null,
+          "container": "mov,mp4,m4a,3gp,3g2,mj2",
+          "identity": {
+            "canonicalPath": "${REPO_ROOT}/docs/requirements/20261002-research/原视频-1.mp4",
+            "modifiedNs": "1791258178399667541",
+            "sha256": "a3c0e92cdb373cb42190a67dd304a1e48077a09d1720ad0d1d1b4c3318742307",
+            "sizeBytes": 14939624
+          },
+          "title": null,
+          "video": {
+            "bitDepth": 8,
+            "bitRate": 930665,
+            "codec": "h264",
+            "colorPrimaries": "bt709",
+            "colorRange": "tv",
+            "colorSpace": null,
+            "colorTransfer": "bt709",
+            "durationTicks": 1530880,
+            "frameCount": 2990,
+            "frameRate": {
+              "den": 1,
+              "num": 25
+            },
+            "height": 720,
+            "pixelFormat": "yuv420p",
+            "startPts": 0,
+            "streamIndex": 0,
+            "timeBase": {
+              "den": 12800,
+              "num": 1
+            },
+            "timeline": {
+              "timestampSha256": "ee30aa475eb6f77f2488070ac207b7595ba30d54d68f3017b8a6f407c6ea51de",
+              "variableFrameRate": false
+            },
+            "width": 720
+          }
+        },
+        "version": 1,
+        "workspace": {
+          "directory": "${REPO_ROOT}/.media-fixtures/sample-phase-v2/pair1-sample-match-v2/.video-editor-a5531a2f-07ee-43d1-be59-fe67df24bdad",
+          "directoryIdentity": {
+            "fileId": "259483612",
+            "volumeId": "16777220"
+          },
+          "finalPath": "${REPO_ROOT}/.media-fixtures/sample-round4/原视频-1_R4-N_组合无高频.mp4",
+          "jobId": "a5531a2f-07ee-43d1-be59-fe67df24bdad",
+          "recordPath": "${REPO_ROOT}/.media-fixtures/sample-phase-v2/pair1-sample-match-v2/records/a5531a2f-07ee-43d1-be59-fe67df24bdad.json",
+          "tempPath": "${REPO_ROOT}/.media-fixtures/sample-round4/原视频-1_R4-N_组合无高频.mp4"
+        }
+      },
+      "platform_review_status": "user_reported_failed",
+      "size_bytes": 46774386,
+      "validation": {
+        "audioDurationSeconds": 119.61097916666667,
+        "checks": [
+          "完整解码",
+          "输出规格",
+          "帧数与时间轴",
+          "输入身份"
+        ],
+        "colorInformationComplete": false,
+        "decodedFrames": 2990,
+        "inputSha256": "a3c0e92cdb373cb42190a67dd304a1e48077a09d1720ad0d1d1b4c3318742307",
+        "outputPath": "${REPO_ROOT}/.media-fixtures/sample-round4/原视频-1_R4-N_组合无高频.mp4",
+        "outputSha256": "dd8f69ff5066196c4d28b2e4d33004df44d6207736b8c8cb737414bd6f572b75",
+        "videoDurationSeconds": 119.6
+      },
+      "audio_to_reference": {
+        "shared_samples": 5741327,
+        "zero_lag_correlation": 0.9190790644833771,
+        "rms_ratio_db": -0.8223708039065191,
+        "optimal_gain": 1.0103482733574785,
+        "gain_fitted_residual": 0.15529487950434492
+      },
+      "audio_peak_abs": 0.5235417485237122,
+      "audio_samples_at_or_above_full_scale": 0,
+      "high_band": {
+        "median_dbfs": -117.13975242307043,
+        "p05_dbfs": -164.11991523427358,
+        "p95_dbfs": -89.26142194793616,
+        "windows_above_minus_45_dbfs": 0,
+        "window_count": 1196,
+        "expected_peak_within_5hz_fraction": 0.0,
+        "tail_114_115_seconds": [
+          {
+            "seconds": 114.0,
+            "peak_hz": 15597.65625,
+            "expected_carrier_hz": 18334,
+            "high_band_rms_dbfs": -111.91792749217704
+          },
+          {
+            "seconds": 114.1,
+            "peak_hz": 16680.17578125,
+            "expected_carrier_hz": 18334,
+            "high_band_rms_dbfs": -112.2972625087287
+          },
+          {
+            "seconds": 114.2,
+            "peak_hz": 17103.515625,
+            "expected_carrier_hz": 18334,
+            "high_band_rms_dbfs": -115.51343687606696
+          },
+          {
+            "seconds": 114.3,
+            "peak_hz": 15013.18359375,
+            "expected_carrier_hz": 18334,
+            "high_band_rms_dbfs": -117.3133466586711
+          },
+          {
+            "seconds": 114.4,
+            "peak_hz": 15054.19921875,
+            "expected_carrier_hz": 18334,
+            "high_band_rms_dbfs": -119.96971614139946
+          },
+          {
+            "seconds": 114.5,
+            "peak_hz": 15229.98046875,
+            "expected_carrier_hz": 18608,
+            "high_band_rms_dbfs": -117.2425127526924
+          },
+          {
+            "seconds": 114.6,
+            "peak_hz": 16204.1015625,
+            "expected_carrier_hz": 18608,
+            "high_band_rms_dbfs": -118.77272332882379
+          },
+          {
+            "seconds": 114.7,
+            "peak_hz": 15379.39453125,
+            "expected_carrier_hz": 18608,
+            "high_band_rms_dbfs": -121.23905032698599
+          },
+          {
+            "seconds": 114.8,
+            "peak_hz": 15019.04296875,
+            "expected_carrier_hz": 18608,
+            "high_band_rms_dbfs": -117.7562189877945
+          },
+          {
+            "seconds": 114.9,
+            "peak_hz": 16848.6328125,
+            "expected_carrier_hz": 18608,
+            "high_band_rms_dbfs": -82.25504891185312
+          }
+        ]
+      },
+      "video_bitstream_sha256": "f3823d89551ce2bcfa3a4faa0ba0cccd77ae045370efc0bee1e71bb0ce3a7259",
+      "video_bitstream_equal_C": true,
+      "low_band_to_C": {
+        "shared_samples": 5741327,
+        "zero_lag_correlation": 0.9997336050565293,
+        "rms_ratio_db": 0.0006356073505586893,
+        "optimal_gain": 0.9996604505360348,
+        "gain_fitted_residual": 0.0005327183020268169
+      },
+      "platform_review": {
+        "date": "2026-10-10",
+        "source": "user_feedback",
+        "verbatim": "还是没有通过原创审核",
+        "reported_outcome": "failed",
+        "review_type": "originality_review_user_reported",
+        "latest_full_message": null,
+        "delivered_sha256": "dd8f69ff5066196c4d28b2e4d33004df44d6207736b8c8cb737414bd6f572b75",
+        "uploaded_sha256": null,
+        "identification": "sole_file_in_previous_delivery",
+        "account_and_submission_conditions": null
+      }
+    }
+  ],
+  "date": "2026-10-10",
+  "generation": "Direct bundled FFmpeg diagnostic output then native validate_output; C video copied exactly, original audio reprocessed with carrier injection removed only. Not a JobService output or installed preset.",
+  "hypothesis": "Reference pair1 has no observed strong 15-21kHz carrier while pair2 does; test whether the injected carrier changes pair1 outcome. No causal platform claim yet.",
+  "passed_pair2_frozen_sha256": "55d0d699b571ce9e08adacf5569082ba8f2bbee746901c74a0c2e4d1ab751f5b",
+  "platform_review_status": "user_reported_failed",
+  "input_hashes_final": {
+    "docs/requirements/20261002-research/原视频-1.mp4": "a3c0e92cdb373cb42190a67dd304a1e48077a09d1720ad0d1d1b4c3318742307",
+    "docs/requirements/20261002-research/编辑后视频-1.mp4": "5077d1901cd5c8a7166f80bea2cd272e6d7e44174b4f9e2e0b3f48b71ce5e17b",
+    "docs/requirements/20261002-research/原视频-2.mp4": "01d82ded9b53f1cf3908507c0ede2e83aa375396089398706d304ae73c65e7e8",
+    "docs/requirements/20261002-research/编辑后视频-2.mp4": "610ab9b3ad3c519bdafc194ed45a6b00522f387d63cec784f8821cba767157fe"
+  },
+  "passed_pair2_artifact_unchanged": true,
+  "context": {
+    "platform_feedback": {
+      "date": "2026-10-10",
+      "source": "user_feedback",
+      "verbatim": "原视频-2_R3-C_组合版.mp4 通过，另外一个没有通过",
+      "review_type": "pair2_originality_declaration_passed_pair1_similarity_visibility_restriction",
+      "latest_full_platform_message": "审核结果：\n作品限制为仅主页可见\n主要问题：\n作品可能存在与站内现有 发布内容 存在高度相似，导致流量受到影响。高度相似包括但不限于：\n1.视频类内容中，直接搬运他人作品，将他人作品进行镜像、翻转等简单处理，或对视频素材中他人标志、水印进行涂抹、遮挡等简单的画面处理；\n2.图文类内容中，较多文字篇幅内容与他人作品重复，或将他人文章、图片进行拼接、搬运、简单复述。\n修改建议：\n请您删除或修改后重新发布。",
+      "account_and_submission_conditions": null,
+      "uploaded_file_sha256_independently_verified": false,
+      "scope": "User reports pass/fail for the delivered C artifacts. Publication visibility versus originality-declaration review not yet clarified.",
+      "clarification_source": "user_followup",
+      "clarification_verbatim": {
+        "pair1": "审核结果：\n作品限制为仅主页可见\n主要问题：\n作品可能存在与站内现有 发布内容 存在高度相似，导致流量受到影响。高度相似包括但不限于：\n1.视频类内容中，直接搬运他人作品，将他人作品进行镜像、翻转等简单处理，或对视频素材中他人标志、水印进行涂抹、遮挡等简单的画面处理；\n2.图文类内容中，较多文字篇幅内容与他人作品重复，或将他人文章、图片进行拼接、搬运、简单复述。\n修改建议：\n请您删除或修改后重新发布。",
+        "pair2": "第二组通过了原创声明审核，没有另外的提示语"
+      }
+    },
+    "control_pair1_user_reported_outcome": "high_similarity_homepage_only",
+    "control_pair2_user_reported_outcome": "originality_declaration_passed",
+    "not_causal": "Different source content and unknown submission/account conditions prevent attributing the differing outcomes to any individual effect."
+  },
+  "verification": {
+    "native_outputs_passed": 1,
+    "validation_policy": "Original application validation tolerances unchanged",
+    "native_validation_log": "/tmp/video-editor-round4-validation.log",
+    "measurement_log": "/tmp/video-editor-round4-measure.log",
+    "changed_dimension": "Carrier removed only; E video from failed C1 copied without re-encoding; all compression/delay/AAC parameters retained",
+    "platform_review_status": "user_reported_failed",
+    "input_and_passed_pair2_hashes_unchanged": true
+  },
+  "frozen_tools": {
+    "ffmpeg_sha256": "a45b462cf91ed89148ae218c4577e30896485d7a6792c3673bcf5f823fa01b63",
+    "ffmpeg_version": "9.0.2-tessus",
+    "target": "x86_64-apple-darwin"
+  },
+  "measurement_method": "Decode actual MP4 to 48 kHz stereo float32; arithmetic mean of channels, shared sample count; no alignment before zero-lag correlation. Residual uses fitted scalar gain. HF windows: 0.1 s Hann, FFT 32768, 15-21 kHz band power.",
+  "comparison_method": "Compare low-pass-at-10kHz decoded N and C1 audio; common sample count and zero-lag correlation/RMS ratio. Hash extracted H.264 streams for byte equality. Full decode and original timeline verified separately by application validator.",
+  "platform_review": {
+    "date": "2026-10-10",
+    "source": "user_feedback",
+    "verbatim": "还是没有通过原创审核",
+    "reported_outcome": "failed",
+    "review_type": "originality_review_user_reported",
+    "latest_full_message": null,
+    "delivered_sha256": "dd8f69ff5066196c4d28b2e4d33004df44d6207736b8c8cb737414bd6f572b75",
+    "uploaded_sha256": null,
+    "identification": "sole_file_in_previous_delivery",
+    "account_and_submission_conditions": null
+  }
+}

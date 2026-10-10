@@ -1,0 +1,40 @@
+{
+  "date": "2026-10-10",
+  "version": "0.0.1-beta.4",
+  "expiration": "2027-01-01T00:00:00+08:00",
+  "expirationUnixMs": 1798732800000,
+  "unitTests": {
+    "rust": 81,
+    "frontend": 37,
+    "releaseAndSidecar": 17
+  },
+  "generatedMediaTests": 14,
+  "networkCheck": {
+    "elapsedMs": 2004,
+    "status": {
+      "effectiveTimeMs": 1791638863529,
+      "expired": false,
+      "expiresAtMs": 1798732800000,
+      "ntpAvailable": false
+    }
+  },
+  "networkScope": "Local production LicenseService check queried both specified servers; no valid response within 2s; local-clock fallback observed. No claim of public NTP reachability in other environments.",
+  "review": {
+    "execution": "Sequential inspection in main thread per AGENTS.md",
+    "checked": [
+      "fixed China deadline",
+      "backend single and batch start gates",
+      "later-clock selection and monotonic anchor",
+      "bounded parallel NTP requests and response validation",
+      "IPC expiry rejection immediately blocks UI",
+      "unmount cleanup",
+      "five version files",
+      "no new media or credentials staged"
+    ],
+    "limitations": [
+      "Ordinary NTP is unauthenticated",
+      "Session time anchor is not persisted across app restart",
+      "No new manual Windows or macOS installed GUI acceptance"
+    ]
+  }
+}

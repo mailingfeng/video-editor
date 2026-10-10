@@ -1,6 +1,6 @@
 [package]
 name = "video-editor"
-version = "0.0.1-beta.3"
+version = "0.0.1-beta.4"
 edition = "2021"
 rust-version = "1.90"
 
@@ -23,7 +23,7 @@ tauri-build = { version = "2", optional = true , features = [] }
 tauri = { version = "2", optional = true , features = [] }
 tauri-plugin-dialog = { version = "2", optional = true }
 tauri-plugin-opener = { version = "2", optional = true }
-tokio = { version = "1", features = ["rt-multi-thread", "macros", "process", "io-util", "fs", "sync", "time", "test-util"] }
+tokio = { version = "1", features = ["rt-multi-thread", "macros", "process", "io-util", "fs", "sync", "time", "net", "test-util"] }
 tokio-util = "0.7"
 async-trait = "0.1"
 serde = { version = "1", features = ["derive"] }

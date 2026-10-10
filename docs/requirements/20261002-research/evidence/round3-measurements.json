@@ -1,0 +1,2853 @@
+{
+  "date": "2026-10-09",
+  "generation": "Direct bundled FFmpeg diagnostic arms, followed by application validate_output; not JobService outputs or installed presets",
+  "selection": "Only pair 1 first 60 seconds selects common parameters; remaining pair 1 and all pair 2 are held out. No platform outcome is used for fitting.",
+  "dynamic_filter": "highpass=f=300,lowpass=f=5500,adelay=5:all=1,acompressor=threshold=0.016:ratio=3:attack=5:release=50:makeup=1:link=average:detection=rms,volume=4.32574521",
+  "carrier_filter": "highpass=f=300,lowpass=f=5500,adelay=5:all=1,volume=0.8,aresample=48000,aeval='val(0)+0.0212132034*sin(2*PI*(18000+2*mod(137*floor(2*t)+431,750))*(t-floor(2*t)/2))|val(1)+0.0212132034*sin(2*PI*(18000+2*mod(137*floor(2*t)+431,750))*(t-floor(2*t)/2))'",
+  "artifacts": [
+    {
+      "pair": 1,
+      "arm": "E",
+      "experiment_id": "pair1-R3-E",
+      "output_path": "${REPO_ROOT}/.media-fixtures/sample-round3/原视频-1_R3-E_编码.mp4",
+      "output_sha256": "f81d172c2425503a463147f3ade867914f8691759f07b40782b031d231937788",
+      "size_bytes": 45014150,
+      "baseline_v2_path": "${REPO_ROOT}/.media-fixtures/sample-phase-v2/pair1-sample-match-v2/原视频-1_processed_a5531a2f-07ee-43d1-be59-fe67df24bdad.mp4",
+      "baseline_v2_sha256": "c43bf4f35273a6dca43d6f270c2d3aac338b1a4ca8f92369b0a47eeb02b8db3b",
+      "plan": {
+        "jobId": "pair1-R3-E",
+        "source": {
+          "identity": {
+            "canonicalPath": "${REPO_ROOT}/docs/requirements/20261002-research/原视频-1.mp4",
+            "sizeBytes": 14939624,
+            "modifiedNs": "1791258178399667541",
+            "sha256": "a3c0e92cdb373cb42190a67dd304a1e48077a09d1720ad0d1d1b4c3318742307"
+          },
+          "container": "mov,mp4,m4a,3gp,3g2,mj2",
+          "video": {
+            "streamIndex": 0,
+            "codec": "h264",
+            "width": 720,
+            "height": 720,
+            "bitDepth": 8,
+            "pixelFormat": "yuv420p",
+            "frameRate": {
+              "num": 25,
+              "den": 1
+            },
+            "timeBase": {
+              "num": 1,
+              "den": 12800
+            },
+            "frameCount": 2990,
+            "startPts": 0,
+            "durationTicks": 1530880,
+            "timeline": {
+              "variableFrameRate": false,
+              "timestampSha256": "ee30aa475eb6f77f2488070ac207b7595ba30d54d68f3017b8a6f407c6ea51de"
+            },
+            "bitRate": 930665,
+            "colorRange": "tv",
+            "colorSpace": null,
+            "colorPrimaries": "bt709",
+            "colorTransfer": "bt709"
+          },
+          "audio": {
+            "streamIndex": 1,
+            "codec": "aac",
+            "sampleRate": 44100,
+            "channels": 2,
+            "channelLayout": "stereo",
+            "timeBase": {
+              "num": 1,
+              "den": 44100
+            },
+            "startPts": 0,
+            "durationTicks": 5274625,
+            "bitRate": 64798
+          },
+          "title": null,
+          "comment": null
+        },
+        "presetId": "research-round3-E",
+        "version": 1,
+        "args": [
+          "-hide_banner",
+          "-n",
+          "-copyts",
+          "-i",
+          "${REPO_ROOT}/docs/requirements/20261002-research/原视频-1.mp4",
+          "-i",
+          "${REPO_ROOT}/.media-fixtures/sample-phase-v2/pair1-sample-match-v2/原视频-1_processed_a5531a2f-07ee-43d1-be59-fe67df24bdad.mp4",
+          "-map",
+          "0:0",
+          "-map",
+          "1:1",
+          "-c:v",
+          "libx264",
+          "-preset",
+          "ultrafast",
+          "-profile:v",
+          "baseline",
+          "-pix_fmt",
+          "yuv420p",
+          "-g",
+          "250",
+          "-keyint_min",
+          "25",
+          "-sc_threshold",
+          "0",
+          "-bf",
+          "0",
+          "-fps_mode:v",
+          "passthrough",
+          "-enc_time_base:v",
+          "demux",
+          "-video_track_timescale",
+          "12800",
+          "-avoid_negative_ts",
+          "disabled",
+          "-vf",
+          "lutyuv=y='clip(0.985*val+0.5,0,255)'",
+          "-color_range",
+          "tv",
+          "-color_primaries",
+          "bt709",
+          "-color_trc",
+          "bt709",
+          "-bsf:v",
+          "h264_metadata=video_full_range_flag=0",
+          "-c:a",
+          "copy",
+          "-map_metadata",
+          "-1",
+          "-metadata",
+          "comment=video-editor/sample-match-v2",
+          "-movflags",
+          "+faststart",
+          "-progress",
+          "pipe:1",
+          "-nostats",
+          "-crf",
+          "23",
+          "-threads:v",
+          "18",
+          "${REPO_ROOT}/.media-fixtures/sample-round3/原视频-1_R3-E_编码.mp4"
+        ],
+        "workspace": {
+          "jobId": "a5531a2f-07ee-43d1-be59-fe67df24bdad",
+          "directory": "${REPO_ROOT}/.media-fixtures/sample-phase-v2/pair1-sample-match-v2/.video-editor-a5531a2f-07ee-43d1-be59-fe67df24bdad",
+          "tempPath": "${REPO_ROOT}/.media-fixtures/sample-round3/原视频-1_R3-E_编码.mp4",
+          "finalPath": "${REPO_ROOT}/.media-fixtures/sample-round3/原视频-1_R3-E_编码.mp4",
+          "recordPath": "${REPO_ROOT}/.media-fixtures/sample-phase-v2/pair1-sample-match-v2/records/a5531a2f-07ee-43d1-be59-fe67df24bdad.json",
+          "directoryIdentity": {
+            "volumeId": "16777220",
+            "fileId": "259483612"
+          }
+        },
+        "policy": {
+          "width": 720,
+          "height": 720,
+          "frameRate": {
+            "num": 25,
+            "den": 1
+          },
+          "frameCount": 2990,
+          "videoDurationSeconds": 119.6,
+          "audioDurationSeconds": 119.60600907029479,
+          "channels": 2,
+          "videoToleranceSeconds": 0.04,
+          "audioToleranceSeconds": 0.05
+        }
+      },
+      "platform_review_status": "pending",
+      "generation_log": "${REPO_ROOT}/.media-fixtures/sample-round3/pair1-R3-E.log",
+      "audio_to_reference": {
+        "shared_samples": 5741327,
+        "zero_lag_correlation": 0.8555847137628554,
+        "rms_ratio_db": -0.7530064802548844,
+        "optimal_gain": 0.9330680973868846,
+        "gain_fitted_residual": 0.2679747976158255
+      },
+      "audio_peak_abs": 0.6579055190086365,
+      "audio_samples_at_or_above_full_scale": 0,
+      "video_bitstream_sha256": "f3823d89551ce2bcfa3a4faa0ba0cccd77ae045370efc0bee1e71bb0ce3a7259",
+      "audio_bitstream_sha256": "e72ab5bf28570abd15cf6f0fe0ae5d7864624a1aee625b914c2e20d9ffe27bd0",
+      "video_bitstream_equal_v2": false,
+      "audio_bitstream_equal_v2": true,
+      "validation": {
+        "audioDurationSeconds": 119.61097916666667,
+        "checks": [
+          "完整解码",
+          "输出规格",
+          "帧数与时间轴",
+          "输入身份"
+        ],
+        "colorInformationComplete": false,
+        "decodedFrames": 2990,
+        "inputSha256": "a3c0e92cdb373cb42190a67dd304a1e48077a09d1720ad0d1d1b4c3318742307",
+        "outputPath": "${REPO_ROOT}/.media-fixtures/sample-round3/原视频-1_R3-E_编码.mp4",
+        "outputSha256": "f81d172c2425503a463147f3ade867914f8691759f07b40782b031d231937788",
+        "videoDurationSeconds": 119.6
+      },
+      "output": {
+        "audio": {
+          "bitRate": 74801,
+          "channelLayout": "stereo",
+          "channels": 2,
+          "codec": "aac",
+          "durationTicks": 5741327,
+          "sampleRate": 48000,
+          "startPts": 0,
+          "streamIndex": 1,
+          "timeBase": {
+            "den": 48000,
+            "num": 1
+          }
+        },
+        "comment": "video-editor/sample-match-v2",
+        "container": "mov,mp4,m4a,3gp,3g2,mj2",
+        "identity": {
+          "canonicalPath": "${REPO_ROOT}/.media-fixtures/sample-round3/原视频-1_R3-E_编码.mp4",
+          "modifiedNs": "1791558948026325847",
+          "sha256": "f81d172c2425503a463147f3ade867914f8691759f07b40782b031d231937788",
+          "sizeBytes": 45014150
+        },
+        "title": null,
+        "video": {
+          "bitDepth": 8,
+          "bitRate": 2931556,
+          "codec": "h264",
+          "colorPrimaries": "bt709",
+          "colorRange": "tv",
+          "colorSpace": null,
+          "colorTransfer": "bt709",
+          "durationTicks": 1530880,
+          "frameCount": 2990,
+          "frameRate": {
+            "den": 1,
+            "num": 25
+          },
+          "height": 720,
+          "pixelFormat": "yuv420p",
+          "startPts": 0,
+          "streamIndex": 0,
+          "timeBase": {
+            "den": 12800,
+            "num": 1
+          },
+          "timeline": {
+            "timestampSha256": "ee30aa475eb6f77f2488070ac207b7595ba30d54d68f3017b8a6f407c6ea51de",
+            "variableFrameRate": false
+          },
+          "width": 720
+        }
+      }
+    },
+    {
+      "pair": 1,
+      "arm": "D",
+      "experiment_id": "pair1-R3-D",
+      "output_path": "${REPO_ROOT}/.media-fixtures/sample-round3/原视频-1_R3-D_动态增益.mp4",
+      "output_sha256": "a787834ff202ea4f3da8f48a01e54aa8ad911a6289d17206790d0c9a701e45b3",
+      "size_bytes": 18169450,
+      "baseline_v2_path": "${REPO_ROOT}/.media-fixtures/sample-phase-v2/pair1-sample-match-v2/原视频-1_processed_a5531a2f-07ee-43d1-be59-fe67df24bdad.mp4",
+      "baseline_v2_sha256": "c43bf4f35273a6dca43d6f270c2d3aac338b1a4ca8f92369b0a47eeb02b8db3b",
+      "plan": {
+        "jobId": "pair1-R3-D",
+        "source": {
+          "identity": {
+            "canonicalPath": "${REPO_ROOT}/docs/requirements/20261002-research/原视频-1.mp4",
+            "sizeBytes": 14939624,
+            "modifiedNs": "1791258178399667541",
+            "sha256": "a3c0e92cdb373cb42190a67dd304a1e48077a09d1720ad0d1d1b4c3318742307"
+          },
+          "container": "mov,mp4,m4a,3gp,3g2,mj2",
+          "video": {
+            "streamIndex": 0,
+            "codec": "h264",
+            "width": 720,
+            "height": 720,
+            "bitDepth": 8,
+            "pixelFormat": "yuv420p",
+            "frameRate": {
+              "num": 25,
+              "den": 1
+            },
+            "timeBase": {
+              "num": 1,
+              "den": 12800
+            },
+            "frameCount": 2990,
+            "startPts": 0,
+            "durationTicks": 1530880,
+            "timeline": {
+              "variableFrameRate": false,
+              "timestampSha256": "ee30aa475eb6f77f2488070ac207b7595ba30d54d68f3017b8a6f407c6ea51de"
+            },
+            "bitRate": 930665,
+            "colorRange": "tv",
+            "colorSpace": null,
+            "colorPrimaries": "bt709",
+            "colorTransfer": "bt709"
+          },
+          "audio": {
+            "streamIndex": 1,
+            "codec": "aac",
+            "sampleRate": 44100,
+            "channels": 2,
+            "channelLayout": "stereo",
+            "timeBase": {
+              "num": 1,
+              "den": 44100
+            },
+            "startPts": 0,
+            "durationTicks": 5274625,
+            "bitRate": 64798
+          },
+          "title": null,
+          "comment": null
+        },
+        "presetId": "research-round3-D",
+        "version": 1,
+        "args": [
+          "-hide_banner",
+          "-n",
+          "-copyts",
+          "-i",
+          "${REPO_ROOT}/docs/requirements/20261002-research/原视频-1.mp4",
+          "-i",
+          "${REPO_ROOT}/.media-fixtures/sample-phase-v2/pair1-sample-match-v2/原视频-1_processed_a5531a2f-07ee-43d1-be59-fe67df24bdad.mp4",
+          "-map",
+          "1:0",
+          "-map",
+          "0:1",
+          "-c:v",
+          "copy",
+          "-fps_mode:v",
+          "passthrough",
+          "-enc_time_base:v",
+          "demux",
+          "-video_track_timescale",
+          "12800",
+          "-avoid_negative_ts",
+          "disabled",
+          "-c:a",
+          "aac",
+          "-ar",
+          "48000",
+          "-ac",
+          "2",
+          "-channel_layout:a",
+          "stereo",
+          "-b:a",
+          "74000",
+          "-af",
+          "highpass=f=300,lowpass=f=5500,adelay=5:all=1,acompressor=threshold=0.016:ratio=3:attack=5:release=50:makeup=1:link=average:detection=rms,volume=4.32574521",
+          "-map_metadata",
+          "-1",
+          "-metadata",
+          "comment=video-editor/sample-match-v2",
+          "-movflags",
+          "+faststart",
+          "-progress",
+          "pipe:1",
+          "-nostats",
+          "${REPO_ROOT}/.media-fixtures/sample-round3/原视频-1_R3-D_动态增益.mp4"
+        ],
+        "workspace": {
+          "jobId": "a5531a2f-07ee-43d1-be59-fe67df24bdad",
+          "directory": "${REPO_ROOT}/.media-fixtures/sample-phase-v2/pair1-sample-match-v2/.video-editor-a5531a2f-07ee-43d1-be59-fe67df24bdad",
+          "tempPath": "${REPO_ROOT}/.media-fixtures/sample-round3/原视频-1_R3-D_动态增益.mp4",
+          "finalPath": "${REPO_ROOT}/.media-fixtures/sample-round3/原视频-1_R3-D_动态增益.mp4",
+          "recordPath": "${REPO_ROOT}/.media-fixtures/sample-phase-v2/pair1-sample-match-v2/records/a5531a2f-07ee-43d1-be59-fe67df24bdad.json",
+          "directoryIdentity": {
+            "volumeId": "16777220",
+            "fileId": "259483612"
+          }
+        },
+        "policy": {
+          "width": 720,
+          "height": 720,
+          "frameRate": {
+            "num": 25,
+            "den": 1
+          },
+          "frameCount": 2990,
+          "videoDurationSeconds": 119.6,
+          "audioDurationSeconds": 119.60600907029479,
+          "channels": 2,
+          "videoToleranceSeconds": 0.04,
+          "audioToleranceSeconds": 0.05
+        }
+      },
+      "platform_review_status": "pending",
+      "generation_log": "${REPO_ROOT}/.media-fixtures/sample-round3/pair1-R3-D.log",
+      "audio_to_reference": {
+        "shared_samples": 5741327,
+        "zero_lag_correlation": 0.9157837666862876,
+        "rms_ratio_db": -0.8024796808410588,
+        "optimal_gain": 1.0044225498563708,
+        "gain_fitted_residual": 0.16134191031817346
+      },
+      "audio_peak_abs": 0.5336079597473145,
+      "audio_samples_at_or_above_full_scale": 0,
+      "video_bitstream_sha256": "942a0820adb043d12ed8d6f1c69ae4f66be10453c49da48831e99cb7503d9144",
+      "audio_bitstream_sha256": "8b7a80980aead25b27f7e03091b46aa7957c1563335ec7fb414d37597dab64b0",
+      "video_bitstream_equal_v2": true,
+      "audio_bitstream_equal_v2": false,
+      "validation": {
+        "audioDurationSeconds": 119.61097916666667,
+        "checks": [
+          "完整解码",
+          "输出规格",
+          "帧数与时间轴",
+          "输入身份"
+        ],
+        "colorInformationComplete": false,
+        "decodedFrames": 2990,
+        "inputSha256": "a3c0e92cdb373cb42190a67dd304a1e48077a09d1720ad0d1d1b4c3318742307",
+        "outputPath": "${REPO_ROOT}/.media-fixtures/sample-round3/原视频-1_R3-D_动态增益.mp4",
+        "outputSha256": "a787834ff202ea4f3da8f48a01e54aa8ad911a6289d17206790d0c9a701e45b3",
+        "videoDurationSeconds": 119.6
+      },
+      "output": {
+        "audio": {
+          "bitRate": 75032,
+          "channelLayout": "stereo",
+          "channels": 2,
+          "codec": "aac",
+          "durationTicks": 5741327,
+          "sampleRate": 48000,
+          "startPts": 0,
+          "streamIndex": 1,
+          "timeBase": {
+            "den": 48000,
+            "num": 1
+          }
+        },
+        "comment": "video-editor/sample-match-v2",
+        "container": "mov,mp4,m4a,3gp,3g2,mj2",
+        "identity": {
+          "canonicalPath": "${REPO_ROOT}/.media-fixtures/sample-round3/原视频-1_R3-D_动态增益.mp4",
+          "modifiedNs": "1791558950776904336",
+          "sha256": "a787834ff202ea4f3da8f48a01e54aa8ad911a6289d17206790d0c9a701e45b3",
+          "sizeBytes": 18169450
+        },
+        "title": null,
+        "video": {
+          "bitDepth": 8,
+          "bitRate": 1135693,
+          "codec": "h264",
+          "colorPrimaries": "bt709",
+          "colorRange": "tv",
+          "colorSpace": null,
+          "colorTransfer": "bt709",
+          "durationTicks": 1530880,
+          "frameCount": 2990,
+          "frameRate": {
+            "den": 1,
+            "num": 25
+          },
+          "height": 720,
+          "pixelFormat": "yuv420p",
+          "startPts": 0,
+          "streamIndex": 0,
+          "timeBase": {
+            "den": 12800,
+            "num": 1
+          },
+          "timeline": {
+            "timestampSha256": "ee30aa475eb6f77f2488070ac207b7595ba30d54d68f3017b8a6f407c6ea51de",
+            "variableFrameRate": false
+          },
+          "width": 720
+        }
+      }
+    },
+    {
+      "pair": 1,
+      "arm": "B",
+      "experiment_id": "pair1-R3-B",
+      "output_path": "${REPO_ROOT}/.media-fixtures/sample-round3/原视频-1_R3-B_高码率对照.mp4",
+      "output_sha256": "f95ff7ae8ca6808b87caf316865755cf78f1b767ee0613dadbf0ebb6d268b7c9",
+      "size_bytes": 19928602,
+      "baseline_v2_path": "${REPO_ROOT}/.media-fixtures/sample-phase-v2/pair1-sample-match-v2/原视频-1_processed_a5531a2f-07ee-43d1-be59-fe67df24bdad.mp4",
+      "baseline_v2_sha256": "c43bf4f35273a6dca43d6f270c2d3aac338b1a4ca8f92369b0a47eeb02b8db3b",
+      "plan": {
+        "jobId": "pair1-R3-B",
+        "source": {
+          "identity": {
+            "canonicalPath": "${REPO_ROOT}/docs/requirements/20261002-research/原视频-1.mp4",
+            "sizeBytes": 14939624,
+            "modifiedNs": "1791258178399667541",
+            "sha256": "a3c0e92cdb373cb42190a67dd304a1e48077a09d1720ad0d1d1b4c3318742307"
+          },
+          "container": "mov,mp4,m4a,3gp,3g2,mj2",
+          "video": {
+            "streamIndex": 0,
+            "codec": "h264",
+            "width": 720,
+            "height": 720,
+            "bitDepth": 8,
+            "pixelFormat": "yuv420p",
+            "frameRate": {
+              "num": 25,
+              "den": 1
+            },
+            "timeBase": {
+              "num": 1,
+              "den": 12800
+            },
+            "frameCount": 2990,
+            "startPts": 0,
+            "durationTicks": 1530880,
+            "timeline": {
+              "variableFrameRate": false,
+              "timestampSha256": "ee30aa475eb6f77f2488070ac207b7595ba30d54d68f3017b8a6f407c6ea51de"
+            },
+            "bitRate": 930665,
+            "colorRange": "tv",
+            "colorSpace": null,
+            "colorPrimaries": "bt709",
+            "colorTransfer": "bt709"
+          },
+          "audio": {
+            "streamIndex": 1,
+            "codec": "aac",
+            "sampleRate": 44100,
+            "channels": 2,
+            "channelLayout": "stereo",
+            "timeBase": {
+              "num": 1,
+              "den": 44100
+            },
+            "startPts": 0,
+            "durationTicks": 5274625,
+            "bitRate": 64798
+          },
+          "title": null,
+          "comment": null
+        },
+        "presetId": "research-round3-B",
+        "version": 1,
+        "args": [
+          "-hide_banner",
+          "-n",
+          "-copyts",
+          "-i",
+          "${REPO_ROOT}/docs/requirements/20261002-research/原视频-1.mp4",
+          "-i",
+          "${REPO_ROOT}/.media-fixtures/sample-phase-v2/pair1-sample-match-v2/原视频-1_processed_a5531a2f-07ee-43d1-be59-fe67df24bdad.mp4",
+          "-map",
+          "1:0",
+          "-map",
+          "0:1",
+          "-c:v",
+          "copy",
+          "-fps_mode:v",
+          "passthrough",
+          "-enc_time_base:v",
+          "demux",
+          "-video_track_timescale",
+          "12800",
+          "-avoid_negative_ts",
+          "disabled",
+          "-c:a",
+          "aac",
+          "-ar",
+          "48000",
+          "-ac",
+          "2",
+          "-channel_layout:a",
+          "stereo",
+          "-b:a",
+          "192000",
+          "-af",
+          "highpass=f=300,lowpass=f=5500,adelay=5:all=1,volume=0.8,aresample=48000",
+          "-map_metadata",
+          "-1",
+          "-metadata",
+          "comment=video-editor/sample-match-v2",
+          "-movflags",
+          "+faststart",
+          "-progress",
+          "pipe:1",
+          "-nostats",
+          "-cutoff",
+          "20000",
+          "${REPO_ROOT}/.media-fixtures/sample-round3/原视频-1_R3-B_高码率对照.mp4"
+        ],
+        "workspace": {
+          "jobId": "a5531a2f-07ee-43d1-be59-fe67df24bdad",
+          "directory": "${REPO_ROOT}/.media-fixtures/sample-phase-v2/pair1-sample-match-v2/.video-editor-a5531a2f-07ee-43d1-be59-fe67df24bdad",
+          "tempPath": "${REPO_ROOT}/.media-fixtures/sample-round3/原视频-1_R3-B_高码率对照.mp4",
+          "finalPath": "${REPO_ROOT}/.media-fixtures/sample-round3/原视频-1_R3-B_高码率对照.mp4",
+          "recordPath": "${REPO_ROOT}/.media-fixtures/sample-phase-v2/pair1-sample-match-v2/records/a5531a2f-07ee-43d1-be59-fe67df24bdad.json",
+          "directoryIdentity": {
+            "volumeId": "16777220",
+            "fileId": "259483612"
+          }
+        },
+        "policy": {
+          "width": 720,
+          "height": 720,
+          "frameRate": {
+            "num": 25,
+            "den": 1
+          },
+          "frameCount": 2990,
+          "videoDurationSeconds": 119.6,
+          "audioDurationSeconds": 119.60600907029479,
+          "channels": 2,
+          "videoToleranceSeconds": 0.04,
+          "audioToleranceSeconds": 0.05
+        }
+      },
+      "platform_review_status": "pending",
+      "generation_log": "${REPO_ROOT}/.media-fixtures/sample-round3/pair1-R3-B.log",
+      "audio_to_reference": {
+        "shared_samples": 5741327,
+        "zero_lag_correlation": 0.8574668183291739,
+        "rms_ratio_db": -0.7369043971995242,
+        "optimal_gain": 0.9333887086183298,
+        "gain_fitted_residual": 0.26475065556052224
+      },
+      "audio_peak_abs": 0.6439141631126404,
+      "audio_samples_at_or_above_full_scale": 0,
+      "video_bitstream_sha256": "942a0820adb043d12ed8d6f1c69ae4f66be10453c49da48831e99cb7503d9144",
+      "audio_bitstream_sha256": "ac1bf7e1435adc2dd7d63e7d8f585b09810ba4105b043637bf2d1941737331ea",
+      "video_bitstream_equal_v2": true,
+      "audio_bitstream_equal_v2": false,
+      "high_band": {
+        "median_dbfs": -134.77249027294235,
+        "p05_dbfs": -179.2203256442391,
+        "p95_dbfs": -126.81715867072975,
+        "windows_above_minus_45_dbfs": 0,
+        "window_count": 1196,
+        "expected_peak_within_5hz_fraction": 0.0,
+        "tail_114_115_seconds": [
+          {
+            "seconds": 114.0,
+            "peak_hz": 16530.76171875,
+            "expected_carrier_hz": 18334,
+            "high_band_rms_dbfs": -128.28141247528453
+          },
+          {
+            "seconds": 114.1,
+            "peak_hz": 16546.875,
+            "expected_carrier_hz": 18334,
+            "high_band_rms_dbfs": -127.79731176496556
+          },
+          {
+            "seconds": 114.2,
+            "peak_hz": 15810.05859375,
+            "expected_carrier_hz": 18334,
+            "high_band_rms_dbfs": -128.7106013557366
+          },
+          {
+            "seconds": 114.3,
+            "peak_hz": 15292.96875,
+            "expected_carrier_hz": 18334,
+            "high_band_rms_dbfs": -149.98408720658506
+          },
+          {
+            "seconds": 114.4,
+            "peak_hz": 15120.1171875,
+            "expected_carrier_hz": 18334,
+            "high_band_rms_dbfs": -144.31137178191995
+          },
+          {
+            "seconds": 114.5,
+            "peak_hz": 15115.72265625,
+            "expected_carrier_hz": 18608,
+            "high_band_rms_dbfs": -141.83545041818266
+          },
+          {
+            "seconds": 114.6,
+            "peak_hz": 18880.37109375,
+            "expected_carrier_hz": 18608,
+            "high_band_rms_dbfs": -129.23592585824233
+          },
+          {
+            "seconds": 114.7,
+            "peak_hz": 15032.2265625,
+            "expected_carrier_hz": 18608,
+            "high_band_rms_dbfs": -134.3292912106978
+          },
+          {
+            "seconds": 114.8,
+            "peak_hz": 15004.39453125,
+            "expected_carrier_hz": 18608,
+            "high_band_rms_dbfs": -134.704167406616
+          },
+          {
+            "seconds": 114.9,
+            "peak_hz": 15051.26953125,
+            "expected_carrier_hz": 18608,
+            "high_band_rms_dbfs": -133.68131274759688
+          }
+        ]
+      },
+      "validation": {
+        "audioDurationSeconds": 119.61097916666667,
+        "checks": [
+          "完整解码",
+          "输出规格",
+          "帧数与时间轴",
+          "输入身份"
+        ],
+        "colorInformationComplete": false,
+        "decodedFrames": 2990,
+        "inputSha256": "a3c0e92cdb373cb42190a67dd304a1e48077a09d1720ad0d1d1b4c3318742307",
+        "outputPath": "${REPO_ROOT}/.media-fixtures/sample-round3/原视频-1_R3-B_高码率对照.mp4",
+        "outputSha256": "f95ff7ae8ca6808b87caf316865755cf78f1b767ee0613dadbf0ebb6d268b7c9",
+        "videoDurationSeconds": 119.6
+      },
+      "output": {
+        "audio": {
+          "bitRate": 192670,
+          "channelLayout": "stereo",
+          "channels": 2,
+          "codec": "aac",
+          "durationTicks": 5741327,
+          "sampleRate": 48000,
+          "startPts": 0,
+          "streamIndex": 1,
+          "timeBase": {
+            "den": 48000,
+            "num": 1
+          }
+        },
+        "comment": "video-editor/sample-match-v2",
+        "container": "mov,mp4,m4a,3gp,3g2,mj2",
+        "identity": {
+          "canonicalPath": "${REPO_ROOT}/.media-fixtures/sample-round3/原视频-1_R3-B_高码率对照.mp4",
+          "modifiedNs": "1791558954005448564",
+          "sha256": "f95ff7ae8ca6808b87caf316865755cf78f1b767ee0613dadbf0ebb6d268b7c9",
+          "sizeBytes": 19928602
+        },
+        "title": null,
+        "video": {
+          "bitDepth": 8,
+          "bitRate": 1135693,
+          "codec": "h264",
+          "colorPrimaries": "bt709",
+          "colorRange": "tv",
+          "colorSpace": null,
+          "colorTransfer": "bt709",
+          "durationTicks": 1530880,
+          "frameCount": 2990,
+          "frameRate": {
+            "den": 1,
+            "num": 25
+          },
+          "height": 720,
+          "pixelFormat": "yuv420p",
+          "startPts": 0,
+          "streamIndex": 0,
+          "timeBase": {
+            "den": 12800,
+            "num": 1
+          },
+          "timeline": {
+            "timestampSha256": "ee30aa475eb6f77f2488070ac207b7595ba30d54d68f3017b8a6f407c6ea51de",
+            "variableFrameRate": false
+          },
+          "width": 720
+        }
+      }
+    },
+    {
+      "pair": 1,
+      "arm": "H",
+      "experiment_id": "pair1-R3-H",
+      "output_path": "${REPO_ROOT}/.media-fixtures/sample-round3/原视频-1_R3-H_高频信号.mp4",
+      "output_sha256": "164b165678ba1ddea882c18deeb08cb428e01f38bb41b2fec74e025594ce2649",
+      "size_bytes": 19931266,
+      "baseline_v2_path": "${REPO_ROOT}/.media-fixtures/sample-phase-v2/pair1-sample-match-v2/原视频-1_processed_a5531a2f-07ee-43d1-be59-fe67df24bdad.mp4",
+      "baseline_v2_sha256": "c43bf4f35273a6dca43d6f270c2d3aac338b1a4ca8f92369b0a47eeb02b8db3b",
+      "plan": {
+        "jobId": "pair1-R3-H",
+        "source": {
+          "identity": {
+            "canonicalPath": "${REPO_ROOT}/docs/requirements/20261002-research/原视频-1.mp4",
+            "sizeBytes": 14939624,
+            "modifiedNs": "1791258178399667541",
+            "sha256": "a3c0e92cdb373cb42190a67dd304a1e48077a09d1720ad0d1d1b4c3318742307"
+          },
+          "container": "mov,mp4,m4a,3gp,3g2,mj2",
+          "video": {
+            "streamIndex": 0,
+            "codec": "h264",
+            "width": 720,
+            "height": 720,
+            "bitDepth": 8,
+            "pixelFormat": "yuv420p",
+            "frameRate": {
+              "num": 25,
+              "den": 1
+            },
+            "timeBase": {
+              "num": 1,
+              "den": 12800
+            },
+            "frameCount": 2990,
+            "startPts": 0,
+            "durationTicks": 1530880,
+            "timeline": {
+              "variableFrameRate": false,
+              "timestampSha256": "ee30aa475eb6f77f2488070ac207b7595ba30d54d68f3017b8a6f407c6ea51de"
+            },
+            "bitRate": 930665,
+            "colorRange": "tv",
+            "colorSpace": null,
+            "colorPrimaries": "bt709",
+            "colorTransfer": "bt709"
+          },
+          "audio": {
+            "streamIndex": 1,
+            "codec": "aac",
+            "sampleRate": 44100,
+            "channels": 2,
+            "channelLayout": "stereo",
+            "timeBase": {
+              "num": 1,
+              "den": 44100
+            },
+            "startPts": 0,
+            "durationTicks": 5274625,
+            "bitRate": 64798
+          },
+          "title": null,
+          "comment": null
+        },
+        "presetId": "research-round3-H",
+        "version": 1,
+        "args": [
+          "-hide_banner",
+          "-n",
+          "-copyts",
+          "-i",
+          "${REPO_ROOT}/docs/requirements/20261002-research/原视频-1.mp4",
+          "-i",
+          "${REPO_ROOT}/.media-fixtures/sample-phase-v2/pair1-sample-match-v2/原视频-1_processed_a5531a2f-07ee-43d1-be59-fe67df24bdad.mp4",
+          "-map",
+          "1:0",
+          "-map",
+          "0:1",
+          "-c:v",
+          "copy",
+          "-fps_mode:v",
+          "passthrough",
+          "-enc_time_base:v",
+          "demux",
+          "-video_track_timescale",
+          "12800",
+          "-avoid_negative_ts",
+          "disabled",
+          "-c:a",
+          "aac",
+          "-ar",
+          "48000",
+          "-ac",
+          "2",
+          "-channel_layout:a",
+          "stereo",
+          "-b:a",
+          "192000",
+          "-af",
+          "highpass=f=300,lowpass=f=5500,adelay=5:all=1,volume=0.8,aresample=48000,aeval='val(0)+0.0212132034*sin(2*PI*(18000+2*mod(137*floor(2*t)+431,750))*(t-floor(2*t)/2))|val(1)+0.0212132034*sin(2*PI*(18000+2*mod(137*floor(2*t)+431,750))*(t-floor(2*t)/2))'",
+          "-map_metadata",
+          "-1",
+          "-metadata",
+          "comment=video-editor/sample-match-v2",
+          "-movflags",
+          "+faststart",
+          "-progress",
+          "pipe:1",
+          "-nostats",
+          "-cutoff",
+          "20000",
+          "${REPO_ROOT}/.media-fixtures/sample-round3/原视频-1_R3-H_高频信号.mp4"
+        ],
+        "workspace": {
+          "jobId": "a5531a2f-07ee-43d1-be59-fe67df24bdad",
+          "directory": "${REPO_ROOT}/.media-fixtures/sample-phase-v2/pair1-sample-match-v2/.video-editor-a5531a2f-07ee-43d1-be59-fe67df24bdad",
+          "tempPath": "${REPO_ROOT}/.media-fixtures/sample-round3/原视频-1_R3-H_高频信号.mp4",
+          "finalPath": "${REPO_ROOT}/.media-fixtures/sample-round3/原视频-1_R3-H_高频信号.mp4",
+          "recordPath": "${REPO_ROOT}/.media-fixtures/sample-phase-v2/pair1-sample-match-v2/records/a5531a2f-07ee-43d1-be59-fe67df24bdad.json",
+          "directoryIdentity": {
+            "volumeId": "16777220",
+            "fileId": "259483612"
+          }
+        },
+        "policy": {
+          "width": 720,
+          "height": 720,
+          "frameRate": {
+            "num": 25,
+            "den": 1
+          },
+          "frameCount": 2990,
+          "videoDurationSeconds": 119.6,
+          "audioDurationSeconds": 119.60600907029479,
+          "channels": 2,
+          "videoToleranceSeconds": 0.04,
+          "audioToleranceSeconds": 0.05
+        }
+      },
+      "platform_review_status": "pending",
+      "generation_log": "${REPO_ROOT}/.media-fixtures/sample-round3/pair1-R3-H.log",
+      "audio_to_reference": {
+        "shared_samples": 5741327,
+        "zero_lag_correlation": 0.8446343710517658,
+        "rms_ratio_db": -0.6070368936062347,
+        "optimal_gain": 0.9057755533966142,
+        "gain_fitted_residual": 0.286592779306887
+      },
+      "audio_peak_abs": 0.6553381085395813,
+      "audio_samples_at_or_above_full_scale": 0,
+      "video_bitstream_sha256": "942a0820adb043d12ed8d6f1c69ae4f66be10453c49da48831e99cb7503d9144",
+      "audio_bitstream_sha256": "948278c314c30fdc419a49836a30e2aec7453276662fa5c2e3dfe6dab3f5abd3",
+      "video_bitstream_equal_v2": true,
+      "audio_bitstream_equal_v2": false,
+      "high_band": {
+        "median_dbfs": -36.489287336160146,
+        "p05_dbfs": -36.51555124120715,
+        "p95_dbfs": -36.46178974941354,
+        "windows_above_minus_45_dbfs": 1196,
+        "window_count": 1196,
+        "expected_peak_within_5hz_fraction": 1.0,
+        "tail_114_115_seconds": [
+          {
+            "seconds": 114.0,
+            "peak_hz": 18333.984375,
+            "expected_carrier_hz": 18334,
+            "high_band_rms_dbfs": -36.486103556774474
+          },
+          {
+            "seconds": 114.1,
+            "peak_hz": 18333.984375,
+            "expected_carrier_hz": 18334,
+            "high_band_rms_dbfs": -36.4880021424774
+          },
+          {
+            "seconds": 114.2,
+            "peak_hz": 18333.984375,
+            "expected_carrier_hz": 18334,
+            "high_band_rms_dbfs": -36.47238709278461
+          },
+          {
+            "seconds": 114.3,
+            "peak_hz": 18333.984375,
+            "expected_carrier_hz": 18334,
+            "high_band_rms_dbfs": -36.48302465759298
+          },
+          {
+            "seconds": 114.4,
+            "peak_hz": 18333.984375,
+            "expected_carrier_hz": 18334,
+            "high_band_rms_dbfs": -36.475597677200994
+          },
+          {
+            "seconds": 114.5,
+            "peak_hz": 18607.91015625,
+            "expected_carrier_hz": 18608,
+            "high_band_rms_dbfs": -36.49508597613815
+          },
+          {
+            "seconds": 114.6,
+            "peak_hz": 18607.91015625,
+            "expected_carrier_hz": 18608,
+            "high_band_rms_dbfs": -36.49304628362104
+          },
+          {
+            "seconds": 114.7,
+            "peak_hz": 18607.91015625,
+            "expected_carrier_hz": 18608,
+            "high_band_rms_dbfs": -36.5272398086572
+          },
+          {
+            "seconds": 114.8,
+            "peak_hz": 18607.91015625,
+            "expected_carrier_hz": 18608,
+            "high_band_rms_dbfs": -36.51303034240817
+          },
+          {
+            "seconds": 114.9,
+            "peak_hz": 18607.91015625,
+            "expected_carrier_hz": 18608,
+            "high_band_rms_dbfs": -36.50571598439552
+          }
+        ]
+      },
+      "low_band_to_B": {
+        "shared_samples": 5741327,
+        "zero_lag_correlation": 0.9998952814943466,
+        "rms_ratio_db": 1.6720613967304103e-05,
+        "optimal_gain": 0.9998933566651194,
+        "gain_fitted_residual": 0.00020942604702750935
+      },
+      "validation": {
+        "audioDurationSeconds": 119.61097916666667,
+        "checks": [
+          "完整解码",
+          "输出规格",
+          "帧数与时间轴",
+          "输入身份"
+        ],
+        "colorInformationComplete": false,
+        "decodedFrames": 2990,
+        "inputSha256": "a3c0e92cdb373cb42190a67dd304a1e48077a09d1720ad0d1d1b4c3318742307",
+        "outputPath": "${REPO_ROOT}/.media-fixtures/sample-round3/原视频-1_R3-H_高频信号.mp4",
+        "outputSha256": "164b165678ba1ddea882c18deeb08cb428e01f38bb41b2fec74e025594ce2649",
+        "videoDurationSeconds": 119.6
+      },
+      "output": {
+        "audio": {
+          "bitRate": 192848,
+          "channelLayout": "stereo",
+          "channels": 2,
+          "codec": "aac",
+          "durationTicks": 5741327,
+          "sampleRate": 48000,
+          "startPts": 0,
+          "streamIndex": 1,
+          "timeBase": {
+            "den": 48000,
+            "num": 1
+          }
+        },
+        "comment": "video-editor/sample-match-v2",
+        "container": "mov,mp4,m4a,3gp,3g2,mj2",
+        "identity": {
+          "canonicalPath": "${REPO_ROOT}/.media-fixtures/sample-round3/原视频-1_R3-H_高频信号.mp4",
+          "modifiedNs": "1791558957011392447",
+          "sha256": "164b165678ba1ddea882c18deeb08cb428e01f38bb41b2fec74e025594ce2649",
+          "sizeBytes": 19931266
+        },
+        "title": null,
+        "video": {
+          "bitDepth": 8,
+          "bitRate": 1135693,
+          "codec": "h264",
+          "colorPrimaries": "bt709",
+          "colorRange": "tv",
+          "colorSpace": null,
+          "colorTransfer": "bt709",
+          "durationTicks": 1530880,
+          "frameCount": 2990,
+          "frameRate": {
+            "den": 1,
+            "num": 25
+          },
+          "height": 720,
+          "pixelFormat": "yuv420p",
+          "startPts": 0,
+          "streamIndex": 0,
+          "timeBase": {
+            "den": 12800,
+            "num": 1
+          },
+          "timeline": {
+            "timestampSha256": "ee30aa475eb6f77f2488070ac207b7595ba30d54d68f3017b8a6f407c6ea51de",
+            "variableFrameRate": false
+          },
+          "width": 720
+        }
+      }
+    },
+    {
+      "pair": 2,
+      "arm": "E",
+      "experiment_id": "pair2-R3-E",
+      "output_path": "${REPO_ROOT}/.media-fixtures/sample-round3/原视频-2_R3-E_编码.mp4",
+      "output_sha256": "bf73151e131af7826f066211043c61332662f13a53f6cbfe891129e82a3a0a35",
+      "size_bytes": 103531839,
+      "baseline_v2_path": "${REPO_ROOT}/.media-fixtures/sample-phase-v2/pair2-sample-match-v2/原视频-2_processed_34558f66-f9a6-45ba-9682-9db1cdc86f7e.mp4",
+      "baseline_v2_sha256": "a9eba3d8f929900f3a47641039058e3a61ff4493fe1b7ea635ae00a084327879",
+      "plan": {
+        "jobId": "pair2-R3-E",
+        "source": {
+          "identity": {
+            "canonicalPath": "${REPO_ROOT}/docs/requirements/20261002-research/原视频-2.mp4",
+            "sizeBytes": 28980142,
+            "modifiedNs": "1791550508000000000",
+            "sha256": "01d82ded9b53f1cf3908507c0ede2e83aa375396089398706d304ae73c65e7e8"
+          },
+          "container": "mov,mp4,m4a,3gp,3g2,mj2",
+          "video": {
+            "streamIndex": 0,
+            "codec": "h264",
+            "width": 1080,
+            "height": 1440,
+            "bitDepth": 8,
+            "pixelFormat": "yuv420p",
+            "frameRate": {
+              "num": 30,
+              "den": 1
+            },
+            "timeBase": {
+              "num": 1,
+              "den": 15360
+            },
+            "frameCount": 3507,
+            "startPts": 0,
+            "durationTicks": 1795584,
+            "timeline": {
+              "variableFrameRate": false,
+              "timestampSha256": "1c835e19e5abb13b43c721e6ef5bcedd690b27289cb0b065335246d9261b7ae5"
+            },
+            "bitRate": 1850398,
+            "colorRange": "tv",
+            "colorSpace": "bt709",
+            "colorPrimaries": "bt709",
+            "colorTransfer": "bt709"
+          },
+          "audio": {
+            "streamIndex": 1,
+            "codec": "aac",
+            "sampleRate": 44100,
+            "channels": 2,
+            "channelLayout": "stereo",
+            "timeBase": {
+              "num": 1,
+              "den": 44100
+            },
+            "startPts": 0,
+            "durationTicks": 5155819,
+            "bitRate": 128560
+          },
+          "title": null,
+          "comment": "Content Adaptive Encoding 3.1"
+        },
+        "presetId": "research-round3-E",
+        "version": 1,
+        "args": [
+          "-hide_banner",
+          "-n",
+          "-copyts",
+          "-i",
+          "${REPO_ROOT}/docs/requirements/20261002-research/原视频-2.mp4",
+          "-i",
+          "${REPO_ROOT}/.media-fixtures/sample-phase-v2/pair2-sample-match-v2/原视频-2_processed_34558f66-f9a6-45ba-9682-9db1cdc86f7e.mp4",
+          "-map",
+          "0:0",
+          "-map",
+          "1:1",
+          "-c:v",
+          "libx264",
+          "-preset",
+          "ultrafast",
+          "-profile:v",
+          "baseline",
+          "-pix_fmt",
+          "yuv420p",
+          "-g",
+          "250",
+          "-keyint_min",
+          "25",
+          "-sc_threshold",
+          "0",
+          "-bf",
+          "0",
+          "-fps_mode:v",
+          "passthrough",
+          "-enc_time_base:v",
+          "demux",
+          "-video_track_timescale",
+          "15360",
+          "-avoid_negative_ts",
+          "disabled",
+          "-vf",
+          "lutyuv=y='clip(0.985*val+0.5,0,255)'",
+          "-color_range",
+          "tv",
+          "-colorspace",
+          "bt709",
+          "-color_primaries",
+          "bt709",
+          "-color_trc",
+          "bt709",
+          "-bsf:v",
+          "h264_metadata=video_full_range_flag=0",
+          "-c:a",
+          "copy",
+          "-map_metadata",
+          "-1",
+          "-metadata",
+          "comment=Content Adaptive Encoding 3.1; video-editor/sample-match-v2",
+          "-movflags",
+          "+faststart",
+          "-progress",
+          "pipe:1",
+          "-nostats",
+          "-crf",
+          "23",
+          "-threads:v",
+          "18",
+          "${REPO_ROOT}/.media-fixtures/sample-round3/原视频-2_R3-E_编码.mp4"
+        ],
+        "workspace": {
+          "jobId": "34558f66-f9a6-45ba-9682-9db1cdc86f7e",
+          "directory": "${REPO_ROOT}/.media-fixtures/sample-phase-v2/pair2-sample-match-v2/.video-editor-34558f66-f9a6-45ba-9682-9db1cdc86f7e",
+          "tempPath": "${REPO_ROOT}/.media-fixtures/sample-round3/原视频-2_R3-E_编码.mp4",
+          "finalPath": "${REPO_ROOT}/.media-fixtures/sample-round3/原视频-2_R3-E_编码.mp4",
+          "recordPath": "${REPO_ROOT}/.media-fixtures/sample-phase-v2/pair2-sample-match-v2/records/34558f66-f9a6-45ba-9682-9db1cdc86f7e.json",
+          "directoryIdentity": {
+            "volumeId": "16777220",
+            "fileId": "259490681"
+          }
+        },
+        "policy": {
+          "width": 1080,
+          "height": 1440,
+          "frameRate": {
+            "num": 30,
+            "den": 1
+          },
+          "frameCount": 3507,
+          "videoDurationSeconds": 116.9,
+          "audioDurationSeconds": 116.91199546485261,
+          "channels": 2,
+          "videoToleranceSeconds": 0.03333333333333333,
+          "audioToleranceSeconds": 0.05
+        }
+      },
+      "platform_review_status": "pending",
+      "generation_log": "${REPO_ROOT}/.media-fixtures/sample-round3/pair2-R3-E.log",
+      "audio_to_reference": {
+        "shared_samples": 5612016,
+        "zero_lag_correlation": 0.8330207404654175,
+        "rms_ratio_db": -1.8959110956227077,
+        "optimal_gain": 1.0362185657846066,
+        "gain_fitted_residual": 0.3060764463613046
+      },
+      "audio_peak_abs": 0.5155915021896362,
+      "audio_samples_at_or_above_full_scale": 0,
+      "video_bitstream_sha256": "50f18a66c8bcd0c1b1f7e1ddbafaca16b3ba0b239b480568aed995225dae8e29",
+      "audio_bitstream_sha256": "171eddba5f0995a5c08157d81b07db183316e1226b0264417c484151940cbccb",
+      "video_bitstream_equal_v2": false,
+      "audio_bitstream_equal_v2": true,
+      "validation": {
+        "audioDurationSeconds": 116.917,
+        "checks": [
+          "完整解码",
+          "输出规格",
+          "帧数与时间轴",
+          "输入身份"
+        ],
+        "colorInformationComplete": true,
+        "decodedFrames": 3507,
+        "inputSha256": "01d82ded9b53f1cf3908507c0ede2e83aa375396089398706d304ae73c65e7e8",
+        "outputPath": "${REPO_ROOT}/.media-fixtures/sample-round3/原视频-2_R3-E_编码.mp4",
+        "outputSha256": "bf73151e131af7826f066211043c61332662f13a53f6cbfe891129e82a3a0a35",
+        "videoDurationSeconds": 116.9
+      },
+      "output": {
+        "audio": {
+          "bitRate": 75332,
+          "channelLayout": "stereo",
+          "channels": 2,
+          "codec": "aac",
+          "durationTicks": 5612016,
+          "sampleRate": 48000,
+          "startPts": 0,
+          "streamIndex": 1,
+          "timeBase": {
+            "den": 48000,
+            "num": 1
+          }
+        },
+        "comment": "Content Adaptive Encoding 3.1; video-editor/sample-match-v2",
+        "container": "mov,mp4,m4a,3gp,3g2,mj2",
+        "identity": {
+          "canonicalPath": "${REPO_ROOT}/.media-fixtures/sample-round3/原视频-2_R3-E_编码.mp4",
+          "modifiedNs": "1791558966334025929",
+          "sha256": "bf73151e131af7826f066211043c61332662f13a53f6cbfe891129e82a3a0a35",
+          "sizeBytes": 103531839
+        },
+        "title": null,
+        "video": {
+          "bitDepth": 8,
+          "bitRate": 7002791,
+          "codec": "h264",
+          "colorPrimaries": "bt709",
+          "colorRange": "tv",
+          "colorSpace": "bt709",
+          "colorTransfer": "bt709",
+          "durationTicks": 1795584,
+          "frameCount": 3507,
+          "frameRate": {
+            "den": 1,
+            "num": 30
+          },
+          "height": 1440,
+          "pixelFormat": "yuv420p",
+          "startPts": 0,
+          "streamIndex": 0,
+          "timeBase": {
+            "den": 15360,
+            "num": 1
+          },
+          "timeline": {
+            "timestampSha256": "1c835e19e5abb13b43c721e6ef5bcedd690b27289cb0b065335246d9261b7ae5",
+            "variableFrameRate": false
+          },
+          "width": 1080
+        }
+      }
+    },
+    {
+      "pair": 2,
+      "arm": "D",
+      "experiment_id": "pair2-R3-D",
+      "output_path": "${REPO_ROOT}/.media-fixtures/sample-round3/原视频-2_R3-D_动态增益.mp4",
+      "output_sha256": "af0ce19f076a2d0edabc1b45c5028aa7720e724285730226a3a0062c46529749",
+      "size_bytes": 34187219,
+      "baseline_v2_path": "${REPO_ROOT}/.media-fixtures/sample-phase-v2/pair2-sample-match-v2/原视频-2_processed_34558f66-f9a6-45ba-9682-9db1cdc86f7e.mp4",
+      "baseline_v2_sha256": "a9eba3d8f929900f3a47641039058e3a61ff4493fe1b7ea635ae00a084327879",
+      "plan": {
+        "jobId": "pair2-R3-D",
+        "source": {
+          "identity": {
+            "canonicalPath": "${REPO_ROOT}/docs/requirements/20261002-research/原视频-2.mp4",
+            "sizeBytes": 28980142,
+            "modifiedNs": "1791550508000000000",
+            "sha256": "01d82ded9b53f1cf3908507c0ede2e83aa375396089398706d304ae73c65e7e8"
+          },
+          "container": "mov,mp4,m4a,3gp,3g2,mj2",
+          "video": {
+            "streamIndex": 0,
+            "codec": "h264",
+            "width": 1080,
+            "height": 1440,
+            "bitDepth": 8,
+            "pixelFormat": "yuv420p",
+            "frameRate": {
+              "num": 30,
+              "den": 1
+            },
+            "timeBase": {
+              "num": 1,
+              "den": 15360
+            },
+            "frameCount": 3507,
+            "startPts": 0,
+            "durationTicks": 1795584,
+            "timeline": {
+              "variableFrameRate": false,
+              "timestampSha256": "1c835e19e5abb13b43c721e6ef5bcedd690b27289cb0b065335246d9261b7ae5"
+            },
+            "bitRate": 1850398,
+            "colorRange": "tv",
+            "colorSpace": "bt709",
+            "colorPrimaries": "bt709",
+            "colorTransfer": "bt709"
+          },
+          "audio": {
+            "streamIndex": 1,
+            "codec": "aac",
+            "sampleRate": 44100,
+            "channels": 2,
+            "channelLayout": "stereo",
+            "timeBase": {
+              "num": 1,
+              "den": 44100
+            },
+            "startPts": 0,
+            "durationTicks": 5155819,
+            "bitRate": 128560
+          },
+          "title": null,
+          "comment": "Content Adaptive Encoding 3.1"
+        },
+        "presetId": "research-round3-D",
+        "version": 1,
+        "args": [
+          "-hide_banner",
+          "-n",
+          "-copyts",
+          "-i",
+          "${REPO_ROOT}/docs/requirements/20261002-research/原视频-2.mp4",
+          "-i",
+          "${REPO_ROOT}/.media-fixtures/sample-phase-v2/pair2-sample-match-v2/原视频-2_processed_34558f66-f9a6-45ba-9682-9db1cdc86f7e.mp4",
+          "-map",
+          "1:0",
+          "-map",
+          "0:1",
+          "-c:v",
+          "copy",
+          "-fps_mode:v",
+          "passthrough",
+          "-enc_time_base:v",
+          "demux",
+          "-video_track_timescale",
+          "15360",
+          "-avoid_negative_ts",
+          "disabled",
+          "-c:a",
+          "aac",
+          "-ar",
+          "48000",
+          "-ac",
+          "2",
+          "-channel_layout:a",
+          "stereo",
+          "-b:a",
+          "74000",
+          "-af",
+          "highpass=f=300,lowpass=f=5500,adelay=5:all=1,acompressor=threshold=0.016:ratio=3:attack=5:release=50:makeup=1:link=average:detection=rms,volume=4.32574521",
+          "-map_metadata",
+          "-1",
+          "-metadata",
+          "comment=Content Adaptive Encoding 3.1; video-editor/sample-match-v2",
+          "-movflags",
+          "+faststart",
+          "-progress",
+          "pipe:1",
+          "-nostats",
+          "${REPO_ROOT}/.media-fixtures/sample-round3/原视频-2_R3-D_动态增益.mp4"
+        ],
+        "workspace": {
+          "jobId": "34558f66-f9a6-45ba-9682-9db1cdc86f7e",
+          "directory": "${REPO_ROOT}/.media-fixtures/sample-phase-v2/pair2-sample-match-v2/.video-editor-34558f66-f9a6-45ba-9682-9db1cdc86f7e",
+          "tempPath": "${REPO_ROOT}/.media-fixtures/sample-round3/原视频-2_R3-D_动态增益.mp4",
+          "finalPath": "${REPO_ROOT}/.media-fixtures/sample-round3/原视频-2_R3-D_动态增益.mp4",
+          "recordPath": "${REPO_ROOT}/.media-fixtures/sample-phase-v2/pair2-sample-match-v2/records/34558f66-f9a6-45ba-9682-9db1cdc86f7e.json",
+          "directoryIdentity": {
+            "volumeId": "16777220",
+            "fileId": "259490681"
+          }
+        },
+        "policy": {
+          "width": 1080,
+          "height": 1440,
+          "frameRate": {
+            "num": 30,
+            "den": 1
+          },
+          "frameCount": 3507,
+          "videoDurationSeconds": 116.9,
+          "audioDurationSeconds": 116.91199546485261,
+          "channels": 2,
+          "videoToleranceSeconds": 0.03333333333333333,
+          "audioToleranceSeconds": 0.05
+        }
+      },
+      "platform_review_status": "pending",
+      "generation_log": "${REPO_ROOT}/.media-fixtures/sample-round3/pair2-R3-D.log",
+      "audio_to_reference": {
+        "shared_samples": 5612016,
+        "zero_lag_correlation": 0.8840705849872919,
+        "rms_ratio_db": -0.5576151995620662,
+        "optimal_gain": 0.9426873111571682,
+        "gain_fitted_residual": 0.21841934273136818
+      },
+      "audio_peak_abs": 0.534433126449585,
+      "audio_samples_at_or_above_full_scale": 0,
+      "video_bitstream_sha256": "853a20518e031af3e2005b92399b64b13d8a4afd7a8b9f1792b4bcd3ad182eee",
+      "audio_bitstream_sha256": "603a626f7493ad282608fad749b34e995c0728ccbae9f70ddad73310baf0ae87",
+      "video_bitstream_equal_v2": true,
+      "audio_bitstream_equal_v2": false,
+      "validation": {
+        "audioDurationSeconds": 116.917,
+        "checks": [
+          "完整解码",
+          "输出规格",
+          "帧数与时间轴",
+          "输入身份"
+        ],
+        "colorInformationComplete": true,
+        "decodedFrames": 3507,
+        "inputSha256": "01d82ded9b53f1cf3908507c0ede2e83aa375396089398706d304ae73c65e7e8",
+        "outputPath": "${REPO_ROOT}/.media-fixtures/sample-round3/原视频-2_R3-D_动态增益.mp4",
+        "outputSha256": "af0ce19f076a2d0edabc1b45c5028aa7720e724285730226a3a0062c46529749",
+        "videoDurationSeconds": 116.9
+      },
+      "output": {
+        "audio": {
+          "bitRate": 75737,
+          "channelLayout": "stereo",
+          "channels": 2,
+          "codec": "aac",
+          "durationTicks": 5612016,
+          "sampleRate": 48000,
+          "startPts": 0,
+          "streamIndex": 1,
+          "timeBase": {
+            "den": 48000,
+            "num": 1
+          }
+        },
+        "comment": "Content Adaptive Encoding 3.1; video-editor/sample-match-v2",
+        "container": "mov,mp4,m4a,3gp,3g2,mj2",
+        "identity": {
+          "canonicalPath": "${REPO_ROOT}/.media-fixtures/sample-round3/原视频-2_R3-D_动态增益.mp4",
+          "modifiedNs": "1791558969648630015",
+          "sha256": "af0ce19f076a2d0edabc1b45c5028aa7720e724285730226a3a0062c46529749",
+          "sizeBytes": 34187219
+        },
+        "title": null,
+        "video": {
+          "bitDepth": 8,
+          "bitRate": 2256818,
+          "codec": "h264",
+          "colorPrimaries": "bt709",
+          "colorRange": "tv",
+          "colorSpace": "bt709",
+          "colorTransfer": "bt709",
+          "durationTicks": 1795584,
+          "frameCount": 3507,
+          "frameRate": {
+            "den": 1,
+            "num": 30
+          },
+          "height": 1440,
+          "pixelFormat": "yuv420p",
+          "startPts": 0,
+          "streamIndex": 0,
+          "timeBase": {
+            "den": 15360,
+            "num": 1
+          },
+          "timeline": {
+            "timestampSha256": "1c835e19e5abb13b43c721e6ef5bcedd690b27289cb0b065335246d9261b7ae5",
+            "variableFrameRate": false
+          },
+          "width": 1080
+        }
+      }
+    },
+    {
+      "pair": 2,
+      "arm": "B",
+      "experiment_id": "pair2-R3-B",
+      "output_path": "${REPO_ROOT}/.media-fixtures/sample-round3/原视频-2_R3-B_高码率对照.mp4",
+      "output_sha256": "4ab46f9007c08543a7339b3ffd5e2df1bfe21a5d25c8487fbbb0035c9fd8dfbd",
+      "size_bytes": 35905985,
+      "baseline_v2_path": "${REPO_ROOT}/.media-fixtures/sample-phase-v2/pair2-sample-match-v2/原视频-2_processed_34558f66-f9a6-45ba-9682-9db1cdc86f7e.mp4",
+      "baseline_v2_sha256": "a9eba3d8f929900f3a47641039058e3a61ff4493fe1b7ea635ae00a084327879",
+      "plan": {
+        "jobId": "pair2-R3-B",
+        "source": {
+          "identity": {
+            "canonicalPath": "${REPO_ROOT}/docs/requirements/20261002-research/原视频-2.mp4",
+            "sizeBytes": 28980142,
+            "modifiedNs": "1791550508000000000",
+            "sha256": "01d82ded9b53f1cf3908507c0ede2e83aa375396089398706d304ae73c65e7e8"
+          },
+          "container": "mov,mp4,m4a,3gp,3g2,mj2",
+          "video": {
+            "streamIndex": 0,
+            "codec": "h264",
+            "width": 1080,
+            "height": 1440,
+            "bitDepth": 8,
+            "pixelFormat": "yuv420p",
+            "frameRate": {
+              "num": 30,
+              "den": 1
+            },
+            "timeBase": {
+              "num": 1,
+              "den": 15360
+            },
+            "frameCount": 3507,
+            "startPts": 0,
+            "durationTicks": 1795584,
+            "timeline": {
+              "variableFrameRate": false,
+              "timestampSha256": "1c835e19e5abb13b43c721e6ef5bcedd690b27289cb0b065335246d9261b7ae5"
+            },
+            "bitRate": 1850398,
+            "colorRange": "tv",
+            "colorSpace": "bt709",
+            "colorPrimaries": "bt709",
+            "colorTransfer": "bt709"
+          },
+          "audio": {
+            "streamIndex": 1,
+            "codec": "aac",
+            "sampleRate": 44100,
+            "channels": 2,
+            "channelLayout": "stereo",
+            "timeBase": {
+              "num": 1,
+              "den": 44100
+            },
+            "startPts": 0,
+            "durationTicks": 5155819,
+            "bitRate": 128560
+          },
+          "title": null,
+          "comment": "Content Adaptive Encoding 3.1"
+        },
+        "presetId": "research-round3-B",
+        "version": 1,
+        "args": [
+          "-hide_banner",
+          "-n",
+          "-copyts",
+          "-i",
+          "${REPO_ROOT}/docs/requirements/20261002-research/原视频-2.mp4",
+          "-i",
+          "${REPO_ROOT}/.media-fixtures/sample-phase-v2/pair2-sample-match-v2/原视频-2_processed_34558f66-f9a6-45ba-9682-9db1cdc86f7e.mp4",
+          "-map",
+          "1:0",
+          "-map",
+          "0:1",
+          "-c:v",
+          "copy",
+          "-fps_mode:v",
+          "passthrough",
+          "-enc_time_base:v",
+          "demux",
+          "-video_track_timescale",
+          "15360",
+          "-avoid_negative_ts",
+          "disabled",
+          "-c:a",
+          "aac",
+          "-ar",
+          "48000",
+          "-ac",
+          "2",
+          "-channel_layout:a",
+          "stereo",
+          "-b:a",
+          "192000",
+          "-af",
+          "highpass=f=300,lowpass=f=5500,adelay=5:all=1,volume=0.8,aresample=48000",
+          "-map_metadata",
+          "-1",
+          "-metadata",
+          "comment=Content Adaptive Encoding 3.1; video-editor/sample-match-v2",
+          "-movflags",
+          "+faststart",
+          "-progress",
+          "pipe:1",
+          "-nostats",
+          "-cutoff",
+          "20000",
+          "${REPO_ROOT}/.media-fixtures/sample-round3/原视频-2_R3-B_高码率对照.mp4"
+        ],
+        "workspace": {
+          "jobId": "34558f66-f9a6-45ba-9682-9db1cdc86f7e",
+          "directory": "${REPO_ROOT}/.media-fixtures/sample-phase-v2/pair2-sample-match-v2/.video-editor-34558f66-f9a6-45ba-9682-9db1cdc86f7e",
+          "tempPath": "${REPO_ROOT}/.media-fixtures/sample-round3/原视频-2_R3-B_高码率对照.mp4",
+          "finalPath": "${REPO_ROOT}/.media-fixtures/sample-round3/原视频-2_R3-B_高码率对照.mp4",
+          "recordPath": "${REPO_ROOT}/.media-fixtures/sample-phase-v2/pair2-sample-match-v2/records/34558f66-f9a6-45ba-9682-9db1cdc86f7e.json",
+          "directoryIdentity": {
+            "volumeId": "16777220",
+            "fileId": "259490681"
+          }
+        },
+        "policy": {
+          "width": 1080,
+          "height": 1440,
+          "frameRate": {
+            "num": 30,
+            "den": 1
+          },
+          "frameCount": 3507,
+          "videoDurationSeconds": 116.9,
+          "audioDurationSeconds": 116.91199546485261,
+          "channels": 2,
+          "videoToleranceSeconds": 0.03333333333333333,
+          "audioToleranceSeconds": 0.05
+        }
+      },
+      "platform_review_status": "pending",
+      "generation_log": "${REPO_ROOT}/.media-fixtures/sample-round3/pair2-R3-B.log",
+      "audio_to_reference": {
+        "shared_samples": 5612016,
+        "zero_lag_correlation": 0.8390503469910537,
+        "rms_ratio_db": -1.9198169114210109,
+        "optimal_gain": 1.046595509191888,
+        "gain_fitted_residual": 0.2959945152150025
+      },
+      "audio_peak_abs": 0.5294032096862793,
+      "audio_samples_at_or_above_full_scale": 0,
+      "video_bitstream_sha256": "853a20518e031af3e2005b92399b64b13d8a4afd7a8b9f1792b4bcd3ad182eee",
+      "audio_bitstream_sha256": "94489ba4174ef5faa10852b54f9da0f83128707191cb714825508f740fc37b4f",
+      "video_bitstream_equal_v2": true,
+      "audio_bitstream_equal_v2": false,
+      "high_band": {
+        "median_dbfs": -110.5236044300018,
+        "p05_dbfs": -148.39477155770595,
+        "p95_dbfs": -97.28594430450235,
+        "windows_above_minus_45_dbfs": 0,
+        "window_count": 1169,
+        "expected_peak_within_5hz_fraction": 0.0,
+        "tail_114_115_seconds": [
+          {
+            "seconds": 114.0,
+            "peak_hz": 15014.6484375,
+            "expected_carrier_hz": 18334,
+            "high_band_rms_dbfs": -198.60144969237052
+          },
+          {
+            "seconds": 114.1,
+            "peak_hz": 15074.70703125,
+            "expected_carrier_hz": 18334,
+            "high_band_rms_dbfs": -197.29763682748353
+          },
+          {
+            "seconds": 114.2,
+            "peak_hz": 15004.39453125,
+            "expected_carrier_hz": 18334,
+            "high_band_rms_dbfs": -194.9051682004381
+          },
+          {
+            "seconds": 114.3,
+            "peak_hz": 15068.84765625,
+            "expected_carrier_hz": 18334,
+            "high_band_rms_dbfs": -191.9649109835928
+          },
+          {
+            "seconds": 114.4,
+            "peak_hz": 15008.7890625,
+            "expected_carrier_hz": 18334,
+            "high_band_rms_dbfs": -191.22474094042963
+          },
+          {
+            "seconds": 114.5,
+            "peak_hz": 15166.9921875,
+            "expected_carrier_hz": 18608,
+            "high_band_rms_dbfs": -193.80853880360522
+          },
+          {
+            "seconds": 114.6,
+            "peak_hz": 15168.45703125,
+            "expected_carrier_hz": 18608,
+            "high_band_rms_dbfs": -195.05296710254999
+          },
+          {
+            "seconds": 114.7,
+            "peak_hz": 15008.7890625,
+            "expected_carrier_hz": 18608,
+            "high_band_rms_dbfs": -192.975342992995
+          },
+          {
+            "seconds": 114.8,
+            "peak_hz": 15273.92578125,
+            "expected_carrier_hz": 18608,
+            "high_band_rms_dbfs": -168.63303876901682
+          },
+          {
+            "seconds": 114.9,
+            "peak_hz": 15169.921875,
+            "expected_carrier_hz": 18608,
+            "high_band_rms_dbfs": -185.59621817679104
+          }
+        ]
+      },
+      "validation": {
+        "audioDurationSeconds": 116.917,
+        "checks": [
+          "完整解码",
+          "输出规格",
+          "帧数与时间轴",
+          "输入身份"
+        ],
+        "colorInformationComplete": true,
+        "decodedFrames": 3507,
+        "inputSha256": "01d82ded9b53f1cf3908507c0ede2e83aa375396089398706d304ae73c65e7e8",
+        "outputPath": "${REPO_ROOT}/.media-fixtures/sample-round3/原视频-2_R3-B_高码率对照.mp4",
+        "outputSha256": "4ab46f9007c08543a7339b3ffd5e2df1bfe21a5d25c8487fbbb0035c9fd8dfbd",
+        "videoDurationSeconds": 116.9
+      },
+      "output": {
+        "audio": {
+          "bitRate": 193321,
+          "channelLayout": "stereo",
+          "channels": 2,
+          "codec": "aac",
+          "durationTicks": 5612016,
+          "sampleRate": 48000,
+          "startPts": 0,
+          "streamIndex": 1,
+          "timeBase": {
+            "den": 48000,
+            "num": 1
+          }
+        },
+        "comment": "Content Adaptive Encoding 3.1; video-editor/sample-match-v2",
+        "container": "mov,mp4,m4a,3gp,3g2,mj2",
+        "identity": {
+          "canonicalPath": "${REPO_ROOT}/.media-fixtures/sample-round3/原视频-2_R3-B_高码率对照.mp4",
+          "modifiedNs": "1791558972943057811",
+          "sha256": "4ab46f9007c08543a7339b3ffd5e2df1bfe21a5d25c8487fbbb0035c9fd8dfbd",
+          "sizeBytes": 35905985
+        },
+        "title": null,
+        "video": {
+          "bitDepth": 8,
+          "bitRate": 2256818,
+          "codec": "h264",
+          "colorPrimaries": "bt709",
+          "colorRange": "tv",
+          "colorSpace": "bt709",
+          "colorTransfer": "bt709",
+          "durationTicks": 1795584,
+          "frameCount": 3507,
+          "frameRate": {
+            "den": 1,
+            "num": 30
+          },
+          "height": 1440,
+          "pixelFormat": "yuv420p",
+          "startPts": 0,
+          "streamIndex": 0,
+          "timeBase": {
+            "den": 15360,
+            "num": 1
+          },
+          "timeline": {
+            "timestampSha256": "1c835e19e5abb13b43c721e6ef5bcedd690b27289cb0b065335246d9261b7ae5",
+            "variableFrameRate": false
+          },
+          "width": 1080
+        }
+      }
+    },
+    {
+      "pair": 2,
+      "arm": "H",
+      "experiment_id": "pair2-R3-H",
+      "output_path": "${REPO_ROOT}/.media-fixtures/sample-round3/原视频-2_R3-H_高频信号.mp4",
+      "output_sha256": "c1b21c08e5022b35ed55ca6751bd024c10a13630058207b3d6b33bc2e58a64fd",
+      "size_bytes": 35903973,
+      "baseline_v2_path": "${REPO_ROOT}/.media-fixtures/sample-phase-v2/pair2-sample-match-v2/原视频-2_processed_34558f66-f9a6-45ba-9682-9db1cdc86f7e.mp4",
+      "baseline_v2_sha256": "a9eba3d8f929900f3a47641039058e3a61ff4493fe1b7ea635ae00a084327879",
+      "plan": {
+        "jobId": "pair2-R3-H",
+        "source": {
+          "identity": {
+            "canonicalPath": "${REPO_ROOT}/docs/requirements/20261002-research/原视频-2.mp4",
+            "sizeBytes": 28980142,
+            "modifiedNs": "1791550508000000000",
+            "sha256": "01d82ded9b53f1cf3908507c0ede2e83aa375396089398706d304ae73c65e7e8"
+          },
+          "container": "mov,mp4,m4a,3gp,3g2,mj2",
+          "video": {
+            "streamIndex": 0,
+            "codec": "h264",
+            "width": 1080,
+            "height": 1440,
+            "bitDepth": 8,
+            "pixelFormat": "yuv420p",
+            "frameRate": {
+              "num": 30,
+              "den": 1
+            },
+            "timeBase": {
+              "num": 1,
+              "den": 15360
+            },
+            "frameCount": 3507,
+            "startPts": 0,
+            "durationTicks": 1795584,
+            "timeline": {
+              "variableFrameRate": false,
+              "timestampSha256": "1c835e19e5abb13b43c721e6ef5bcedd690b27289cb0b065335246d9261b7ae5"
+            },
+            "bitRate": 1850398,
+            "colorRange": "tv",
+            "colorSpace": "bt709",
+            "colorPrimaries": "bt709",
+            "colorTransfer": "bt709"
+          },
+          "audio": {
+            "streamIndex": 1,
+            "codec": "aac",
+            "sampleRate": 44100,
+            "channels": 2,
+            "channelLayout": "stereo",
+            "timeBase": {
+              "num": 1,
+              "den": 44100
+            },
+            "startPts": 0,
+            "durationTicks": 5155819,
+            "bitRate": 128560
+          },
+          "title": null,
+          "comment": "Content Adaptive Encoding 3.1"
+        },
+        "presetId": "research-round3-H",
+        "version": 1,
+        "args": [
+          "-hide_banner",
+          "-n",
+          "-copyts",
+          "-i",
+          "${REPO_ROOT}/docs/requirements/20261002-research/原视频-2.mp4",
+          "-i",
+          "${REPO_ROOT}/.media-fixtures/sample-phase-v2/pair2-sample-match-v2/原视频-2_processed_34558f66-f9a6-45ba-9682-9db1cdc86f7e.mp4",
+          "-map",
+          "1:0",
+          "-map",
+          "0:1",
+          "-c:v",
+          "copy",
+          "-fps_mode:v",
+          "passthrough",
+          "-enc_time_base:v",
+          "demux",
+          "-video_track_timescale",
+          "15360",
+          "-avoid_negative_ts",
+          "disabled",
+          "-c:a",
+          "aac",
+          "-ar",
+          "48000",
+          "-ac",
+          "2",
+          "-channel_layout:a",
+          "stereo",
+          "-b:a",
+          "192000",
+          "-af",
+          "highpass=f=300,lowpass=f=5500,adelay=5:all=1,volume=0.8,aresample=48000,aeval='val(0)+0.0212132034*sin(2*PI*(18000+2*mod(137*floor(2*t)+431,750))*(t-floor(2*t)/2))|val(1)+0.0212132034*sin(2*PI*(18000+2*mod(137*floor(2*t)+431,750))*(t-floor(2*t)/2))'",
+          "-map_metadata",
+          "-1",
+          "-metadata",
+          "comment=Content Adaptive Encoding 3.1; video-editor/sample-match-v2",
+          "-movflags",
+          "+faststart",
+          "-progress",
+          "pipe:1",
+          "-nostats",
+          "-cutoff",
+          "20000",
+          "${REPO_ROOT}/.media-fixtures/sample-round3/原视频-2_R3-H_高频信号.mp4"
+        ],
+        "workspace": {
+          "jobId": "34558f66-f9a6-45ba-9682-9db1cdc86f7e",
+          "directory": "${REPO_ROOT}/.media-fixtures/sample-phase-v2/pair2-sample-match-v2/.video-editor-34558f66-f9a6-45ba-9682-9db1cdc86f7e",
+          "tempPath": "${REPO_ROOT}/.media-fixtures/sample-round3/原视频-2_R3-H_高频信号.mp4",
+          "finalPath": "${REPO_ROOT}/.media-fixtures/sample-round3/原视频-2_R3-H_高频信号.mp4",
+          "recordPath": "${REPO_ROOT}/.media-fixtures/sample-phase-v2/pair2-sample-match-v2/records/34558f66-f9a6-45ba-9682-9db1cdc86f7e.json",
+          "directoryIdentity": {
+            "volumeId": "16777220",
+            "fileId": "259490681"
+          }
+        },
+        "policy": {
+          "width": 1080,
+          "height": 1440,
+          "frameRate": {
+            "num": 30,
+            "den": 1
+          },
+          "frameCount": 3507,
+          "videoDurationSeconds": 116.9,
+          "audioDurationSeconds": 116.91199546485261,
+          "channels": 2,
+          "videoToleranceSeconds": 0.03333333333333333,
+          "audioToleranceSeconds": 0.05
+        }
+      },
+      "platform_review_status": "pending",
+      "generation_log": "${REPO_ROOT}/.media-fixtures/sample-round3/pair2-R3-H.log",
+      "audio_to_reference": {
+        "shared_samples": 5612016,
+        "zero_lag_correlation": 0.8214585715890106,
+        "rms_ratio_db": -1.7364719826892703,
+        "optimal_gain": 1.003250222663426,
+        "gain_fitted_residual": 0.3252058151651174
+      },
+      "audio_peak_abs": 0.5491856932640076,
+      "audio_samples_at_or_above_full_scale": 0,
+      "video_bitstream_sha256": "853a20518e031af3e2005b92399b64b13d8a4afd7a8b9f1792b4bcd3ad182eee",
+      "audio_bitstream_sha256": "4791f03a93e9d020b9d6649011adb059f47f091fb83396d6f4935bde8bc7a204",
+      "video_bitstream_equal_v2": true,
+      "audio_bitstream_equal_v2": false,
+      "high_band": {
+        "median_dbfs": -36.48972298702141,
+        "p05_dbfs": -36.53264085706832,
+        "p95_dbfs": -36.45825638069672,
+        "windows_above_minus_45_dbfs": 1169,
+        "window_count": 1169,
+        "expected_peak_within_5hz_fraction": 1.0,
+        "tail_114_115_seconds": [
+          {
+            "seconds": 114.0,
+            "peak_hz": 18333.984375,
+            "expected_carrier_hz": 18334,
+            "high_band_rms_dbfs": -36.49319899367019
+          },
+          {
+            "seconds": 114.1,
+            "peak_hz": 18333.984375,
+            "expected_carrier_hz": 18334,
+            "high_band_rms_dbfs": -36.488018641065835
+          },
+          {
+            "seconds": 114.2,
+            "peak_hz": 18333.984375,
+            "expected_carrier_hz": 18334,
+            "high_band_rms_dbfs": -36.47239067197547
+          },
+          {
+            "seconds": 114.3,
+            "peak_hz": 18333.984375,
+            "expected_carrier_hz": 18334,
+            "high_band_rms_dbfs": -36.48302442249519
+          },
+          {
+            "seconds": 114.4,
+            "peak_hz": 18333.984375,
+            "expected_carrier_hz": 18334,
+            "high_band_rms_dbfs": -36.475596801906896
+          },
+          {
+            "seconds": 114.5,
+            "peak_hz": 18607.91015625,
+            "expected_carrier_hz": 18608,
+            "high_band_rms_dbfs": -36.495086892314035
+          },
+          {
+            "seconds": 114.6,
+            "peak_hz": 18607.91015625,
+            "expected_carrier_hz": 18608,
+            "high_band_rms_dbfs": -36.493045494583356
+          },
+          {
+            "seconds": 114.7,
+            "peak_hz": 18607.91015625,
+            "expected_carrier_hz": 18608,
+            "high_band_rms_dbfs": -36.52724493416078
+          },
+          {
+            "seconds": 114.8,
+            "peak_hz": 18607.91015625,
+            "expected_carrier_hz": 18608,
+            "high_band_rms_dbfs": -36.51303549671396
+          },
+          {
+            "seconds": 114.9,
+            "peak_hz": 18607.91015625,
+            "expected_carrier_hz": 18608,
+            "high_band_rms_dbfs": -36.467780682910586
+          }
+        ]
+      },
+      "low_band_to_B": {
+        "shared_samples": 5612016,
+        "zero_lag_correlation": 0.9997214885784372,
+        "rms_ratio_db": 0.0007235063986050136,
+        "optimal_gain": 0.9996382184697725,
+        "gain_fitted_residual": 0.000556945321440067
+      },
+      "validation": {
+        "audioDurationSeconds": 116.917,
+        "checks": [
+          "完整解码",
+          "输出规格",
+          "帧数与时间轴",
+          "输入身份"
+        ],
+        "colorInformationComplete": true,
+        "decodedFrames": 3507,
+        "inputSha256": "01d82ded9b53f1cf3908507c0ede2e83aa375396089398706d304ae73c65e7e8",
+        "outputPath": "${REPO_ROOT}/.media-fixtures/sample-round3/原视频-2_R3-H_高频信号.mp4",
+        "outputSha256": "c1b21c08e5022b35ed55ca6751bd024c10a13630058207b3d6b33bc2e58a64fd",
+        "videoDurationSeconds": 116.9
+      },
+      "output": {
+        "audio": {
+          "bitRate": 193184,
+          "channelLayout": "stereo",
+          "channels": 2,
+          "codec": "aac",
+          "durationTicks": 5612016,
+          "sampleRate": 48000,
+          "startPts": 0,
+          "streamIndex": 1,
+          "timeBase": {
+            "den": 48000,
+            "num": 1
+          }
+        },
+        "comment": "Content Adaptive Encoding 3.1; video-editor/sample-match-v2",
+        "container": "mov,mp4,m4a,3gp,3g2,mj2",
+        "identity": {
+          "canonicalPath": "${REPO_ROOT}/.media-fixtures/sample-round3/原视频-2_R3-H_高频信号.mp4",
+          "modifiedNs": "1791558976004185695",
+          "sha256": "c1b21c08e5022b35ed55ca6751bd024c10a13630058207b3d6b33bc2e58a64fd",
+          "sizeBytes": 35903973
+        },
+        "title": null,
+        "video": {
+          "bitDepth": 8,
+          "bitRate": 2256818,
+          "codec": "h264",
+          "colorPrimaries": "bt709",
+          "colorRange": "tv",
+          "colorSpace": "bt709",
+          "colorTransfer": "bt709",
+          "durationTicks": 1795584,
+          "frameCount": 3507,
+          "frameRate": {
+            "den": 1,
+            "num": 30
+          },
+          "height": 1440,
+          "pixelFormat": "yuv420p",
+          "startPts": 0,
+          "streamIndex": 0,
+          "timeBase": {
+            "den": 15360,
+            "num": 1
+          },
+          "timeline": {
+            "timestampSha256": "1c835e19e5abb13b43c721e6ef5bcedd690b27289cb0b065335246d9261b7ae5",
+            "variableFrameRate": false
+          },
+          "width": 1080
+        }
+      }
+    }
+  ],
+  "audio_method": "Decode actual MP4 to 48 kHz stereo float32; arithmetic mean of channels, shared sample count; no alignment before zero-lag correlation. Residual uses fitted scalar gain. HF windows: 0.1 s Hann, FFT 32768, 15-21 kHz band power.",
+  "input_hashes_final": {
+    "docs/requirements/20261002-research/原视频-1.mp4": "a3c0e92cdb373cb42190a67dd304a1e48077a09d1720ad0d1d1b4c3318742307",
+    "docs/requirements/20261002-research/编辑后视频-1.mp4": "5077d1901cd5c8a7166f80bea2cd272e6d7e44174b4f9e2e0b3f48b71ce5e17b",
+    "docs/requirements/20261002-research/原视频-2.mp4": "01d82ded9b53f1cf3908507c0ede2e83aa375396089398706d304ae73c65e7e8",
+    "docs/requirements/20261002-research/编辑后视频-2.mp4": "610ab9b3ad3c519bdafc194ed45a6b00522f387d63cec784f8821cba767157fe"
+  },
+  "audio_parameter_study": {
+    "date": "2026-10-09",
+    "selection": "Only pair 1 first 60 seconds selects common parameters; remaining pair 1 and all pair 2 are held out. No platform outcome is used for fitting.",
+    "ffmpeg_sha256": "a45b462cf91ed89148ae218c4577e30896485d7a6792c3673bcf5f823fa01b63",
+    "winner": {
+      "filter_without_gain": "highpass=f=300,lowpass=f=5500,adelay=5:all=1,acompressor=threshold=0.016:ratio=3:attack=5:release=50:makeup=1:link=average:detection=rms",
+      "order": "after_bandpass",
+      "threshold": 0.016,
+      "ratio": 3,
+      "pairs": {
+        "1": {
+          "candidate": {
+            "correlation": 0.9191351472620375,
+            "optimal_gain": 1.00914664268769,
+            "gain_fitted_residual": 0.15519177364644823
+          },
+          "v2_raw_pcm": {
+            "correlation": 0.8575136306210828,
+            "optimal_gain": 0.9328624844404275,
+            "gain_fitted_residual": 0.2646703734258623
+          },
+          "peak": 0.5254391431808472
+        },
+        "2": {
+          "candidate": {
+            "correlation": 0.8921404143156245,
+            "optimal_gain": 0.9552550039696067,
+            "gain_fitted_residual": 0.20408590316127065
+          },
+          "v2_raw_pcm": {
+            "correlation": 0.8392024730922288,
+            "optimal_gain": 1.045222471128074,
+            "gain_fitted_residual": 0.29573920917195184
+          },
+          "peak": 0.572340190410614
+        }
+      },
+      "training": {
+        "correlation": 0.9247962278628179,
+        "optimal_gain": 4.325745206380922,
+        "gain_fitted_residual": 0.14475318024456932
+      },
+      "holdout_pair1": {
+        "correlation": 0.9144383232131319,
+        "optimal_gain": 4.400310061438307,
+        "gain_fitted_residual": 0.1638037029343163
+      },
+      "frozen_filter": "highpass=f=300,lowpass=f=5500,adelay=5:all=1,acompressor=threshold=0.016:ratio=3:attack=5:release=50:makeup=1:link=average:detection=rms,volume=4.32574521"
+    },
+    "candidates": [
+      {
+        "filter_without_gain": "highpass=f=300,lowpass=f=5500,adelay=5:all=1,acompressor=threshold=0.016:ratio=3:attack=5:release=50:makeup=1:link=average:detection=rms",
+        "order": "after_bandpass",
+        "threshold": 0.016,
+        "ratio": 3,
+        "pairs": {
+          "1": {
+            "candidate": {
+              "correlation": 0.9191351472620375,
+              "optimal_gain": 1.00914664268769,
+              "gain_fitted_residual": 0.15519177364644823
+            },
+            "v2_raw_pcm": {
+              "correlation": 0.8575136306210828,
+              "optimal_gain": 0.9328624844404275,
+              "gain_fitted_residual": 0.2646703734258623
+            },
+            "peak": 0.5254391431808472
+          },
+          "2": {
+            "candidate": {
+              "correlation": 0.8921404143156245,
+              "optimal_gain": 0.9552550039696067,
+              "gain_fitted_residual": 0.20408590316127065
+            },
+            "v2_raw_pcm": {
+              "correlation": 0.8392024730922288,
+              "optimal_gain": 1.045222471128074,
+              "gain_fitted_residual": 0.29573920917195184
+            },
+            "peak": 0.572340190410614
+          }
+        },
+        "training": {
+          "correlation": 0.9247962278628179,
+          "optimal_gain": 4.325745206380922,
+          "gain_fitted_residual": 0.14475318024456932
+        },
+        "holdout_pair1": {
+          "correlation": 0.9144383232131319,
+          "optimal_gain": 4.400310061438307,
+          "gain_fitted_residual": 0.1638037029343163
+        },
+        "frozen_filter": "highpass=f=300,lowpass=f=5500,adelay=5:all=1,acompressor=threshold=0.016:ratio=3:attack=5:release=50:makeup=1:link=average:detection=rms,volume=4.32574521"
+      },
+      {
+        "filter_without_gain": "highpass=f=300,lowpass=f=5500,adelay=5:all=1,acompressor=threshold=0.008:ratio=3:attack=5:release=50:makeup=1:link=average:detection=rms",
+        "order": "after_bandpass",
+        "threshold": 0.008,
+        "ratio": 3,
+        "pairs": {},
+        "training": {
+          "correlation": 0.9245125560608146,
+          "optimal_gain": 6.857813704966395,
+          "gain_fitted_residual": 0.14527776172868256
+        },
+        "holdout_pair1": {
+          "correlation": 0.9143882453836173,
+          "optimal_gain": 6.978805308398498,
+          "gain_fitted_residual": 0.1638952736593532
+        }
+      },
+      {
+        "filter_without_gain": "highpass=f=300,lowpass=f=5500,adelay=5:all=1,acompressor=threshold=0.004:ratio=3:attack=5:release=50:makeup=1:link=average:detection=rms",
+        "order": "after_bandpass",
+        "threshold": 0.004,
+        "ratio": 3,
+        "pairs": {},
+        "training": {
+          "correlation": 0.9238574081434233,
+          "optimal_gain": 10.865142229217305,
+          "gain_fitted_residual": 0.14648871776611339
+        },
+        "holdout_pair1": {
+          "correlation": 0.9143765464639522,
+          "optimal_gain": 11.077729339515267,
+          "gain_fitted_residual": 0.16391666492353418
+        }
+      },
+      {
+        "filter_without_gain": "highpass=f=300,lowpass=f=5500,adelay=5:all=1,acompressor=threshold=0.008:ratio=2:attack=5:release=50:makeup=1:link=average:detection=rms",
+        "order": "after_bandpass",
+        "threshold": 0.008,
+        "ratio": 2,
+        "pairs": {},
+        "training": {
+          "correlation": 0.9165628745506675,
+          "optimal_gain": 3.9965751231513047,
+          "gain_fitted_residual": 0.15991320480639437
+        },
+        "holdout_pair1": {
+          "correlation": 0.9019601583470237,
+          "optimal_gain": 4.119897467776778,
+          "gain_fitted_residual": 0.18646853805380287
+        }
+      },
+      {
+        "filter_without_gain": "highpass=f=300,lowpass=f=5500,adelay=5:all=1,acompressor=threshold=0.016:ratio=2:attack=5:release=50:makeup=1:link=average:detection=rms",
+        "order": "after_bandpass",
+        "threshold": 0.016,
+        "ratio": 2,
+        "pairs": {},
+        "training": {
+          "correlation": 0.9165328441304604,
+          "optimal_gain": 2.826739911036649,
+          "gain_fitted_residual": 0.15996825809946905
+        },
+        "holdout_pair1": {
+          "correlation": 0.9018542958322471,
+          "optimal_gain": 2.9137027919627743,
+          "gain_fitted_residual": 0.18665949876878818
+        }
+      },
+      {
+        "filter_without_gain": "highpass=f=300,lowpass=f=5500,adelay=5:all=1,acompressor=threshold=0.004:ratio=2:attack=5:release=50:makeup=1:link=average:detection=rms",
+        "order": "after_bandpass",
+        "threshold": 0.004,
+        "ratio": 2,
+        "pairs": {},
+        "training": {
+          "correlation": 0.916499905610529,
+          "optimal_gain": 5.650012832163374,
+          "gain_fitted_residual": 0.16002863184036376
+        },
+        "holdout_pair1": {
+          "correlation": 0.9019593560178815,
+          "optimal_gain": 5.826368015735466,
+          "gain_fitted_residual": 0.186469984353292
+        }
+      },
+      {
+        "filter_without_gain": "acompressor=threshold=0.016:ratio=3:attack=5:release=50:makeup=1:link=average:detection=rms,highpass=f=300,lowpass=f=5500,adelay=5:all=1",
+        "order": "before_bandpass",
+        "threshold": 0.016,
+        "ratio": 3,
+        "pairs": {},
+        "training": {
+          "correlation": 0.9128855381967882,
+          "optimal_gain": 5.053685611807955,
+          "gain_fitted_residual": 0.166639994381644
+        },
+        "holdout_pair1": {
+          "correlation": 0.9038610060945298,
+          "optimal_gain": 5.250579972795447,
+          "gain_fitted_residual": 0.18303528174250222
+        }
+      },
+      {
+        "filter_without_gain": "acompressor=threshold=0.008:ratio=3:attack=5:release=50:makeup=1:link=average:detection=rms,highpass=f=300,lowpass=f=5500,adelay=5:all=1",
+        "order": "before_bandpass",
+        "threshold": 0.008,
+        "ratio": 3,
+        "pairs": {},
+        "training": {
+          "correlation": 0.9127014261124994,
+          "optimal_gain": 8.016305167464223,
+          "gain_fitted_residual": 0.16697610700260757
+        },
+        "holdout_pair1": {
+          "correlation": 0.9038395405587003,
+          "optimal_gain": 8.333912277557951,
+          "gain_fitted_residual": 0.1830740850033618
+        }
+      },
+      {
+        "filter_without_gain": "acompressor=threshold=0.004:ratio=3:attack=5:release=50:makeup=1:link=average:detection=rms,highpass=f=300,lowpass=f=5500,adelay=5:all=1",
+        "order": "before_bandpass",
+        "threshold": 0.004,
+        "ratio": 3,
+        "pairs": {},
+        "training": {
+          "correlation": 0.9125935054696238,
+          "optimal_gain": 12.720997102646075,
+          "gain_fitted_residual": 0.16717309400501099
+        },
+        "holdout_pair1": {
+          "correlation": 0.9038362857529093,
+          "optimal_gain": 13.229134362619858,
+          "gain_fitted_residual": 0.18307996863709777
+        }
+      },
+      {
+        "filter_without_gain": "acompressor=threshold=0.008:ratio=2:attack=5:release=50:makeup=1:link=average:detection=rms,highpass=f=300,lowpass=f=5500,adelay=5:all=1",
+        "order": "before_bandpass",
+        "threshold": 0.008,
+        "ratio": 2,
+        "pairs": {},
+        "training": {
+          "correlation": 0.9052814601785792,
+          "optimal_gain": 4.4540412130769615,
+          "gain_fitted_residual": 0.18046547808291413
+        },
+        "holdout_pair1": {
+          "correlation": 0.8915992306925387,
+          "optimal_gain": 4.66571050223774,
+          "gain_fitted_residual": 0.20505081190752777
+        }
+      },
+      {
+        "filter_without_gain": "acompressor=threshold=0.016:ratio=2:attack=5:release=50:makeup=1:link=average:detection=rms,highpass=f=300,lowpass=f=5500,adelay=5:all=1",
+        "order": "before_bandpass",
+        "threshold": 0.016,
+        "ratio": 2,
+        "pairs": {},
+        "training": {
+          "correlation": 0.9052753661430251,
+          "optimal_gain": 3.1499264685189656,
+          "gain_fitted_residual": 0.18047651168058113
+        },
+        "holdout_pair1": {
+          "correlation": 0.8915965544853002,
+          "optimal_gain": 3.299226878869692,
+          "gain_fitted_residual": 0.2050555841089955
+        }
+      },
+      {
+        "filter_without_gain": "acompressor=threshold=0.004:ratio=2:attack=5:release=50:makeup=1:link=average:detection=rms,highpass=f=300,lowpass=f=5500,adelay=5:all=1",
+        "order": "before_bandpass",
+        "threshold": 0.004,
+        "ratio": 2,
+        "pairs": {},
+        "training": {
+          "correlation": 0.905272453191011,
+          "optimal_gain": 6.298616060334719,
+          "gain_fitted_residual": 0.18048178571950105
+        },
+        "holdout_pair1": {
+          "correlation": 0.8915989086593893,
+          "optimal_gain": 6.598299583788138,
+          "gain_fitted_residual": 0.20505138615644944
+        }
+      },
+      {
+        "filter_without_gain": "highpass=f=300,lowpass=f=5500,adelay=5:all=1,acompressor=threshold=0.004:ratio=1.5:attack=5:release=50:makeup=1:link=average:detection=rms",
+        "order": "after_bandpass",
+        "threshold": 0.004,
+        "ratio": 1.5,
+        "pairs": {},
+        "training": {
+          "correlation": 0.9043891544272503,
+          "optimal_gain": 2.8869010714753873,
+          "gain_fitted_residual": 0.18208056669937894
+        },
+        "holdout_pair1": {
+          "correlation": 0.8846397871356335,
+          "optimal_gain": 2.99963877103519,
+          "gain_fitted_residual": 0.21741273968455588
+        }
+      },
+      {
+        "filter_without_gain": "highpass=f=300,lowpass=f=5500,adelay=5:all=1,acompressor=threshold=0.008:ratio=1.5:attack=5:release=50:makeup=1:link=average:detection=rms",
+        "order": "after_bandpass",
+        "threshold": 0.008,
+        "ratio": 1.5,
+        "pairs": {},
+        "training": {
+          "correlation": 0.9043683626632045,
+          "optimal_gain": 2.2914153017226635,
+          "gain_fitted_residual": 0.18211817363703817
+        },
+        "holdout_pair1": {
+          "correlation": 0.8846390210503643,
+          "optimal_gain": 2.380816825860268,
+          "gain_fitted_residual": 0.21741409535076195
+        }
+      },
+      {
+        "filter_without_gain": "highpass=f=300,lowpass=f=5500,adelay=5:all=1,acompressor=threshold=0.016:ratio=1.5:attack=5:release=50:makeup=1:link=average:detection=rms",
+        "order": "after_bandpass",
+        "threshold": 0.016,
+        "ratio": 1.5,
+        "pairs": {},
+        "training": {
+          "correlation": 0.9043125097624996,
+          "optimal_gain": 1.8187232740700412,
+          "gain_fitted_residual": 0.18221919488068183
+        },
+        "holdout_pair1": {
+          "correlation": 0.8845517250569059,
+          "optimal_gain": 1.8896296498131824,
+          "gain_fitted_residual": 0.21756853980465848
+        }
+      },
+      {
+        "filter_without_gain": "acompressor=threshold=0.004:ratio=1.5:attack=5:release=50:makeup=1:link=average:detection=rms,highpass=f=300,lowpass=f=5500,adelay=5:all=1",
+        "order": "before_bandpass",
+        "threshold": 0.004,
+        "ratio": 1.5,
+        "pairs": {},
+        "training": {
+          "correlation": 0.8955661394349401,
+          "optimal_gain": 3.0875291650150456,
+          "gain_fitted_residual": 0.19796129011812472
+        },
+        "holdout_pair1": {
+          "correlation": 0.8764688251626279,
+          "optimal_gain": 3.242644374347399,
+          "gain_fitted_residual": 0.23180239859489343
+        }
+      },
+      {
+        "filter_without_gain": "acompressor=threshold=0.008:ratio=1.5:attack=5:release=50:makeup=1:link=average:detection=rms,highpass=f=300,lowpass=f=5500,adelay=5:all=1",
+        "order": "before_bandpass",
+        "threshold": 0.008,
+        "ratio": 1.5,
+        "pairs": {},
+        "training": {
+          "correlation": 0.8955623911338567,
+          "optimal_gain": 2.450585231921315,
+          "gain_fitted_residual": 0.19796800380712717
+        },
+        "holdout_pair1": {
+          "correlation": 0.8764687317628519,
+          "optimal_gain": 2.573688988233526,
+          "gain_fitted_residual": 0.2318025623188635
+        }
+      },
+      {
+        "filter_without_gain": "acompressor=threshold=0.016:ratio=1.5:attack=5:release=50:makeup=1:link=average:detection=rms,highpass=f=300,lowpass=f=5500,adelay=5:all=1",
+        "order": "before_bandpass",
+        "threshold": 0.016,
+        "ratio": 1.5,
+        "pairs": {},
+        "training": {
+          "correlation": 0.8955379755061594,
+          "optimal_gain": 1.945047304741574,
+          "gain_fitted_residual": 0.19801173464683555
+        },
+        "holdout_pair1": {
+          "correlation": 0.8764640222867282,
+          "optimal_gain": 2.04274087161681,
+          "gain_fitted_residual": 0.23181081771381323
+        }
+      }
+    ],
+    "reference_high_band_summary": {
+      "1": {
+        "window_count": 1196,
+        "median_dbfs": -133.55618310621315,
+        "strong_windows_above_minus_45_dbfs": 0,
+        "strong_peak_hz_min": null,
+        "strong_peak_hz_max": null,
+        "tail_113_116_seconds": [
+          {
+            "seconds": 113.0,
+            "peak_hz": 15020.5078125,
+            "high_band_rms_dbfs": -135.26552615476416
+          },
+          {
+            "seconds": 113.1,
+            "peak_hz": 15164.0625,
+            "high_band_rms_dbfs": -128.3571541197372
+          },
+          {
+            "seconds": 113.2,
+            "peak_hz": 15055.6640625,
+            "high_band_rms_dbfs": -133.23611703413235
+          },
+          {
+            "seconds": 113.3,
+            "peak_hz": 15064.453125,
+            "high_band_rms_dbfs": -136.1575735308028
+          },
+          {
+            "seconds": 113.4,
+            "peak_hz": 15130.37109375,
+            "high_band_rms_dbfs": -128.52099105103812
+          },
+          {
+            "seconds": 113.5,
+            "peak_hz": 15354.4921875,
+            "high_band_rms_dbfs": -130.16412890266932
+          },
+          {
+            "seconds": 113.6,
+            "peak_hz": 15008.7890625,
+            "high_band_rms_dbfs": -133.40738602302943
+          },
+          {
+            "seconds": 113.7,
+            "peak_hz": 15165.52734375,
+            "high_band_rms_dbfs": -126.95104020033526
+          },
+          {
+            "seconds": 113.8,
+            "peak_hz": 15093.75,
+            "high_band_rms_dbfs": -126.59751336398546
+          },
+          {
+            "seconds": 113.9,
+            "peak_hz": 15000.0,
+            "high_band_rms_dbfs": -127.81711288872509
+          },
+          {
+            "seconds": 114.0,
+            "peak_hz": 15090.8203125,
+            "high_band_rms_dbfs": -130.00795227956007
+          },
+          {
+            "seconds": 114.1,
+            "peak_hz": 15027.83203125,
+            "high_band_rms_dbfs": -126.84663331681134
+          },
+          {
+            "seconds": 114.2,
+            "peak_hz": 15011.71875,
+            "high_band_rms_dbfs": -132.7115756921567
+          },
+          {
+            "seconds": 114.3,
+            "peak_hz": 15333.984375,
+            "high_band_rms_dbfs": -140.86706222407963
+          },
+          {
+            "seconds": 114.4,
+            "peak_hz": 15027.83203125,
+            "high_band_rms_dbfs": -133.19417242497386
+          },
+          {
+            "seconds": 114.5,
+            "peak_hz": 15188.96484375,
+            "high_band_rms_dbfs": -129.58487294172272
+          },
+          {
+            "seconds": 114.6,
+            "peak_hz": 15082.03125,
+            "high_band_rms_dbfs": -125.09035415104537
+          },
+          {
+            "seconds": 114.7,
+            "peak_hz": 15033.69140625,
+            "high_band_rms_dbfs": -134.49174076188527
+          },
+          {
+            "seconds": 114.8,
+            "peak_hz": 15007.32421875,
+            "high_band_rms_dbfs": -127.86753375457138
+          },
+          {
+            "seconds": 114.9,
+            "peak_hz": 15190.4296875,
+            "high_band_rms_dbfs": -132.86095174747442
+          },
+          {
+            "seconds": 115.0,
+            "peak_hz": 15079.1015625,
+            "high_band_rms_dbfs": -117.75731292662898
+          },
+          {
+            "seconds": 115.1,
+            "peak_hz": 15002.9296875,
+            "high_band_rms_dbfs": -129.36338152291006
+          },
+          {
+            "seconds": 115.2,
+            "peak_hz": 15149.4140625,
+            "high_band_rms_dbfs": -142.04767964274825
+          },
+          {
+            "seconds": 115.3,
+            "peak_hz": 15039.55078125,
+            "high_band_rms_dbfs": -140.49998409212856
+          },
+          {
+            "seconds": 115.4,
+            "peak_hz": 15098.14453125,
+            "high_band_rms_dbfs": -133.25737086044063
+          },
+          {
+            "seconds": 115.5,
+            "peak_hz": 15353.02734375,
+            "high_band_rms_dbfs": -132.58145794543978
+          },
+          {
+            "seconds": 115.6,
+            "peak_hz": 15241.69921875,
+            "high_band_rms_dbfs": -135.85903005051867
+          },
+          {
+            "seconds": 115.7,
+            "peak_hz": 15080.56640625,
+            "high_band_rms_dbfs": -140.32198814618764
+          },
+          {
+            "seconds": 115.8,
+            "peak_hz": 15118.65234375,
+            "high_band_rms_dbfs": -129.89926223177312
+          },
+          {
+            "seconds": 115.9,
+            "peak_hz": 15306.15234375,
+            "high_band_rms_dbfs": -118.74223221021245
+          }
+        ]
+      },
+      "2": {
+        "window_count": 1169,
+        "median_dbfs": -36.5081518060395,
+        "strong_windows_above_minus_45_dbfs": 849,
+        "strong_peak_hz_min": 18010.25390625,
+        "strong_peak_hz_max": 19489.74609375,
+        "tail_113_116_seconds": [
+          {
+            "seconds": 113.0,
+            "peak_hz": 19485.3515625,
+            "high_band_rms_dbfs": -75.25509067296812
+          },
+          {
+            "seconds": 113.1,
+            "peak_hz": 19483.88671875,
+            "high_band_rms_dbfs": -72.7142624620406
+          },
+          {
+            "seconds": 113.2,
+            "peak_hz": 19486.81640625,
+            "high_band_rms_dbfs": -77.12450744583263
+          },
+          {
+            "seconds": 113.3,
+            "peak_hz": 19485.3515625,
+            "high_band_rms_dbfs": -77.9180370092096
+          },
+          {
+            "seconds": 113.4,
+            "peak_hz": 19479.4921875,
+            "high_band_rms_dbfs": -76.43369473693672
+          },
+          {
+            "seconds": 113.5,
+            "peak_hz": 19500.0,
+            "high_band_rms_dbfs": -83.97310921732421
+          },
+          {
+            "seconds": 113.6,
+            "peak_hz": 18919.921875,
+            "high_band_rms_dbfs": -108.71598872053357
+          },
+          {
+            "seconds": 113.7,
+            "peak_hz": 18922.8515625,
+            "high_band_rms_dbfs": -109.32304922906168
+          },
+          {
+            "seconds": 113.8,
+            "peak_hz": 18919.921875,
+            "high_band_rms_dbfs": -109.71154373978324
+          },
+          {
+            "seconds": 113.9,
+            "peak_hz": 19502.9296875,
+            "high_band_rms_dbfs": -92.07629752687433
+          },
+          {
+            "seconds": 114.0,
+            "peak_hz": 19398.92578125,
+            "high_band_rms_dbfs": -36.49278801796261
+          },
+          {
+            "seconds": 114.1,
+            "peak_hz": 19398.92578125,
+            "high_band_rms_dbfs": -36.50157400990734
+          },
+          {
+            "seconds": 114.2,
+            "peak_hz": 19398.92578125,
+            "high_band_rms_dbfs": -36.47728861636611
+          },
+          {
+            "seconds": 114.3,
+            "peak_hz": 19398.92578125,
+            "high_band_rms_dbfs": -36.47793372075677
+          },
+          {
+            "seconds": 114.4,
+            "peak_hz": 19398.92578125,
+            "high_band_rms_dbfs": -36.47929635050708
+          },
+          {
+            "seconds": 114.5,
+            "peak_hz": 18263.671875,
+            "high_band_rms_dbfs": -36.48414563739597
+          },
+          {
+            "seconds": 114.6,
+            "peak_hz": 18263.671875,
+            "high_band_rms_dbfs": -36.497979451444266
+          },
+          {
+            "seconds": 114.7,
+            "peak_hz": 18263.671875,
+            "high_band_rms_dbfs": -36.49242188920471
+          },
+          {
+            "seconds": 114.8,
+            "peak_hz": 18263.671875,
+            "high_band_rms_dbfs": -36.50496821195523
+          },
+          {
+            "seconds": 114.9,
+            "peak_hz": 18263.671875,
+            "high_band_rms_dbfs": -36.48105871114826
+          },
+          {
+            "seconds": 115.0,
+            "peak_hz": 19463.37890625,
+            "high_band_rms_dbfs": -36.53302443652823
+          },
+          {
+            "seconds": 115.1,
+            "peak_hz": 19463.37890625,
+            "high_band_rms_dbfs": -36.53581563291855
+          },
+          {
+            "seconds": 115.2,
+            "peak_hz": 19463.37890625,
+            "high_band_rms_dbfs": -36.54122100248348
+          },
+          {
+            "seconds": 115.3,
+            "peak_hz": 19463.37890625,
+            "high_band_rms_dbfs": -36.55271338114729
+          },
+          {
+            "seconds": 115.4,
+            "peak_hz": 19463.37890625,
+            "high_band_rms_dbfs": -36.52473295671547
+          },
+          {
+            "seconds": 115.5,
+            "peak_hz": 19470.703125,
+            "high_band_rms_dbfs": -36.51109748207046
+          },
+          {
+            "seconds": 115.6,
+            "peak_hz": 19470.703125,
+            "high_band_rms_dbfs": -36.50567643166339
+          },
+          {
+            "seconds": 115.7,
+            "peak_hz": 19470.703125,
+            "high_band_rms_dbfs": -36.51847110570061
+          },
+          {
+            "seconds": 115.8,
+            "peak_hz": 19470.703125,
+            "high_band_rms_dbfs": -36.51978814435926
+          },
+          {
+            "seconds": 115.9,
+            "peak_hz": 19470.703125,
+            "high_band_rms_dbfs": -36.548966364527814
+          }
+        ]
+      }
+    }
+  },
+  "verification": {
+    "native_validation": {
+      "outputs_passed": 8,
+      "checks": [
+        "完整解码",
+        "输出规格",
+        "帧数与时间轴",
+        "输入身份"
+      ],
+      "policy": "Original application validation tolerances; not weakened",
+      "generation": "Direct FFmpeg, not JobService; temporary research validator used application validate_output/probe_input",
+      "log": "/tmp/video-editor-round3-validation.log"
+    },
+    "processing_view_tests": 18,
+    "basic_plan_tests": 11,
+    "frontend_build": "passed",
+    "platform": "No round3 submission or platform result available. Both previously delivered v2 outputs failed according to user feedback; latest full audit text unavailable."
+  },
+  "frozen_tools": {
+    "ffmpeg_sha256": "a45b462cf91ed89148ae218c4577e30896485d7a6792c3673bcf5f823fa01b63",
+    "ffmpeg_version": "9.0.2-tessus",
+    "target": "x86_64-apple-darwin"
+  }
+}

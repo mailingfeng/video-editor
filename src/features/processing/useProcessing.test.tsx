@@ -12,6 +12,7 @@ function fakeApi() {
   const jobs=new Set<(s:JobSnapshot)=>void>(); const queues=new Set<(s:QueueSnapshot)=>void>();
   const api:DesktopApi={available:true,pickInput:vi.fn(async()=>'/a.mp4'),pickInputFolder:vi.fn(async()=>null),pickOutputDirectory:vi.fn(async()=>'/out'),
     probeInput:vi.fn(),cancelProbe:vi.fn(),startJob:vi.fn(),getJobSnapshot:vi.fn(),cancelJob:vi.fn(),
+    getLicenseStatus:vi.fn(async()=>({expiresAtMs:1798732800000,effectiveTimeMs:1791630000000,expired:false,ntpAvailable:true})),
     listPresets:vi.fn(async()=>[{presetId:'basic-transcode-v1',version:1,title:'基础转换',evidenceStatus:'checked'}]),
     getCurrentJobSnapshot:vi.fn(async()=>null),getQueueSnapshot:vi.fn(async()=>q),importFolder:vi.fn(),importPaths:vi.fn(),removeItem:vi.fn(),startBatch:vi.fn(),cancelItem:vi.fn(),
     getJobLog:vi.fn(async(id)=>({text:`log ${id}`,truncated:false})),revealOutput:vi.fn(async()=>undefined),

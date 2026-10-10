@@ -15,7 +15,7 @@ if (sampleDir) {
   }
 }
 const env = {...process.env,VIDEO_EDITOR_FIXTURE_DIR:fixtureDir,...(sampleDir ? {VIDEO_EDITOR_SAMPLE_DIR:sampleDir} : {})};
-const r = spawnSync('cargo', ['test','--locked','--manifest-path','src-tauri/Cargo.toml','--test','pipeline_real',...(sampleDir ? [] : ['generated_media_end_to_end']),'--','--ignored','--skip','provided_compatible_media_end_to_end','--test-threads=1'], {
+const r = spawnSync('cargo', ['test','--locked','--manifest-path','src-tauri/Cargo.toml','--test','pipeline_real',...(sampleDir ? [] : ['generated_']),'--','--ignored','--skip','provided_compatible_media_end_to_end','--test-threads=1'], {
   cwd:root, stdio:'inherit', env,
 });
 if (r.error) throw r.error;

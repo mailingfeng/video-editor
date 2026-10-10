@@ -14,6 +14,7 @@ pub enum ErrorCode {
     Busy,
     Canceled,
     CleanupPending,
+    LicenseExpired,
 }
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]

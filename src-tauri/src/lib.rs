@@ -2,6 +2,7 @@
 pub mod commands;
 pub mod contracts;
 pub mod jobs;
+pub mod license;
 pub mod media;
 pub mod native;
 pub mod output;
