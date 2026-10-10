@@ -134,8 +134,10 @@ for platform, run_id in RUNS.items():
     copy_asset(unique(development, 'build.json'), platform + '-build.json')
     copy_asset(unique(development, 'installed-resources.json'), platform + '-installed-resources.json')
     guide = 'windows-desktop-acceptance.md' if platform == 'windows' else 'macos-intel-desktop-acceptance.md'
-    assert unique(development, guide).read_bytes() == Path('docs', guide).read_bytes()
-    copy_asset(Path('docs', guide), guide)
+    # Windows checkout uses CRLF. Compare Markdown text with universal
+    # newlines, then publish the exact file from the checked native artifact.
+    assert unique(development, guide).read_text(encoding='utf-8-sig') == Path('docs', guide).read_text(encoding='utf-8-sig')
+    copy_asset(unique(development, guide), guide)
     summary['platforms'][platform] = {'target': TARGETS[platform], 'runId': run_id, 'runUrl': run['html_url'],
                                     'sourceCommit': SHA, 'installer': published_name,
                                     'installerSha256': build['installerSha256'], 'installerSizeBytes': build['installerSizeBytes'],
