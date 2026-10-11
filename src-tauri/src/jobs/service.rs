@@ -1,5 +1,5 @@
 use super::{
-    log::{LogExcerpt, LogTail},
+    log::{phase_message, LogExcerpt, LogTail},
     progress::{apply_progress, ProgressParser},
     state::{is_terminal, transition},
 };
@@ -74,6 +74,8 @@ struct StoredJob {
     log: LogExcerpt,
     plan: Option<ProcessingPlan>,
     validation: Option<ValidationResult>,
+    #[serde(default)]
+    report_version: u32,
 }
 struct CancelOnDrop(CancellationToken);
 impl Drop for CancelOnDrop {
@@ -101,15 +103,21 @@ impl JobService {
             batch: None,
         };
         if let Ok(bytes) = std::fs::read(record_dir.join("history/latest.json")) {
-            if let Ok(stored) = serde_json::from_slice::<StoredJob>(&bytes) {
+            if let Ok(mut stored) = serde_json::from_slice::<StoredJob>(&bytes) {
                 if is_terminal(stored.snapshot.state) {
+                    stored.snapshot.error = stored.snapshot.error.map(|e| e.for_user());
+                    let log = if stored.report_version == 2 {
+                        LogTail::from_excerpt(stored.log)
+                    } else {
+                        LogTail::from_legacy(&stored.snapshot)
+                    };
                     let id = stored.snapshot.job_id.clone();
                     inner.current = Some(id.clone());
                     inner.jobs.insert(
                         id,
                         JobData {
                             snapshot: stored.snapshot,
-                            log: LogTail::from_excerpt(stored.log),
+                            log,
                             plan: stored.plan,
                             validation: stored.validation,
                         },
@@ -340,6 +348,7 @@ impl JobService {
                 .ok_or_else(unknown_job)?;
             let job = state.jobs.get_mut(job_id).ok_or_else(unknown_job)?;
             transition(&mut job.snapshot, JobState::Canceling);
+            job.log.append(phase_message(JobState::Canceling));
             token.cancel();
             job.snapshot.clone()
         };
@@ -403,7 +412,7 @@ impl JobService {
             if !transition(&mut job.snapshot, phase) {
                 return Err(AppError::new(ErrorCode::ProcessExit, "任务状态转换无效"));
             }
-            job.log.append(&format!("阶段：{phase:?}"));
+            job.log.append(phase_message(phase));
             if let Some(plan) = &job.plan {
                 update_record(&plan.workspace, Some(plan), Some(&job.snapshot))?;
             }
@@ -453,16 +462,6 @@ impl JobService {
             {
                 let mut state = self.state.lock().await;
                 let job = state.jobs.get_mut(id).ok_or_else(unknown_job)?;
-                job.log
-                    .append(&format!("预设：{} v{}", plan.preset_id, plan.version));
-                job.log.append(&format!(
-                    "参数：{}",
-                    serde_json::to_string(&plan.args).unwrap_or_default()
-                ));
-                job.log.append(&format!(
-                    "工具来源记录：{}",
-                    include_str!("../../../tools/sidecars.lock.json")
-                ));
                 update_record(&plan.workspace, Some(&plan), Some(&job.snapshot))?;
                 job.plan = Some(plan.clone());
             }
@@ -525,7 +524,7 @@ impl JobService {
                     job.snapshot.progress = Some(1.0);
                     job.snapshot.output_path = Some(validation.output_path.clone());
                     job.validation = Some(validation);
-                    job.log.append("完整校验通过，结果已保存");
+                    job.log.append(phase_message(JobState::Succeeded));
                 }
                 Err(error) => {
                     let cancelled = job.snapshot.state == JobState::Canceling
@@ -539,19 +538,17 @@ impl JobService {
                     } else {
                         transition(&mut job.snapshot, JobState::Failed);
                     }
+                    let error = if cancelled { canceled() } else { error }.for_user();
                     job.log.append(&format!(
-                        "{}{}",
-                        error.message,
-                        error
-                            .details
-                            .as_ref()
-                            .map(|d| format!("：{d}"))
-                            .unwrap_or_default()
+                        "{}：{}",
+                        phase_message(job.snapshot.state),
+                        error.message
                     ));
                     job.snapshot.error = Some(error);
                 }
             }
             if let Err(error) = cleanup {
+                let error = error.for_user();
                 job.snapshot.cleanup_pending = true;
                 job.log.append(&error.to_string());
                 if job.snapshot.error.is_none() {
@@ -564,7 +561,9 @@ impl JobService {
             job.snapshot.ended_at_ms = Some(now_ms());
             job.snapshot.version += 1;
             if let Err(error) = self.save_history(job) {
-                job.log.append(&format!("记录保存失败：{error}"));
+                let error = error.for_user();
+                job.log
+                    .append("处理记录暂时无法保存，请检查磁盘空间与权限。");
                 if job.snapshot.error.is_none() {
                     job.snapshot.error = Some(error);
                 }
@@ -597,14 +596,20 @@ impl JobService {
                 return;
             }
             match event {
-                ProcessEvent::StderrLine(line) => {
-                    job.log.append(&line);
-                    None
+                ProcessEvent::StderrLine(_) => None,
+                ProcessEvent::StdoutLine(line) => {
+                    let previous_bucket = (job.snapshot.progress.unwrap_or(0.0) * 10.0) as u32;
+                    parser
+                        .push(&line)
+                        .filter(|n| apply_progress(&mut job.snapshot, *n, frames))
+                        .map(|_| {
+                            let bucket = (job.snapshot.progress.unwrap_or(0.0) * 10.0) as u32;
+                            if bucket > previous_bucket {
+                                job.log.append(&format!("处理中：{}%", bucket * 10));
+                            }
+                            job.snapshot.clone()
+                        })
                 }
-                ProcessEvent::StdoutLine(line) => parser
-                    .push(&line)
-                    .filter(|n| apply_progress(&mut job.snapshot, *n, frames))
-                    .map(|_| job.snapshot.clone()),
             }
         };
         if let Some(snapshot) = snapshot {
@@ -619,6 +624,7 @@ impl JobService {
             log: job.log.excerpt(),
             plan: job.plan.clone(),
             validation: job.validation.clone(),
+            report_version: 2,
         })
         .map_err(|e| AppError::new(ErrorCode::OutputPermission, e.to_string()))?;
         for target in [
@@ -665,7 +671,7 @@ fn reserve_job(state: &mut Inner, request: StartJobRequest) -> Launch {
     );
     state.current = Some(id.clone());
     let mut log = LogTail::default();
-    log.append("开始检查输入");
+    log.append(phase_message(JobState::Probing));
     state.jobs.insert(
         id.clone(),
         JobData {

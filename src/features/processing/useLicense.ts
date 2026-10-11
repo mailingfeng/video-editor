@@ -43,7 +43,7 @@ export function useLicense(api:Pick<DesktopApi,'available'|'getLicenseStatus'>) 
   const licenseExpired=Boolean(status && (status.expired || effectiveTime>=status.expiresAtMs));
   const licenseAllowed=api.available && Boolean(status) && !failed && !licenseExpired;
   const licenseHint=!api.available ? null : licenseExpired ? expiredMessage : failed ? failedMessage : !status ? '正在检查使用许可，请稍候。' : null;
-  const licenseNotice=licenseHint ?? (api.available && status && !status.ntpAvailable ? '暂时无法连接网络时间服务器，已使用本机时间及本次运行已确认的时间检查许可。' : null);
+  const licenseNotice=licenseHint;
   const markLicenseExpired=()=>setObservation(previous=>previous ? {...previous,status:{...previous.status,expired:true}} : previous);
   return {licenseAllowed,licenseExpired,licenseHint,licenseNotice,markLicenseExpired};
 }

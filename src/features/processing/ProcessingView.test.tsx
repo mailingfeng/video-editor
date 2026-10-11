@@ -19,7 +19,7 @@ function fakeApi(initial:QueueItem[]=[]){
   const listeners=new Set<(s:JobSnapshot)=>void>();const queues=new Set<(s:QueueSnapshot)=>void>();let drop:(paths:string[])=>void=()=>{};
   const api:DesktopApi={available:true,pickInput:vi.fn(async()=>media.identity.canonicalPath),pickInputFolder:vi.fn(async()=>'/input'),pickOutputDirectory:vi.fn(async()=>'/output'),probeInput:vi.fn(),cancelProbe:vi.fn(),startJob:vi.fn(),getJobSnapshot:vi.fn(),cancelJob:vi.fn(),
     getLicenseStatus:vi.fn(async()=>({expiresAtMs:1798732800000,effectiveTimeMs:1791630000000,expired:false,ntpAvailable:true})),
-    listPresets:vi.fn(async()=>[{presetId:'basic-transcode-v1',version:1,title:'基础转换',evidenceStatus:'checked'}]),getCurrentJobSnapshot:vi.fn(async()=>null),
+    listPresets:vi.fn(async()=>[{presetId:'repeat-combined-v2',version:2,title:'轻微变化',evidenceStatus:''},{presetId:'content-variation-v1',version:1,title:'内容变化',evidenceStatus:''}]),getCurrentJobSnapshot:vi.fn(async()=>null),
     getQueueSnapshot:vi.fn(async()=>q),importPaths:vi.fn(async(paths:string[])=>{q={...q,version:q.version+1,items:[...q.items,...paths.filter(path=>!q.items.some(i=>i.inputPath===path)).map((path,index)=>waiting(`added-${q.version}-${index}`,path))]};return q;}),
     importFolder:vi.fn(async()=>{q={...q,version:q.version+1,items:[waiting('a'),waiting('b','/input/b.mp4'),waiting('c','/input/c.mp4')]};return q;}),
     removeItem:vi.fn(async(id)=>{q={...q,version:q.version+1,items:q.items.filter(i=>i.itemId!==id)};return q;}),
@@ -60,7 +60,7 @@ describe('batch desktop interface',()=>{
     expect(screen.getByRole('tooltip')).toHaveTextContent('正在检查使用许可');
     await act(async()=>pending.resolve({expiresAtMs:1798732800000,effectiveTimeMs:1791630000000,expired:false,ntpAvailable:false}));
     await waitFor(()=>expect(screen.getByRole('button',{name:'开始处理'})).toBeEnabled());
-    expect(screen.getByText(/已使用本机时间/)).toBeVisible();
+    expect(screen.queryByText(/网络时间服务器|已使用本机时间/)).not.toBeInTheDocument();
   });
   it('does not guess the preset of a running batch restored after remount',async()=>{
     const item={...waiting('a'),state:'started' as const,jobId:'job-a',snapshot:snapshot()};
@@ -70,33 +70,28 @@ describe('batch desktop interface',()=>{
     const preset=await screen.findByRole('combobox',{name:'处理预设'});
     await waitFor(()=>expect(preset).toHaveValue(''));
     expect(preset).toBeDisabled();
-    expect(screen.getByRole('option',{name:'本批设置已冻结，详见日志'})).toBeInTheDocument();
+    expect(screen.getByRole('option',{name:'本批设置已固定'})).toBeInTheDocument();
     expect(screen.getAllByText('批次设置已冻结')).toHaveLength(2);
   });
   it.each([
-    ['sample-match-v1',1,'样本处理（实验）',/降低亮度、调整音频频谱/],
-    ['sample-match-v2',2,'样本处理（相位实验）',/校准音频相位与延迟/],
-    ['repeat-variant-v1',1,'重复处理（实验）',/每次加入不同的轻微画面扰动/],
-    ['repeat-combined-v2',2,'组合变化（实验）',/几何、色调、细节与音频组合处理/],
-    ['content-variation-v1',1,'内容变化（实验）',/声音变调、动态前景与模糊背景/],
-  ] as const)('selects %s and freezes that preset during the batch',async(presetId,version,title,description)=>{
+    ['repeat-combined-v2','轻微变化'],
+    ['content-variation-v1','内容变化'],
+  ] as const)('defaults to content variation and freezes %s during the batch',async(presetId,title)=>{
     const {api}=fakeApi([waiting('a')]);
-    vi.mocked(api.listPresets).mockResolvedValue([
-      {presetId:'basic-transcode-v1',version:1,title:'基础转换',evidenceStatus:'checked'},
-      {presetId,version,title,evidenceStatus:'样本校准'},
-    ]);
     const pending=deferred<QueueSnapshot>();
     vi.mocked(api.startBatch).mockReturnValue(pending.promise);
     const user=await ready(api);
     const preset=screen.getByRole('combobox',{name:'处理预设'});
-    expect(preset).toHaveValue('basic-transcode-v1');
+    expect(preset).toHaveValue('content-variation-v1');
+    expect(within(preset).getAllByRole('option').map(option=>option.textContent)).toEqual(['轻微变化','内容变化']);
     await user.selectOptions(preset,presetId);
     expect(preset).toHaveValue(presetId);
-    expect(screen.getByText(description)).toBeVisible();
+    expect(screen.getAllByText(title).length).toBeGreaterThan(1);
+    expect(screen.queryByText(/实验|几何|变调|H\.264|AAC|校准|审核/)).not.toBeInTheDocument();
     await user.click(screen.getByRole('button',{name:'开始处理'}));
     expect(api.startBatch).toHaveBeenCalledWith({outputDirectory:'/output',presetId,metadata:{mode:'preserve'}});
     expect(preset).toBeDisabled();
-    fireEvent.change(preset,{target:{value:'basic-transcode-v1'}});
+    fireEvent.change(preset,{target:{value:presetId==='content-variation-v1'?'repeat-combined-v2':'content-variation-v1'}});
     expect(preset).toHaveValue(presetId);
     await act(async()=>pending.resolve({version:2,running:true,items:[{...waiting('a'),state:'started',jobId:'job-a',snapshot:snapshot()}]}));
     expect(preset).toBeDisabled();
@@ -121,7 +116,7 @@ describe('batch desktop interface',()=>{
     await waitFor(()=>expect(start).toBeEnabled());
     await user.hover(hint);expect(screen.queryByRole('tooltip')).not.toBeInTheDocument();
     await user.click(start);
-    expect(api.startBatch).toHaveBeenCalledWith({outputDirectory:'/output',presetId:'basic-transcode-v1',metadata:{mode:'preserve'}});
+    expect(api.startBatch).toHaveBeenCalledWith({outputDirectory:'/output',presetId:'content-variation-v1',metadata:{mode:'preserve'}});
   });
   it('imports folder candidates before probing and removes only the selected row',async()=>{
     const {api}=fakeApi();const user=await ready(api);await user.click(screen.getByRole('button',{name:'选择文件夹'}));
@@ -160,6 +155,8 @@ describe('batch desktop interface',()=>{
     await user.click(within(row('b.mp4')).getByRole('button',{name:'查看 b.mp4 的日志'}));
     const dialog=screen.getByRole('dialog',{name:'查看日志'});
     expect(within(dialog).getByText('帧数校验失败')).toBeVisible();
+    expect(within(dialog).queryByText('expected 60, got 59')).not.toBeInTheDocument();
+    expect(within(dialog).queryByText('validation_failed')).not.toBeInTheDocument();
     expect(await within(dialog).findByText('log job-b')).toBeVisible();
   });
   it('shows media details after check without claiming complete color information',async()=>{
@@ -184,7 +181,7 @@ describe('batch desktop interface',()=>{
   it('labels historical result only with an empty queue and does not restart it',async()=>{
     const {api}=fakeApi();vi.mocked(api.getCurrentJobSnapshot).mockResolvedValue({...snapshot('old','succeeded',8),progress:1,outputPath:'/old.mp4'});await ready(api);
     await waitFor(()=>expect(screen.getByRole('button',{name:'开始处理'})).toBeDisabled());expect(api.startBatch).not.toHaveBeenCalled();
-    await userEvent.click(screen.getByRole('button',{name:'日志与报告'}));
+    await userEvent.click(screen.getByRole('button',{name:'日志报告'}));
     expect(await screen.findByText('上次结果')).toBeVisible();
   });
   it('same-name paths remain distinguishable and folder failure keeps existing items',async()=>{

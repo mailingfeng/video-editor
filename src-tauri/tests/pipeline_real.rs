@@ -102,7 +102,7 @@ async fn process_with_preset(
     .unwrap();
     if snapshot.state == JobState::Succeeded {
         let log = service.read_log(&id).await.unwrap();
-        assert!(log.text.contains("完整校验通过，结果已保存"));
+        assert!(log.text.contains("处理完成，结果已保存"));
     }
     service.shutdown().await.unwrap();
     (snapshot, d, states)

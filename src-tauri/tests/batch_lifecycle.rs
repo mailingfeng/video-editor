@@ -273,8 +273,8 @@ async fn per_input_gates_prove_isolation_and_cancel_reaping_holds_the_slot() {
             .await
             .unwrap()
             .text;
-        assert!(log.contains(&item.input_path));
-        assert!(!log.contains(&queue.items[0].input_path));
+        assert!(log.contains("结果已保存"));
+        assert!(!log.contains("参数：") && !log.contains("input:"));
     }
     let conversions = runner.conversions.lock().unwrap();
     assert_eq!(conversions.len(), 2);

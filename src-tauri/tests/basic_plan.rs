@@ -187,10 +187,7 @@ fn known_range_is_written_even_without_other_color_tags() {
 }
 
 #[test]
-fn sample_preset_is_available_and_keeps_media_and_metadata_contracts() {
-    assert!(video_editor::presets::list_presets()
-        .iter()
-        .any(|p| p.preset_id == "sample-match-v1"));
+fn legacy_sample_plan_keeps_media_and_metadata_contracts() {
     let m = media();
     let mut r = request(&m.identity.canonical_path, "/output");
     r.preset_id = "sample-match-v1".into();
@@ -218,15 +215,6 @@ fn sample_preset_is_available_and_keeps_media_and_metadata_contracts() {
 
 #[test]
 fn phase_preset_changes_only_audio_and_records_its_version() {
-    let presets = video_editor::presets::list_presets();
-    assert_eq!(presets[0].preset_id, "basic-transcode-v1");
-    assert_eq!(
-        presets
-            .iter()
-            .find(|p| p.preset_id == "sample-match-v2")
-            .map(|p| p.version),
-        Some(2)
-    );
     for channels in [None, Some(2), Some(6), Some(8)] {
         let mut m = media();
         if let Some(channels) = channels {
@@ -297,9 +285,6 @@ fn repeated_processing_freezes_per_job_variation_and_keeps_basic_media_policy() 
     assert_eq!(arg_value(&first.args, "-b:a"), Some("74000"));
     assert_eq!(arg_value(&first.args, "-fps_mode:v"), Some("passthrough"));
     assert_eq!(arg_value(&first.args, "-enc_time_base:v"), Some("demux"));
-    assert!(video_editor::presets::list_presets()
-        .iter()
-        .any(|p| p.preset_id == r.preset_id));
 }
 
 #[test]
@@ -366,4 +351,25 @@ fn combined_processing_freezes_video_audio_and_encoding_without_changing_media_p
     assert!(video_editor::presets::list_presets()
         .iter()
         .any(|p| p.preset_id == "repeat-combined-v2" && p.version == 2));
+}
+
+#[test]
+fn desktop_options_offer_only_content_and_light_variation() {
+    let presets = video_editor::presets::list_presets();
+    assert_eq!(presets.len(), 2);
+    assert_eq!(
+        (&*presets[0].preset_id, &*presets[0].title),
+        ("content-variation-v1", "内容变化")
+    );
+    assert_eq!(
+        (&*presets[1].preset_id, &*presets[1].title),
+        ("repeat-combined-v2", "轻微变化")
+    );
+    for preset in presets {
+        let m = media();
+        let mut r = request(&m.identity.canonical_path, "/output");
+        r.preset_id = preset.preset_id;
+        let p = build_plan(&m, &r, workspace(std::path::Path::new("/output")), "test").unwrap();
+        assert_eq!(p.version, preset.version);
+    }
 }

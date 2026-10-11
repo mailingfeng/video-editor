@@ -106,11 +106,15 @@ impl TimeSource for SystemTimeSource {
     }
     async fn network_time_ms(&self) -> Option<u64> {
         let limit = Duration::from_secs(2);
-        let (aliyun, ntsc) = tokio::join!(
+        let (aliyun, ntsc1, ntsc, apple, windows, cloudflare) = tokio::join!(
             query_ntp("ntp1.aliyun.com:123", limit),
             query_ntp("ntp1.ntsc.ac.cn:123", limit),
+            query_ntp("ntp.ntsc.ac.cn:123", limit),
+            query_ntp("time.apple.com:123", limit),
+            query_ntp("time.windows.com:123", limit),
+            query_ntp("time.cloudflare.com:123", limit),
         );
-        [aliyun, ntsc]
+        [aliyun, ntsc1, ntsc, apple, windows, cloudflare]
             .into_iter()
             .flatten()
             .map(|(time, received)| time.saturating_add(received.elapsed().as_millis() as u64))

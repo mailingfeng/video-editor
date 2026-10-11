@@ -18,7 +18,9 @@ pub async fn get_license_status(state: State<'_, DesktopState>) -> Result<Licens
 }
 impl DesktopState {
     fn require_tools(&self) -> Result<(), AppError> {
-        self.tool_error.clone().map_or(Ok(()), Err)
+        self.tool_error
+            .as_ref()
+            .map_or(Ok(()), |e| Err(e.for_user()))
     }
 }
 #[tauri::command]

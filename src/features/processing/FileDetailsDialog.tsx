@@ -53,7 +53,7 @@ export function FileDetailsDialog({kind,item,status,log,logLoading,logError,onCl
       </>:<p className="helper">{item.snapshot?.state==='failed'?'未读取到视频源信息，请查看日志了解详情。':'待检查 · 完整媒体检查在任务开始后进行。'}</p>}
     </div>:<>
       <div className="report-summary"><div><span>状态</span><strong>{status}</strong></div><div><span>结果路径</span><strong>{item.snapshot?.outputPath??'—'}</strong></div></div>
-      {item.snapshot?.error && <div className="error-detail dialog-notice" role="alert"><strong>{item.snapshot.error.message}</strong>{item.snapshot.error.details && <p>{item.snapshot.error.details}</p>}<small>{item.snapshot.error.code}</small></div>}
+      {item.snapshot?.error && <div className="error-detail dialog-notice" role="alert"><strong>{item.snapshot.error.message}</strong></div>}
       {item.snapshot?.cleanupPending && <div className="notice warning dialog-notice">临时文件尚未完全清理，应用下次启动时会重试。</div>}
       {logError && <div className="notice error dialog-notice" role="alert">{logError}</div>}
       <pre className="log-body" aria-busy={logLoading}>{log?.text||(logLoading?'正在读取日志…':item.jobId?'暂无日志，可稍后刷新。':'尚未开始处理，暂无日志。')}</pre>

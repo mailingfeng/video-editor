@@ -1,0 +1,59 @@
+{
+  "date": "2026-10-11",
+  "version": "0.0.1-beta.5",
+  "localChecks": {
+    "rustTestsPassed": 87,
+    "frontendTestsPassed": 35,
+    "releaseAndSidecarTestsPassed": 17,
+    "frontendBuild": "passed",
+    "desktopClippyWithWarningsDenied": "passed",
+    "cargoFmt": "passed",
+    "generatedMediaTestsPassed": 14,
+    "generatedMediaScope": "Run against this implementation before the application version was bumped; native release workflows repeat these tests against the committed beta.5 source."
+  },
+  "license": {
+    "expiration": "2027-01-01T00:00:00+08:00",
+    "expirationUnixMs": 1798732800000,
+    "servers": [
+      "ntp1.aliyun.com",
+      "ntp1.ntsc.ac.cn",
+      "ntp.ntsc.ac.cn",
+      "time.apple.com",
+      "time.windows.com",
+      "time.cloudflare.com"
+    ],
+    "queryTimeoutMsPerServer": 2000,
+    "refreshIntervalMs": 60000,
+    "selection": "Latest local, valid network or current-session anchored time",
+    "networkFailureBehavior": "Silent fallback to local and current-session anchored time",
+    "networkScope": "No new live public-server reachability result is claimed for beta.5. UDP validation, timeout, clock selection, expiry and fallback behavior are covered by automated tests."
+  },
+  "desktopObservations": {
+    "platform": "Local macOS Intel development app",
+    "checked": [
+      "Content variation is selected by default",
+      "Navigation and page title show 日志报告",
+      "Top-right application label and footer are removed",
+      "Restored report entries include saved dates and Beijing time"
+    ],
+    "scope": "Focused development-app observations; full installed manual acceptance remains pending on both platforms."
+  },
+  "review": {
+    "execution": "Sequential inspection in main thread per AGENTS.md",
+    "checked": [
+      "Two user-facing processing options and safe default selection",
+      "User-facing failures exclude raw tool errors and arguments",
+      "Progress logging and bounded UTF-8 report storage",
+      "Legacy report restoration uses saved timestamps without guessing intermediate events",
+      "Six bounded concurrent NTP requests with silent fallback",
+      "Unchanged license deadline and backend start gates",
+      "Consistent application versions and no committed media or credentials"
+    ]
+  },
+  "limitations": [
+    "Unsigned internal beta; signing and notarization remain incomplete",
+    "Full manual installed desktop acceptance remains pending",
+    "Ordinary NTP is unauthenticated and the session anchor is not persisted across restart",
+    "Third-party distribution materials remain incomplete"
+  ]
+}

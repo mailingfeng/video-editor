@@ -96,7 +96,7 @@ export function useProcessing(api:DesktopApi) {
   },[api,accept,importPaths,update]);
 
   const busy=starting || state.queue.running;
-  const preset=presets.find(p=>p.presetId===presetId)??presets[0]??null;
+  const preset=presets.find(p=>p.presetId===presetId)??presets.find(p=>p.presetId==='content-variation-v1')??presets[0]??null;
   function selectPreset(id:string){
     if(startLock.current || busy || importing || !presets.some(p=>p.presetId===id))return;
     setPresetId(id);

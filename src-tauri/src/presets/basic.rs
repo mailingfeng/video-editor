@@ -3,41 +3,16 @@ use crate::{contracts::*, media::probe::validate_input};
 pub fn list_presets() -> Vec<PresetSummary> {
     vec![
         PresetSummary {
-            preset_id: "basic-transcode-v1".into(),
+            preset_id: content::ID.into(),
             version: 1,
-            title: "基础转换".into(),
-            evidence_status: "本地规格校验；仅执行基础转码".into(),
-        },
-        PresetSummary {
-            preset_id: sample::ID.into(),
-            version: 1,
-            title: "样本处理（实验）".into(),
-            evidence_status: "参照样本校准；已反馈审核未通过".into(),
-        },
-        PresetSummary {
-            preset_id: sample::V2_ID.into(),
-            version: 2,
-            title: "样本处理（相位实验）".into(),
-            evidence_status: "两组样本音频相位校准；两份输出均反馈审核未通过".into(),
-        },
-        PresetSummary {
-            preset_id: repeat::ID.into(),
-            version: 1,
-            title: "重复处理（实验）".into(),
-            evidence_status: "按任务改变轻微画面扰动；已有输出反馈未通过原创审核".into(),
+            title: "内容变化".into(),
+            evidence_status: String::new(),
         },
         PresetSummary {
             preset_id: combined::ID.into(),
             version: 2,
-            title: "组合变化（实验）".into(),
-            evidence_status: "按任务组合画面与音频变化；两份输出均反馈审核未通过".into(),
-        },
-        PresetSummary {
-            preset_id: content::ID.into(),
-            version: 1,
-            title: "内容变化（实验）".into(),
-            evidence_status:
-                "声音变调与完整画面重新布局；已有交付批次反馈通过平台审核，不保证每次通过".into(),
+            title: "轻微变化".into(),
+            evidence_status: String::new(),
         },
     ]
 }

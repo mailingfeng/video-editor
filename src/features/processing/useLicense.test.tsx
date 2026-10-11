@@ -46,3 +46,16 @@ it('removes timers and focus handlers after unmount',async()=>{
   await act(async()=>{window.dispatchEvent(new Event('focus'));await vi.advanceTimersByTimeAsync(60_000);});
   expect(api.getLicenseStatus).toHaveBeenCalledTimes(1);
 });
+
+
+it('silently allows local fallback when every NTP server is unavailable',async()=>{
+  vi.useFakeTimers();vi.setSystemTime(expiresAtMs-100_000);
+  const api={available:true,getLicenseStatus:async()=>({...active,effectiveTimeMs:expiresAtMs-100_000,ntpAvailable:false})};
+  const hook=renderHook(()=>useLicense(api));await act(async()=>{});
+  expect(hook.result.current.licenseAllowed).toBe(true);
+  expect(hook.result.current.licenseHint).toBeNull();
+  expect(hook.result.current.licenseNotice).toBeNull();
+  await act(async()=>vi.advanceTimersByTimeAsync(101_000));
+  expect(hook.result.current.licenseAllowed).toBe(false);
+  expect(hook.result.current.licenseNotice).toContain('到期');
+});
