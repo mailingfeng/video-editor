@@ -43,10 +43,36 @@ jobs:
           workspaces: src-tauri -> target
 
       - name: Dependencies and locked sidecars
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           mkdir -p .ci-evidence .ci-artifacts
           npm ci
-          node scripts/prepare-sidecars.mjs --target x86_64-apple-darwin | tee .ci-evidence/sidecars.json
+          if node scripts/prepare-sidecars.mjs --target x86_64-apple-darwin > .ci-evidence/sidecars.json 2> .ci-evidence/sidecar-download.txt; then
+            cat .ci-evidence/sidecars.json
+          else
+            cat .ci-evidence/sidecar-download.txt >&2
+            # Only a rate-limited download may use the previous checked package.
+            # Archive/binary hash failures remain fatal. The locked tool versions
+            # and hashes must also match the recovered files before any tests run.
+            grep -qx 'Tool download failed: 429' .ci-evidence/sidecar-download.txt
+            seed="$RUNNER_TEMP/frameshift-tool-seed"
+            mount="$RUNNER_TEMP/frameshift-tool-seed-mount"
+            mkdir -p "$seed" "$mount"
+            gh release download v0.0.1-beta.4 --repo "$GITHUB_REPOSITORY" --pattern 'frameshift_0.0.1-beta.4_macos_intel.dmg' --dir "$seed"
+            installer="$seed/frameshift_0.0.1-beta.4_macos_intel.dmg"
+            printf '59fa852b703c7f0df705a32c3e02f1e054eb35c1a3646f858fee7710d0491a29  %s\n' "$installer" | shasum -a 256 -c -
+            hdiutil attach "$installer" -readonly -nobrowse -mountpoint "$mount"
+            trap 'hdiutil detach "$mount"' EXIT
+            for tool in ffmpeg ffprobe; do
+              cp "$mount/帧序.app/Contents/MacOS/$tool" "src-tauri/binaries/$tool-x86_64-apple-darwin"
+              chmod 755 "src-tauri/binaries/$tool-x86_64-apple-darwin"
+            done
+            node scripts/prepare-sidecars.mjs --target x86_64-apple-darwin | tee .ci-evidence/sidecars.json
+            hdiutil detach "$mount"
+            trap - EXIT
+            printf 'Recovered locked tools from the SHA-256-verified beta.4 installer after HTTP 429; executable hashes and architecture verified by prepare-sidecars.\n' >> .ci-evidence/sidecar-download.txt
+          fi
 
       - name: Sidecar and release verifier tests
         run: node --test scripts/prepare-sidecars.test.mjs scripts/verify-release.test.mjs | tee .ci-evidence/node-tests.txt
