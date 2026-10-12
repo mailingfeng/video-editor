@@ -1,0 +1,93 @@
+{
+  "date": "2026-10-12",
+  "codeCommit": "48762eb6db76c23eced3d476bcc87a8286606b32",
+  "version": "0.0.1-beta.5",
+  "target": "x86_64-pc-windows-msvc",
+  "runUrl": "https://github.com/mailingfeng/video-editor/actions/runs/38230808241",
+  "checkedAt": "2026-10-12T09:43:54.1144954Z",
+  "installer": {
+    "installer": "帧序_0.0.1-beta.5_x64-setup.exe",
+    "installerSizeBytes": 59294858,
+    "installerSha256": "30b57c3c48112ef9a44302222b1ca00c9fbc7a028397a870ce130c3f3dec131e"
+  },
+  "archiveDigestVerified": true,
+  "nativeCases": {
+    "baselineMaintenance": {
+      "result": "maintenance-choice"
+    },
+    "upgradeFromBeta4": {
+      "result": "complete",
+      "exitCode": 0
+    },
+    "reinstallSameVersion": {
+      "result": "complete",
+      "exitCode": 0
+    },
+    "repairMissingLocationKey": {
+      "result": "complete",
+      "exitCode": 0
+    },
+    "repairMissingUninstallerAndVersion": {
+      "result": "complete",
+      "exitCode": 0
+    },
+    "guiDowngrade": {
+      "result": "downgrade-blocked",
+      "exitCode": 2
+    },
+    "silentDowngrade": {
+      "exitCode": 2
+    },
+    "passiveDowngrade": {
+      "result": "downgrade-blocked",
+      "exitCode": 2
+    },
+    "runningApp": {
+      "result": "running-blocked",
+      "exitCode": 2
+    },
+    "silentRunningApp": {
+      "exitCode": 2
+    },
+    "silentRepair": {
+      "exitCode": 0
+    },
+    "passiveRepair": {
+      "result": "complete",
+      "exitCode": 0
+    }
+  },
+  "checks": {
+    "backendTests": 96,
+    "frontendTests": 35,
+    "toolTests": 19,
+    "generatedMediaTests": 14,
+    "installedMediaTests": 14,
+    "installedResources": "passed",
+    "desktopClippy": "passed",
+    "templateScan": "passed",
+    "debugArtifacts": [],
+    "installedMain": {
+      "architecture": "x86_64-pc-windows-msvc",
+      "sha256": "192a771cfd4b17e431f86e2b75c7c09e12f5d8bc19a5929e71a02a606e2cc54f",
+      "sizeBytes": 10910720
+    },
+    "installedFingerprint": "a6ba3c3826b1284327f2eb00b0444f7b494b87e7e2d48073b2c9549cec3c0daa"
+  },
+  "coverage": {
+    "runner": "Microsoft Windows NT 10.0.20348.0",
+    "wizard": "UI Automation assertions with native Win32 button notifications",
+    "preservation": "Full payload hashes, history-directory fixture, saved-output fixture and unrelated installed user file; original directory and Unicode start-menu target retained.",
+    "runningApp": "Installed app remains running when GUI or silent installation is refused; normal close succeeds.",
+    "manualWindows10And11Desktop": "not verified",
+    "formalReleaseStatus": "NOT VERIFIED",
+    "transactionalRollback": "not provided by upstream file overwrite"
+  },
+  "testHarnessNotes": [
+    "Tauri temporarily patches UNK to NSS in the main executable for NSIS and then restores the build file; expected installed hash includes that patch.",
+    "Focus-dependent button invocation stalled at Finish on the runner; tests send the native BN_CLICKED notification to the real dialog.",
+    "WScript.Shell returned an empty target for the Chinese path; an independent IShellLinkW probe proved the original shortcut target was correct. The shortcut generator was preserved."
+  ],
+  "unicodeProbeUrl": "https://github.com/mailingfeng/video-editor/actions/runs/38230373258",
+  "review": "Inline sequential correctness, standards, testing, maintainability, reliability and adversarial checks per AGENTS.md; no independent reviewer."
+}
