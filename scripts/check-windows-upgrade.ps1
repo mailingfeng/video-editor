@@ -120,7 +120,7 @@ try {
   if ((Get-ItemProperty $uninstallKey).DisplayVersion -ne '0.0.1-beta.4') { throw 'Baseline version mismatch.' }
   $cases.baselineMaintenance = Invoke-InstallerWizard $baseline 'maintenance-choice'
 
-  $data = Join-Path $env:APPDATA $config.identifier
+  $data = Join-Path (Join-Path $env:APPDATA $config.identifier) 'job-records'
   New-Item -ItemType Directory -Force (Join-Path $data 'history') | Out-Null
   $history = Join-Path $data 'history\upgrade-preservation.json'
   $userFile = Join-Path $Installed '用户保留文件.txt'
