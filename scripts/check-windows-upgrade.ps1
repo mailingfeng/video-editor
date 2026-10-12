@@ -25,6 +25,22 @@ public static class InstallerButtons {
   [DllImport("kernel32.dll", CharSet = CharSet.Unicode, SetLastError = true)]
   public static extern uint GetLongPathName(string path, System.Text.StringBuilder result, uint size);
 }
+[ComImport, Guid("00021401-0000-0000-C000-000000000046")] class ShellLink {}
+[ComImport, InterfaceType(ComInterfaceType.InterfaceIsIUnknown), Guid("000214F9-0000-0000-C000-000000000046")]
+interface IShellLinkW {
+  void GetPath([Out, MarshalAs(UnmanagedType.LPWStr)] System.Text.StringBuilder path, int count, IntPtr data, uint flags);
+}
+public static class NativeShortcut {
+  public static string Target(string path) {
+    var link = (IShellLinkW)new ShellLink();
+    try {
+      ((System.Runtime.InteropServices.ComTypes.IPersistFile)link).Load(path, 0);
+      var result = new System.Text.StringBuilder(32768);
+      link.GetPath(result, result.Capacity, IntPtr.Zero, 4);
+      return result.ToString();
+    } finally { Marshal.FinalReleaseComObject(link); }
+  }
+}
 '@
 $uninstallKey = 'HKCU:\Software\Microsoft\Windows\CurrentVersion\Uninstall\帧序'
 $config = Get-Content -Raw src-tauri/tauri.conf.json | ConvertFrom-Json
@@ -150,14 +166,15 @@ function Assert-Installation {
   foreach ($entry in $preserved.GetEnumerator()) {
     if ((Get-FileHash -LiteralPath $entry.Key -Algorithm SHA256).Hash -ne $entry.Value) { throw "User file changed: $($entry.Key)" }
   }
-  $shell = New-Object -ComObject WScript.Shell
   $shortcutPath = Join-Path ([Environment]::GetFolderPath('Programs')) '帧序.lnk'
-  $shortcut = $shell.CreateShortcut($shortcutPath)
+  # WScript.Shell returns an empty target for this Chinese path on the runner.
+  # Read through the Unicode Shell interface, independently verified by a probe.
+  $shortcutTarget = [NativeShortcut]::Target($shortcutPath)
   $targetPath = [Text.StringBuilder]::new(4096)
   $expectedPath = [Text.StringBuilder]::new(4096)
-  $report.shortcut = @{ path = $shortcutPath; exists = (Test-Path -LiteralPath $shortcutPath); rawTarget = $shortcut.TargetPath; expected = $exe }
+  $report.shortcut = @{ path = $shortcutPath; exists = (Test-Path -LiteralPath $shortcutPath); rawTarget = $shortcutTarget; expected = $exe }
   if (-not $report.shortcut.exists -or
-      [InstallerButtons]::GetLongPathName($shortcut.TargetPath, $targetPath, 4096) -eq 0 -or
+      [InstallerButtons]::GetLongPathName($shortcutTarget, $targetPath, 4096) -eq 0 -or
       [InstallerButtons]::GetLongPathName($exe, $expectedPath, 4096) -eq 0 -or
       $targetPath.ToString() -ne $expectedPath.ToString()) {
     $report.shortcut.candidates = @(Get-ChildItem -LiteralPath ([Environment]::GetFolderPath('Programs')), ([Environment]::GetFolderPath('CommonPrograms')) -Filter '帧序*.lnk' -Recurse | Select-Object -ExpandProperty FullName)
@@ -172,8 +189,7 @@ try {
   if ((Get-FileHash $baseline -Algorithm SHA256).Hash.ToLowerInvariant() -ne $report.baselineSha256) { throw 'Baseline installer checksum mismatch.' }
   Invoke-SilentInstaller $baseline "/S /D=$Installed" | Out-Null
   if ((Get-ItemProperty $uninstallKey).DisplayVersion -ne '0.0.1-beta.4') { throw 'Baseline version mismatch.' }
-  $baselineShell = New-Object -ComObject WScript.Shell
-  $report.baselineShortcutTarget = $baselineShell.CreateShortcut((Join-Path ([Environment]::GetFolderPath('Programs')) '帧序.lnk')).TargetPath
+  $report.baselineShortcutTarget = [NativeShortcut]::Target((Join-Path ([Environment]::GetFolderPath('Programs')) '帧序.lnk'))
   $cases.baselineMaintenance = Invoke-InstallerWizard $baseline 'maintenance-choice'
 
   $data = Join-Path (Join-Path $env:APPDATA $config.identifier) 'job-records'
