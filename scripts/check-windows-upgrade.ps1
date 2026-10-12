@@ -160,7 +160,7 @@ function Assert-Installation {
       [InstallerButtons]::GetLongPathName($shortcut.TargetPath, $targetPath, 4096) -eq 0 -or
       [InstallerButtons]::GetLongPathName($exe, $expectedPath, 4096) -eq 0 -or
       $targetPath.ToString() -ne $expectedPath.ToString()) {
-    $report.shortcut.candidates = @(Get-ChildItem -LiteralPath ([Environment]::GetFolderPath('Programs')), ([Environment]::GetFolderPath('CommonPrograms')) -Filter '*.lnk' -Recurse | Select-Object -ExpandProperty FullName)
+    $report.shortcut.candidates = @(Get-ChildItem -LiteralPath ([Environment]::GetFolderPath('Programs')), ([Environment]::GetFolderPath('CommonPrograms')) -Filter '帧序*.lnk' -Recurse | Select-Object -ExpandProperty FullName)
     throw "Start menu shortcut differs: $($report.shortcut | ConvertTo-Json -Compress)"
   }
 }
@@ -172,6 +172,8 @@ try {
   if ((Get-FileHash $baseline -Algorithm SHA256).Hash.ToLowerInvariant() -ne $report.baselineSha256) { throw 'Baseline installer checksum mismatch.' }
   Invoke-SilentInstaller $baseline "/S /D=$Installed" | Out-Null
   if ((Get-ItemProperty $uninstallKey).DisplayVersion -ne '0.0.1-beta.4') { throw 'Baseline version mismatch.' }
+  $baselineShell = New-Object -ComObject WScript.Shell
+  $report.baselineShortcutTarget = $baselineShell.CreateShortcut((Join-Path ([Environment]::GetFolderPath('Programs')) '帧序.lnk')).TargetPath
   $cases.baselineMaintenance = Invoke-InstallerWizard $baseline 'maintenance-choice'
 
   $data = Join-Path (Join-Path $env:APPDATA $config.identifier) 'job-records'
