@@ -1,0 +1,26 @@
+{
+  "date": "2026-10-12",
+  "version": "0.0.1-beta.6",
+  "localChecks": {
+    "rustTestsPassed": 96,
+    "frontendTestsPassed": 35,
+    "releaseAndSidecarTestsPassed": 19,
+    "frontendBuild": "passed",
+    "fiveApplicationVersions": "0.0.1-beta.6",
+    "scope": "Local checks after the beta.6 version bump; native workflows must repeat against the final main commit."
+  },
+  "priorFeatureEvidence": [
+    "processing-hardening-20261012.json",
+    "windows-installer-upgrade-20261012.json"
+  ],
+  "review": {
+    "execution": "Sequential in main thread per AGENTS.md; no independent or external review",
+    "scope": "Release manifest bump and release documentation; feature reviews and native receipts are recorded separately",
+    "findings": []
+  },
+  "limitations": [
+    "Unsigned internal beta; signing and notarization remain incomplete",
+    "Full manual installed desktop acceptance remains pending",
+    "Third-party distribution materials remain incomplete; see third-party notices"
+  ]
+}

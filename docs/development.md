@@ -108,4 +108,4 @@ VIDEO_EDITOR_COMPAT_SAMPLE="$PWD/docs/requirements/20261002-research/h264.mp4" \
 
 ## 2026-10-12 Windows 覆盖升级
 
-Windows 安装器自动沿用已有目录，升级与同版本重装直接覆盖程序，移除维护／卸载选择及额外语言选择；旧卸载程序或记录部分缺失仍可修复。已知较新版本在图形、静默和被动模式均拒绝降级；正在运行的程序与媒体工具需正常退出后重试，不强制终止。安装向导、安装资源和安装后媒体回归已在 Windows 原生 runner 通过，详情见 [模板说明](../src-tauri/windows/README.md)与[验证记录](evidence/windows-installer-upgrade-20261012.json)。本次开发包仍使用 `0.0.1-beta.5`，尚未公开发布新版本。
+Windows 安装器自动沿用已有目录，升级与同版本重装直接覆盖程序，移除维护／卸载选择及额外语言选择；旧卸载程序或记录部分缺失仍可修复。已知较新版本在图形、静默和被动模式均拒绝降级；正在运行的程序与媒体工具需正常退出后重试，不强制终止。安装向导、安装资源和安装后媒体回归已在 Windows 原生 runner 通过，详情见 [模板说明](../src-tauri/windows/README.md)与[验证记录](evidence/windows-installer-upgrade-20261012.json)。早期验证包使用 `0.0.1-beta.5`，这些改动纳入 `0.0.1-beta.6`；发布时须对最终 `main` 提交重新执行两平台原生验证，记录随 Release 附件提供。
