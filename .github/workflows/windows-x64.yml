@@ -24,25 +24,57 @@ jobs:
           $shell = New-Object -ComObject WScript.Shell
           $exe = Join-Path $installed 'video-editor.exe'
           $link = Join-Path ([Environment]::GetFolderPath('Programs')) '帧序.lnk'
-          $fixture = Join-Path $env:RUNNER_TEMP '探测 fixture.lnk'
-          $created = $shell.CreateShortcut($fixture)
-          $created.TargetPath = $exe
-          $created.Save()
-          $fixtureRead = $shell.CreateShortcut($fixture)
-          $nativeRead = $shell.CreateShortcut($link)
+          Add-Type @'
+          using System;
+          using System.Text;
+          using System.Runtime.InteropServices;
+          [ComImport, Guid("00021401-0000-0000-C000-000000000046")] class ShellLink {}
+          [ComImport, InterfaceType(ComInterfaceType.InterfaceIsIUnknown), Guid("000214F9-0000-0000-C000-000000000046")]
+          interface IShellLinkW {
+            void GetPath([Out, MarshalAs(UnmanagedType.LPWStr)] StringBuilder path, int count, IntPtr data, uint flags);
+            void GetIDList(out IntPtr list); void SetIDList(IntPtr list);
+            void GetDescription([Out, MarshalAs(UnmanagedType.LPWStr)] StringBuilder text, int count);
+            void SetDescription([MarshalAs(UnmanagedType.LPWStr)] string text);
+            void GetWorkingDirectory([Out, MarshalAs(UnmanagedType.LPWStr)] StringBuilder text, int count);
+            void SetWorkingDirectory([MarshalAs(UnmanagedType.LPWStr)] string text);
+            void GetArguments([Out, MarshalAs(UnmanagedType.LPWStr)] StringBuilder text, int count);
+            void SetArguments([MarshalAs(UnmanagedType.LPWStr)] string text);
+            void GetHotkey(out short key); void SetHotkey(short key);
+            void GetShowCmd(out int value); void SetShowCmd(int value);
+            void GetIconLocation([Out, MarshalAs(UnmanagedType.LPWStr)] StringBuilder text, int count, out int index);
+            void SetIconLocation([MarshalAs(UnmanagedType.LPWStr)] string text, int index);
+            void SetRelativePath([MarshalAs(UnmanagedType.LPWStr)] string path, uint flags);
+            void Resolve(IntPtr window, uint flags); void SetPath([MarshalAs(UnmanagedType.LPWStr)] string path);
+          }
+          public static class NativeShortcut {
+            public static string Target(string path) {
+              var link = (IShellLinkW)new ShellLink();
+              try { ((System.Runtime.InteropServices.ComTypes.IPersistFile)link).Load(path, 0);
+                var result = new StringBuilder(32768); link.GetPath(result, result.Capacity, IntPtr.Zero, 4); return result.ToString();
+              } finally { Marshal.FinalReleaseComObject(link); }
+            }
+          }
+          '@
           $result = [ordered]@{
             sourceCommit = $env:GITHUB_SHA
             expected = $exe
-            baselineTarget = $nativeRead.TargetPath
-            fixtureTarget = $fixtureRead.TargetPath
+            expectedExists = (Test-Path -LiteralPath $exe)
+            baselineTarget = $shell.CreateShortcut($link).TargetPath
+            baselineNativeTarget = [NativeShortcut]::Target($link)
             baselineBytes = [Convert]::ToBase64String([IO.File]::ReadAllBytes($link))
-            fixtureBytes = [Convert]::ToBase64String([IO.File]::ReadAllBytes($fixture))
             baselineLength = (Get-Item $link).Length
-            fixtureLength = (Get-Item $fixture).Length
-            shortcutProperties = @($nativeRead | Get-Member | Select-Object Name, MemberType)
+          }
+          foreach ($name in @('probe.lnk', '探测 fixture.lnk')) {
+            try {
+              $fixture = Join-Path $env:RUNNER_TEMP $name
+              $created = $shell.CreateShortcut($fixture)
+              $created.TargetPath = $exe
+              $created.Save()
+              $result[$name] = $shell.CreateShortcut($fixture).TargetPath
+            } catch { $result[$name] = $_.Exception.Message }
           }
           $result | ConvertTo-Json -Depth 5 | Set-Content -Encoding utf8 .ci-evidence/shortcut-probe.json
-          $result | Select-Object expected,baselineTarget,fixtureTarget,baselineLength,fixtureLength | ConvertTo-Json
+          $result | Select-Object expected,expectedExists,baselineTarget,baselineNativeTarget,baselineLength,'probe.lnk','探测 fixture.lnk' | ConvertTo-Json
       - name: Upload probe
         if: always()
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
