@@ -14,6 +14,10 @@ public static class InstallerButtons {
   public static extern bool PostMessage(IntPtr window, uint message, IntPtr wParam, IntPtr lParam);
   [DllImport("user32.dll")]
   public static extern IntPtr SendMessage(IntPtr window, uint message, IntPtr wParam, IntPtr lParam);
+  [DllImport("user32.dll")]
+  public static extern bool IsWindowVisible(IntPtr window);
+  [DllImport("user32.dll")]
+  public static extern bool IsWindowEnabled(IntPtr window);
 }
 '@
 $uninstallKey = 'HKCU:\Software\Microsoft\Windows\CurrentVersion\Uninstall\帧序'
@@ -79,7 +83,9 @@ function Invoke-InstallerWizard([string]$File, [string]$Expected = 'complete', [
         if ($names -match '请先退出帧序|Please close FrameShift') { $observed = 'running-blocked' }
         if ($observed -and $observed -ne $Expected) { throw "Unexpected prompt: $names" }
         $buttons = @($nodes | Where-Object {
-          $_.Current.ControlType -eq [System.Windows.Automation.ControlType]::Button -and $_.Current.IsEnabled -and -not $_.Current.IsOffscreen
+          $_.Current.ControlType -eq [System.Windows.Automation.ControlType]::Button -and
+            [InstallerButtons]::IsWindowEnabled([IntPtr]$_.Current.NativeWindowHandle) -and
+            [InstallerButtons]::IsWindowVisible([IntPtr]$_.Current.NativeWindowHandle)
         })
         $lastControls = @($nodes | Where-Object { $_.Current.ControlType -eq [System.Windows.Automation.ControlType]::Button } | ForEach-Object {
           @{ name = $_.Current.Name; enabled = $_.Current.IsEnabled; offscreen = $_.Current.IsOffscreen; handle = $_.Current.NativeWindowHandle }
