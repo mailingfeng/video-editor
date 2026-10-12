@@ -18,6 +18,10 @@ public static class InstallerButtons {
   public static extern bool IsWindowVisible(IntPtr window);
   [DllImport("user32.dll")]
   public static extern bool IsWindowEnabled(IntPtr window);
+  [DllImport("user32.dll")]
+  public static extern IntPtr GetParent(IntPtr window);
+  [DllImport("user32.dll")]
+  public static extern int GetDlgCtrlID(IntPtr window);
 }
 '@
 $uninstallKey = 'HKCU:\Software\Microsoft\Windows\CurrentVersion\Uninstall\帧序'
@@ -108,7 +112,12 @@ function Invoke-InstallerWizard([string]$File, [string]$Expected = 'complete', [
         }
         if ($button) {
           $handle = [IntPtr]$button.Current.NativeWindowHandle
-          if ($handle -eq [IntPtr]::Zero -or -not [InstallerButtons]::PostMessage($handle, 0x00F5, [IntPtr]::Zero, [IntPtr]::Zero)) { throw 'Native wizard button click failed.' }
+          $parent = [InstallerButtons]::GetParent($handle)
+          $id = [InstallerButtons]::GetDlgCtrlID($handle)
+          # BM_CLICK can fail when a dialog is inactive (Microsoft Win32 docs).
+          # Deliver its BN_CLICKED notification to the native dialog directly.
+          if ($handle -eq [IntPtr]::Zero -or $parent -eq [IntPtr]::Zero -or $id -le 0 -or
+              -not [InstallerButtons]::PostMessage($parent, 0x0111, [IntPtr]$id, $handle)) { throw 'Native wizard button notification failed.' }
         }
       }
       Start-Sleep -Milliseconds 400
