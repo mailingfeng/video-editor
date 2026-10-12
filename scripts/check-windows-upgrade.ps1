@@ -22,6 +22,8 @@ public static class InstallerButtons {
   public static extern IntPtr GetParent(IntPtr window);
   [DllImport("user32.dll")]
   public static extern int GetDlgCtrlID(IntPtr window);
+  [DllImport("kernel32.dll", CharSet = CharSet.Unicode, SetLastError = true)]
+  public static extern uint GetLongPathName(string path, System.Text.StringBuilder result, uint size);
 }
 '@
 $uninstallKey = 'HKCU:\Software\Microsoft\Windows\CurrentVersion\Uninstall\帧序'
@@ -149,8 +151,18 @@ function Assert-Installation {
     if ((Get-FileHash -LiteralPath $entry.Key -Algorithm SHA256).Hash -ne $entry.Value) { throw "User file changed: $($entry.Key)" }
   }
   $shell = New-Object -ComObject WScript.Shell
-  $shortcut = $shell.CreateShortcut((Join-Path ([Environment]::GetFolderPath('Programs')) '帧序.lnk'))
-  if ($shortcut.TargetPath -ne $exe) { throw 'Start menu shortcut no longer points to the original directory.' }
+  $shortcutPath = Join-Path ([Environment]::GetFolderPath('Programs')) '帧序.lnk'
+  $shortcut = $shell.CreateShortcut($shortcutPath)
+  $targetPath = [Text.StringBuilder]::new(4096)
+  $expectedPath = [Text.StringBuilder]::new(4096)
+  $report.shortcut = @{ path = $shortcutPath; exists = (Test-Path -LiteralPath $shortcutPath); rawTarget = $shortcut.TargetPath; expected = $exe }
+  if (-not $report.shortcut.exists -or
+      [InstallerButtons]::GetLongPathName($shortcut.TargetPath, $targetPath, 4096) -eq 0 -or
+      [InstallerButtons]::GetLongPathName($exe, $expectedPath, 4096) -eq 0 -or
+      $targetPath.ToString() -ne $expectedPath.ToString()) {
+    $report.shortcut.candidates = @(Get-ChildItem -LiteralPath ([Environment]::GetFolderPath('Programs')), ([Environment]::GetFolderPath('CommonPrograms')) -Filter '*.lnk' -Recurse | Select-Object -ExpandProperty FullName)
+    throw "Start menu shortcut differs: $($report.shortcut | ConvertTo-Json -Compress)"
+  }
 }
 
 try {
