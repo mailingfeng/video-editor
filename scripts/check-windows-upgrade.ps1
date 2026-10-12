@@ -6,6 +6,16 @@ param(
 $ErrorActionPreference = 'Stop'
 if ($env:GITHUB_ACTIONS -ne 'true') { throw 'This test changes installation records and must run on a disposable GitHub runner.' }
 Add-Type -AssemblyName UIAutomationClient, UIAutomationTypes
+Add-Type @'
+using System;
+using System.Runtime.InteropServices;
+public static class InstallerButtons {
+  [DllImport("user32.dll", SetLastError = true)]
+  public static extern bool PostMessage(IntPtr window, uint message, IntPtr wParam, IntPtr lParam);
+  [DllImport("user32.dll")]
+  public static extern IntPtr SendMessage(IntPtr window, uint message, IntPtr wParam, IntPtr lParam);
+}
+'@
 $uninstallKey = 'HKCU:\Software\Microsoft\Windows\CurrentVersion\Uninstall\帧序'
 $config = Get-Content -Raw src-tauri/tauri.conf.json | ConvertFrom-Json
 $version = $config.version
@@ -42,6 +52,7 @@ function Invoke-InstallerWizard([string]$File, [string]$Expected = 'complete', [
   $p = Start-Process @start
   $stages = [System.Collections.Generic.List[string]]::new()
   $observed = ''
+  $lastControls = @()
   $deadline = (Get-Date).AddMinutes(3)
   try {
     while ((Get-Date) -lt $deadline) {
@@ -49,7 +60,7 @@ function Invoke-InstallerWizard([string]$File, [string]$Expected = 'complete', [
       if ($p.HasExited) {
         if ($Expected -eq 'complete' -and $p.ExitCode -ne 0) { throw "Wizard failed: $($p.ExitCode)" }
         if ($Expected -ne 'complete' -and $observed -ne $Expected) { throw "Expected $Expected, observed $observed" }
-        return @{ result = $Expected; exitCode = $p.ExitCode; stages = @($stages) }
+        return @{ result = $Expected; exitCode = $p.ExitCode; stages = @($stages); controls = $lastControls }
       }
       $condition = [System.Windows.Automation.PropertyCondition]::new([System.Windows.Automation.AutomationElement]::ProcessIdProperty, $p.Id)
       $windows = [System.Windows.Automation.AutomationElement]::RootElement.FindAll([System.Windows.Automation.TreeScope]::Children, $condition)
@@ -70,26 +81,33 @@ function Invoke-InstallerWizard([string]$File, [string]$Expected = 'complete', [
         $buttons = @($nodes | Where-Object {
           $_.Current.ControlType -eq [System.Windows.Automation.ControlType]::Button -and $_.Current.IsEnabled -and -not $_.Current.IsOffscreen
         })
+        $lastControls = @($nodes | Where-Object { $_.Current.ControlType -eq [System.Windows.Automation.ControlType]::Button } | ForEach-Object {
+          @{ name = $_.Current.Name; enabled = $_.Current.IsEnabled; offscreen = $_.Current.IsOffscreen; handle = $_.Current.NativeWindowHandle }
+        })
         $finish = @($buttons | Where-Object { $_.Current.Name -match '完成|Finish' })
         if ($finish.Count -gt 0) {
           # Do not start the application or create a desktop shortcut at Finish.
           foreach ($node in $nodes) {
             if ($node.Current.ControlType -eq [System.Windows.Automation.ControlType]::CheckBox) {
-              $toggle = $node.GetCurrentPattern([System.Windows.Automation.TogglePattern]::Pattern)
-              if ($toggle.Current.ToggleState -eq [System.Windows.Automation.ToggleState]::On) { $toggle.Toggle() }
+              # NSIS reads native checkbox state at Finish. Set it directly;
+              # UI Automation Invoke/Toggle can miss a reused wizard control.
+              [InstallerButtons]::SendMessage([IntPtr]$node.Current.NativeWindowHandle, 0x00F1, [IntPtr]::Zero, [IntPtr]::Zero) | Out-Null
             }
           }
           $button = $finish[0]
         } elseif ($observed) {
           $button = $buttons | Where-Object { $_.Current.Name -match '取消|Cancel|确定|OK' } | Select-Object -First 1
         } else {
-          $button = $buttons | Where-Object { $_.Current.Name -match '下一步|Next|^安装|^&?Install|确定|^OK$' } | Select-Object -First 1
+          $button = $buttons | Where-Object { $_.Current.Name -match '下一步|Next|^&?安装|^&?Install|确定|^&?OK$' } | Select-Object -First 1
         }
-        if ($button) { $button.GetCurrentPattern([System.Windows.Automation.InvokePattern]::Pattern).Invoke() }
+        if ($button) {
+          $handle = [IntPtr]$button.Current.NativeWindowHandle
+          if ($handle -eq [IntPtr]::Zero -or -not [InstallerButtons]::PostMessage($handle, 0x00F5, [IntPtr]::Zero, [IntPtr]::Zero)) { throw 'Native wizard button click failed.' }
+        }
       }
       Start-Sleep -Milliseconds 400
     }
-    throw "Installer wizard timed out. Last stage: $($stages | Select-Object -Last 1)"
+    throw "Installer wizard timed out. Last stage: $($stages | Select-Object -Last 1); Controls: $($lastControls | ConvertTo-Json -Compress)"
   } finally {
     $p.Refresh()
     if (-not $p.HasExited) { Stop-Process -Id $p.Id -Force }
