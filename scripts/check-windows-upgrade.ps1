@@ -32,6 +32,15 @@ $payload = @{}
 foreach ($name in @('video-editor.exe', 'ffmpeg.exe', 'ffprobe.exe')) {
   $payload[$name] = (Get-FileHash -LiteralPath (Join-Path 'src-tauri/target/x86_64-pc-windows-msvc/release' $name) -Algorithm SHA256).Hash
 }
+# Tauri patches this marker for NSIS, then restores the unpatched build file.
+# Match the packaged bytes rather than comparing to that restored executable.
+# https://github.com/tauri-apps/tauri/blob/tauri-cli-v2.12.1/crates/tauri-bundler/src/bundle.rs
+$mainBytes = [IO.File]::ReadAllBytes('src-tauri/target/x86_64-pc-windows-msvc/release/video-editor.exe')
+$marker = [Text.Encoding]::Latin1.GetString($mainBytes).IndexOf('__TAURI_BUNDLE_TYPE_VAR_UNK', [StringComparison]::Ordinal)
+if ($marker -lt 0) { throw 'Expected the unpatched Tauri build marker.' }
+$nsisMarker = [Text.Encoding]::ASCII.GetBytes('__TAURI_BUNDLE_TYPE_VAR_NSS')
+[Array]::Copy($nsisMarker, 0, $mainBytes, $marker, $nsisMarker.Length)
+$payload['video-editor.exe'] = [Convert]::ToHexString([Security.Cryptography.SHA256]::HashData($mainBytes))
 $cases = [ordered]@{}
 $report = [ordered]@{
   sourceCommit = $env:GITHUB_SHA
