@@ -1,0 +1,55 @@
+{
+  "date": "2026-10-12",
+  "codeCommit": "f881f3154ff623367be8116dfea4b96866cd4508",
+  "applicationVersion": "0.0.1-beta.5",
+  "scope": "Local processing-rule hardening; no processing algorithm or public release change",
+  "local": {
+    "backendTestsPassed": 96,
+    "frontendTestsPassed": 35,
+    "sidecarAndReleaseTestsPassed": 19,
+    "generatedMediaTestsPassed": 14,
+    "installedMediaTestsPassed": 14,
+    "desktopClippyWarningsDenied": true,
+    "windowsCrossTargetCheckAndClippyPassed": true,
+    "sixPresetFilterCharacterizationMatched": true,
+    "macIntelApplicationSymbolsFound": 0
+  },
+  "native": {
+    "windows_x64": {
+      "runUrl": "https://github.com/mailingfeng/video-editor/actions/runs/38212395277",
+      "sourceCommit": "f881f3154ff623367be8116dfea4b96866cd4508",
+      "conclusion": "success",
+      "backendTestsPassed": 96,
+      "generatedMediaTestsPassed": 14,
+      "installedMediaTestsPassed": 14,
+      "installedResourceCheckExitCode": 0,
+      "verificationArchiveDigestVerified": true,
+      "mainSha256": "98d9664a9ea48b7808644f02aa9324f66e6b07bd72d76da1d060d126dec46a31",
+      "readableTemplateScan": "passed",
+      "debugArtifacts": [],
+      "privateScriptAclAndCancellationTestsPassed": true
+    },
+    "mac_intel": {
+      "runUrl": "https://github.com/mailingfeng/video-editor/actions/runs/38212396875",
+      "sourceCommit": "f881f3154ff623367be8116dfea4b96866cd4508",
+      "conclusion": "success",
+      "backendTestsPassed": 96,
+      "generatedMediaTestsPassed": 14,
+      "installedMediaTestsPassed": 14,
+      "installedResourceCheckExitCode": 0,
+      "verificationArchiveDigestVerified": true,
+      "mainSha256": "92cb23075155efb7e6bc99451a7f9438197ca774a62738ca8848ec33c9ceeff6",
+      "readableTemplateScan": "passed",
+      "debugArtifacts": []
+    }
+  },
+  "coverageLimits": [
+    "Sequential main-thread code review; no independent reviewer used",
+    "No manual installed GUI acceptance in this change",
+    "Formal signing and notarization remain unverified",
+    "No claim of resistance to debugging, script interception or memory inspection",
+    "Unrecognized or inaccessible legacy histories are not claimed scrubbed",
+    "Previously distributed installers retain the old exposed rules",
+    "Source repository was public when checked; this change does not restrict source access"
+  ]
+}
