@@ -21,3 +21,5 @@ Windows x64 资源为 [Gyan 9.0.2 essentials 构建](https://github.com/GyanD/co
 运行时使用 Tauri、其 dialog/opener 插件和 Rust 依赖，以及 React / React DOM。准确版本由 `Cargo.lock` 与 `package-lock.json` 固定；各依赖的完整许可证与声明需从锁定版本提取并随发行包保留。本文件列出材料要求，不能代替依赖逐项声明。
 
 相关原始资料：[FFmpeg 许可页](https://ffmpeg.org/legal.html)、[Tauri 仓库](https://github.com/tauri-apps/tauri)、[React 仓库](https://github.com/facebook/react)。
+
+Windows 自定义安装模板基于 Tauri CLI 2.12.1，采用 MIT 许可证。原始版权及许可证保留在 `src-tauri/windows/LICENSE-tauri-MIT.txt`，Windows 安装后随附于 `licenses/windows-x64/Tauri-installer-MIT.txt`。模板来源与本地修改见 [安装模板说明](../src-tauri/windows/README.md)。

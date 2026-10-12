@@ -84,6 +84,14 @@ jobs:
           cargo clippy --locked --manifest-path src-tauri/Cargo.toml --target x86_64-pc-windows-msvc --release --all-targets --features desktop -- -D warnings
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
 
+      - name: Upgrade and repair installer regression
+        timeout-minutes: 12
+        run: |
+          $installers = @(Get-ChildItem src-tauri/target/x86_64-pc-windows-msvc/release/bundle/nsis/*.exe)
+          if ($installers.Count -ne 1) { throw 'Expected one NSIS installer' }
+          $installed = Join-Path $env:RUNNER_TEMP '帧序 installed'
+          ./scripts/check-windows-upgrade.ps1 -Installer $installers[0].FullName -Installed $installed -Evidence .ci-evidence/installer-upgrade.json
+
       - name: Silent installation and installed resource check
         run: |
           $installers = @(Get-ChildItem src-tauri/target/x86_64-pc-windows-msvc/release/bundle/nsis/*.exe)
@@ -146,6 +154,7 @@ jobs:
             .ci-artifacts/windows-desktop-acceptance.md
             .ci-evidence/build.json
             .ci-evidence/installed-resources.json
+            .ci-evidence/installer-upgrade.json
           if-no-files-found: error
           include-hidden-files: true
           retention-days: 14

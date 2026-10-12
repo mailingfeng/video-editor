@@ -4,12 +4,18 @@
     "targets": ["nsis"],
     "resources": {
       "../tools/licenses/ffmpeg-windows-x64-GPLv3.txt": "licenses/windows-x64/FFmpeg-GPLv3.txt",
-      "../tools/licenses/ffmpeg-windows-x64-README.txt": "licenses/windows-x64/FFmpeg-README.txt"
+      "../tools/licenses/ffmpeg-windows-x64-README.txt": "licenses/windows-x64/FFmpeg-README.txt",
+      "windows/LICENSE-tauri-MIT.txt": "licenses/windows-x64/Tauri-installer-MIT.txt"
     },
     "windows": {
       "allowDowngrades": false,
       "webviewInstallMode": {"type": "downloadBootstrapper", "silent": true},
-      "nsis": {"installMode": "currentUser", "languages": ["SimpChinese", "English"], "displayLanguageSelector": true}
+      "nsis": {
+        "template": "windows/installer.nsi",
+        "installMode": "currentUser",
+        "languages": ["SimpChinese", "English"],
+        "displayLanguageSelector": false
+      }
     }
   }
 }
