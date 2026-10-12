@@ -68,6 +68,22 @@ test('tampered_resource_hash_is_rejected',async t=> {
   const r = await verifyPackage(f.options,f.native);
   assert.equal(r.exitCode,1); assert.match(r.errors.join('\n'),/checksum/);
 });
+
+test('main_with_a_readable_processing_template_is_rejected',async t=> {
+  const f = await fixture(t);
+  await writeFile(f.file('video-editor'),Buffer.concat([f.bytes,Buffer.from('format=yuv420p,split=2[bg][fg]')]),{mode:0o755});
+  const result = await verifyPackage(f.options,f.native);
+  assert.equal(result.exitCode,1);
+  assert.match(result.errors.join('\n'),/readable processing template/);
+});
+
+test('installed_debug_artifacts_are_rejected',async t=> {
+  const f = await fixture(t);
+  await writeFile(path.join(f.bin,'video-editor.pdb'),'private symbols');
+  const result = await verifyPackage(f.options,f.native);
+  assert.equal(result.exitCode,1);
+  assert.match(result.errors.join('\n'),/debug artifact/);
+});
 test('foreign_host_does_not_count_as_native_verification',async t=> {
   const f = await fixture(t); f.native.hostTarget='aarch64-apple-darwin';
   const r = await verifyPackage(f.options,f.native);

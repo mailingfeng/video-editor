@@ -1,4 +1,5 @@
 //! Visible reframing and audible pitch changes; platform outcomes remain unverified.
+use super::opaque::{hidden, render};
 use crate::contracts::AudioInfo;
 use sha2::{Digest, Sha256};
 
@@ -41,8 +42,15 @@ impl Parameters {
         let seed = u32::from_be_bytes(self.digest[0..4].try_into().unwrap()) & 0x7fff_ffff;
         // Both branches keep every timestamp; the complete frame is resized,
         // never cropped. The original-size background carries the input SAR.
-        format!(
+        render!(
             "format=yuv420p,split=2[bg][fg];[bg]gblur=sigma={blur:.3}:steps=2,eq=brightness=-0.14:saturation=0.35[back];[fg]scale={foreground_w}:{foreground_h}:flags=lanczos,eq=contrast={contrast:.6}:brightness={brightness:.6}:saturation={saturation:.6},hue=h='{hue:.6}+4*sin(2*PI*if(isnan(t),0,t)/{period:.6}+{phase:.6})',noise=all_seed={seed}:alls={noise}:allf=t+u[front];[back][front]overlay=x='(W-w)/2+{move_x:.6}*sin(2*PI*if(isnan(t),0,t)/{period:.6}+{phase:.6})':y='(H-h)/2+{move_y:.6}*cos(2*PI*if(isnan(t),0,t)/{period:.6}+{phase:.6})':shortest=1:repeatlast=0,format=yuv420p"
+            , "{blur:.3}" => format!("{blur:.3}"),
+            "{foreground_w}" => foreground_w.to_string(), "{foreground_h}" => foreground_h.to_string(),
+            "{contrast:.6}" => format!("{contrast:.6}"), "{brightness:.6}" => format!("{brightness:.6}"),
+            "{saturation:.6}" => format!("{saturation:.6}"), "{hue:.6}" => format!("{hue:.6}"),
+            "{period:.6}" => format!("{period:.6}"), "{phase:.6}" => format!("{phase:.6}"),
+            "{seed}" => seed.to_string(), "{noise}" => noise.to_string(),
+            "{move_x:.6}" => format!("{move_x:.6}"), "{move_y:.6}" => format!("{move_y:.6}")
         )
     }
 
@@ -59,21 +67,25 @@ impl Parameters {
         let period = 7.0 + 5.0 * self.fraction(22);
         let phase = std::f64::consts::TAU * self.fraction(23);
         let lowpass = 10000 + u32::from(self.digest[24]) * 16;
-        let shift = format!("asetrate={pitch_rate},aresample=48000,atempo={tempo:.12},apad=whole_len={samples},atrim=end_sample={samples}");
-        let mut filter = "aresample=48000,asetpts=PTS-STARTPTS,".to_owned();
+        let shift = render!("asetrate={pitch_rate},aresample=48000,atempo={tempo:.12},apad=whole_len={samples},atrim=end_sample={samples}",
+            "{pitch_rate}" => pitch_rate.to_string(), "{tempo:.12}" => format!("{tempo:.12}"), "{samples}" => samples.to_string());
+        let mut filter = hidden!("aresample=48000,asetpts=PTS-STARTPTS,");
         if audio.channels == 1 {
             filter.push_str(&shift);
         } else {
             // Independent WSOLA searches avoid high-frequency channels driving
             // the low-frequency channel's overlap alignment. Pure mappings
             // extract and reassemble indices without mixing or swapping them.
-            filter.push_str(&format!("asplit={}", audio.channels));
+            filter.push_str(
+                &render!("asplit={channels}", "{channels}" => audio.channels.to_string()),
+            );
             for channel in 0..audio.channels {
                 filter.push_str(&format!("[channel{channel}]"));
             }
             for channel in 0..audio.channels {
-                filter.push_str(&format!(
+                filter.push_str(&render!(
                     ";[channel{channel}]pan=mono|c0=c{channel},{shift},aformat=sample_fmts=fltp:sample_rates=48000:channel_layouts=mono[shifted{channel}]"
+                    , "{channel}" => channel.to_string(), "{shift}" => shift.clone()
                 ));
             }
             filter.push(';');
@@ -84,13 +96,14 @@ impl Parameters {
                 .channel_layout
                 .clone()
                 .unwrap_or_else(|| format!("{}c", audio.channels));
-            filter.push_str(&format!("amerge=inputs={},pan={layout}", audio.channels));
+            filter.push_str(&render!("amerge=inputs={channels},pan={layout}", "{channels}" => audio.channels.to_string(), "{layout}" => layout));
             for channel in 0..audio.channels {
                 filter.push_str(&format!("|c{channel}=c{channel}"));
             }
         }
         // Bound each channel's EOF rounding, then restore the recorded start.
-        filter.push_str(&format!(",asetpts=PTS+{start:.9}/TB,highpass=f=45,lowpass=f={lowpass},acompressor=threshold=0.18:ratio=1.6:attack=10:release=100:makeup=1:link=average:detection=rms,volume='0.90+0.03*sin(2*PI*if(isnan(t),0,t)/{period:.6}+{phase:.6})':eval=frame,alimiter=limit=0.95:level=0:latency=1"));
+        filter.push_str(&render!(",asetpts=PTS+{start:.9}/TB,highpass=f=45,lowpass=f={lowpass},acompressor=threshold=0.18:ratio=1.6:attack=10:release=100:makeup=1:link=average:detection=rms,volume='0.90+0.03*sin(2*PI*if(isnan(t),0,t)/{period:.6}+{phase:.6})':eval=frame,alimiter=limit=0.95:level=0:latency=1",
+            "{start:.9}" => format!("{start:.9}"), "{lowpass}" => lowpass.to_string(), "{period:.6}" => format!("{period:.6}"), "{phase:.6}" => format!("{phase:.6}")));
         filter
     }
 }

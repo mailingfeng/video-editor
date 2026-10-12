@@ -77,3 +77,18 @@ fn publication_moves_complete_file_once() {
     cleanup_workspace(&w).unwrap();
     assert!(std::path::Path::new(&w.final_path).exists());
 }
+
+#[test]
+fn recovery_removes_crash_leftover_filter_scripts_with_the_owned_workspace() {
+    let (root, workspace) = setup();
+    for name in [".v.dat", ".a.dat"] {
+        std::fs::write(
+            std::path::Path::new(&workspace.directory).join(name),
+            b"private filter",
+        )
+        .unwrap();
+    }
+    let result = recover_incomplete_jobs(&root.path().join("records")).unwrap();
+    assert_eq!(result.cleaned, ["test"]);
+    assert!(!std::path::Path::new(&workspace.directory).exists());
+}

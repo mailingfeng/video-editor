@@ -11,7 +11,6 @@ pub struct JobRecord {
     pub schema_version: u8,
     pub workspace: OutputWorkspace,
     pub cleanup_pending: bool,
-    pub plan: Option<ProcessingPlan>,
     pub snapshot: Option<JobSnapshot>,
 }
 pub fn prepare_workspace(
@@ -67,7 +66,6 @@ pub fn prepare_workspace(
                 schema_version: 1,
                 workspace: w.clone(),
                 cleanup_pending: false,
-                plan: None,
                 snapshot: None,
             },
         )?;
@@ -79,11 +77,7 @@ pub fn prepare_workspace(
     }
     result
 }
-pub fn update_record(
-    w: &OutputWorkspace,
-    plan: Option<&ProcessingPlan>,
-    snapshot: Option<&JobSnapshot>,
-) -> Result<(), AppError> {
+pub fn update_record(w: &OutputWorkspace, snapshot: Option<&JobSnapshot>) -> Result<(), AppError> {
     let mut record: JobRecord =
         serde_json::from_slice(&fs::read(&w.record_path).map_err(AppError::io)?)
             .map_err(|e| AppError::new(ErrorCode::OutputPermission, e.to_string()))?;
@@ -92,9 +86,6 @@ pub fn update_record(
             ErrorCode::CleanupPending,
             "任务记录身份不匹配",
         ));
-    }
-    if let Some(p) = plan {
-        record.plan = Some(p.clone());
     }
     if let Some(s) = snapshot {
         record.snapshot = Some(s.clone());
@@ -142,9 +133,16 @@ fn cleanup_owned(w: &OutputWorkspace) -> Result<(), AppError> {
         Ok(_) => {}
     }
     let owned = open_owned(w)?;
+    let mut names = vec!["output.mp4".to_owned(), ".owner.json".to_owned()];
     for entry in fs::read_dir(&w.directory).map_err(AppError::io)? {
         let entry = entry.map_err(AppError::io)?;
-        if entry.file_name() != "output.mp4" && entry.file_name() != ".owner.json" {
+        let name = entry.file_name();
+        if crate::native::filter_scripts::SCRIPT_NAMES
+            .iter()
+            .any(|script| name == *script)
+        {
+            names.push(name.to_str().unwrap().to_owned());
+        } else if name != "output.mp4" && name != ".owner.json" {
             return Err(AppError::new(
                 ErrorCode::CleanupPending,
                 "任务目录包含非本工具文件",
@@ -154,8 +152,8 @@ fn cleanup_owned(w: &OutputWorkspace) -> Result<(), AppError> {
     #[cfg(unix)]
     {
         use std::os::fd::AsRawFd;
-        for name in ["output.mp4", ".owner.json"] {
-            let name = std::ffi::CString::new(name).unwrap();
+        for name in &names {
+            let name = std::ffi::CString::new(name.as_str()).unwrap();
             if unsafe { libc::unlinkat(owned.as_raw_fd(), name.as_ptr(), 0) } != 0 {
                 let e = std::io::Error::last_os_error();
                 if e.kind() != std::io::ErrorKind::NotFound {
@@ -166,8 +164,9 @@ fn cleanup_owned(w: &OutputWorkspace) -> Result<(), AppError> {
     }
     #[cfg(windows)]
     {
-        remove_if_exists(Path::new(&w.temp_path))?;
-        remove_if_exists(&Path::new(&w.directory).join(".owner.json"))?;
+        for name in &names {
+            remove_if_exists(&Path::new(&w.directory).join(name))?;
+        }
     }
     drop(owned);
     fs::remove_dir(&w.directory).map_err(AppError::io)?;

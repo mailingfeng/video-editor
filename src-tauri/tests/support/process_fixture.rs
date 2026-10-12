@@ -42,7 +42,7 @@ impl ProcessFixture {
         ]
     }
     pub fn q_seen(&self) -> bool {
-        self.dir.path().join("q").exists()
+        std::fs::read(self.dir.path().join("q")).is_ok_and(|bytes| bytes == b"q\n")
     }
     pub fn is_alive(&self) -> bool {
         let Ok(s) = std::fs::read_to_string(self.dir.path().join("pid")) else {

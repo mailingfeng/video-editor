@@ -1,5 +1,5 @@
 import {spawnSync} from 'node:child_process';
-import {readFile, open, lstat, writeFile} from 'node:fs/promises';
+import {readFile, open, lstat, writeFile, readdir} from 'node:fs/promises';
 import {createHash} from 'node:crypto';
 import {release as osRelease} from 'node:os';
 import path from 'node:path';
@@ -7,6 +7,21 @@ import {fileURLToPath} from 'node:url';
 
 const supported = ['x86_64-apple-darwin','aarch64-apple-darwin','x86_64-pc-windows-msvc'];
 const sha = (bytes) => createHash('sha256').update(bytes).digest('hex');
+const readableTemplates = [
+  'format=yuv420p,split=2[bg][fg]', 'format=yuv420p,rotate=angle=',
+  'format=yuv420p,noise=all_seed=', 'aresample=48000,highpass=f=',
+  'asetrate=', 'lutyuv=y=', 'firequalizer=gain_entry=',
+  'highpass=f=300,lowpass=f=5500',
+];
+async function debugArtifacts(directory) {
+  const found = [];
+  for (const entry of await readdir(directory,{withFileTypes:true})) {
+    const file = path.join(directory,entry.name);
+    if (/\.(pdb|dsym|map)$/i.test(entry.name)) found.push(file);
+    else if (entry.isDirectory()) found.push(...await debugArtifacts(file));
+  }
+  return found;
+}
 export function hostTarget() {
   if (process.platform === 'darwin') return `${process.arch === 'arm64' ? 'aarch64' : 'x86_64'}-apple-darwin`;
   return process.platform === 'win32' && process.arch === 'x64' ? 'x86_64-pc-windows-msvc' : 'unsupported';
@@ -66,7 +81,13 @@ export async function verifyPackage(options, boundary = {}) {
   const bin = windows ? packageDir : path.join(packageDir,'Contents','MacOS');
   const resources = windows ? packageDir : path.join(packageDir,'Contents','Resources');
   const main = path.join(bin,windows ? 'video-editor.exe' : 'video-editor');
-  try {result.main = await inspect(main,target);} catch(e) {result.errors.push(`main: ${e.message}`);}
+  try {
+    result.main = await inspect(main,target);
+    const bytes = await readFile(main);
+    if (readableTemplates.some(template=>bytes.includes(Buffer.from(template)))) throw new Error('readable processing template present');
+    result.hardening = {templateScan:'passed',debugArtifacts:await debugArtifacts(packageDir)};
+    if (result.hardening.debugArtifacts.length) throw new Error('debug artifact present');
+  } catch(e) {result.errors.push(`main: ${e.message}`);}
   if (windows) {try {await regular(artifact);} catch(e) {result.errors.push(`installer: ${e.message}`);}}
   for (const name of ['ffmpeg','ffprobe']) {
     const file = path.join(bin,`${name}${windows ? '.exe' : ''}`);

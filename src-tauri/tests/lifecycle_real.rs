@@ -60,7 +60,7 @@ fn request(output: &Path) -> StartJobRequest {
     StartJobRequest {
         input_path: source().display().to_string(),
         output_directory: output.display().to_string(),
-        preset_id: "basic-transcode-v1".into(),
+        preset_id: "content-variation-v1".into(),
         metadata: MetadataRequest::Preserve,
     }
 }

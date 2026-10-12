@@ -1,3 +1,4 @@
+use super::opaque::hidden;
 use super::{combined, content, repeat, sample};
 use crate::{contracts::*, media::probe::validate_input};
 pub fn list_presets() -> Vec<PresetSummary> {
@@ -25,8 +26,8 @@ pub fn build_plan(
     let (audio_filter, version) = match request.preset_id.as_str() {
         "basic-transcode-v1" | repeat::ID | content::ID => (None, 1),
         combined::ID => (None, 2),
-        sample::ID => (Some(sample::AUDIO_FILTER), 1),
-        sample::V2_ID => (Some(sample::V2_AUDIO_FILTER), 2),
+        sample::ID => (Some(sample::audio_filter()), 1),
+        sample::V2_ID => (Some(sample::v2_audio_filter()), 2),
         _ => {
             return Err(AppError::new(
                 ErrorCode::UnsupportedInput,
@@ -125,7 +126,7 @@ pub fn build_plan(
     } else if let Some(parameters) = &content {
         pair("-vf", parameters.video_filter(v.width, v.height));
     } else if sample_matching {
-        pair("-vf", sample::VIDEO_FILTER.into());
+        pair("-vf", sample::video_filter());
     } else if request.preset_id == repeat::ID {
         pair("-vf", repeat::video_filter(job_id));
     }
@@ -180,9 +181,9 @@ pub fn build_plan(
             // Without an explicit resample, low-rate AAC can silently bypass
             // the 5500 Hz lowpass; automatic conversion depends on sample format.
             let filter = if request.preset_id == sample::V2_ID && a.sample_rate <= 11000 {
-                format!("aresample=48000,{filter}")
+                hidden!("aresample=48000,") + &filter
             } else {
-                filter.into()
+                filter
             };
             pair("-af", filter);
         }

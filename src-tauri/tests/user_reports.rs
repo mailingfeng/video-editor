@@ -222,3 +222,72 @@ async fn time_only_history_gets_dates_from_the_saved_task_times() {
         "[2024-12-31 23:59:59] 开始检查视频\n[2025-01-01 00:00:00] 处理完成，结果已保存\n"
     );
 }
+
+#[tokio::test]
+async fn completed_history_does_not_persist_processing_arguments() {
+    let (root, _, end) = run(false).await;
+    let history = root.path().join("records/history");
+    for name in [format!("{}.json", end.job_id), "latest.json".into()] {
+        let value: serde_json::Value =
+            serde_json::from_slice(&std::fs::read(history.join(name)).unwrap()).unwrap();
+        assert!(value.get("plan").is_none(), "processing plan persisted");
+        assert_eq!(value["snapshot"]["state"], "succeeded");
+    }
+}
+
+#[tokio::test]
+async fn startup_scrubs_all_old_history_plans_and_keeps_user_reports() {
+    let (root, service, end) = run(false).await;
+    let report = service.read_log(&end.job_id).await.unwrap().text;
+    let history = root.path().join("records/history");
+    let latest = history.join("latest.json");
+    let mut value: serde_json::Value =
+        serde_json::from_slice(&std::fs::read(&latest).unwrap()).unwrap();
+    value["plan"] =
+        serde_json::json!({"args": ["-vf", "legacy-video-secret", "-af", "legacy-audio-secret"]});
+    for path in [&latest, &history.join(format!("{}.json", end.job_id))] {
+        std::fs::write(path, serde_json::to_vec(&value).unwrap()).unwrap();
+    }
+    let restored = JobService::new(
+        ControlledRunner::new(BlockAt::None, false),
+        root.path().join("records"),
+        Arc::new(|_| {}),
+    );
+    assert_eq!(restored.read_log(&end.job_id).await.unwrap().text, report);
+    for entry in std::fs::read_dir(history).unwrap() {
+        let bytes = std::fs::read(entry.unwrap().path()).unwrap();
+        let value: serde_json::Value = serde_json::from_slice(&bytes).unwrap();
+        assert!(value.get("plan").is_none(), "old processing plan remains");
+    }
+}
+
+#[tokio::test]
+async fn active_recovery_record_does_not_persist_processing_arguments() {
+    let root = tempfile::tempdir().unwrap();
+    let input = root.path().join("source.mp4");
+    std::fs::write(&input, b"input").unwrap();
+    let runner = ControlledRunner::new(BlockAt::Validation, false);
+    let records = root.path().join("records");
+    let service = JobService::new(runner.clone(), records.clone(), Arc::new(|_| {}));
+    let id = service
+        .start_job(StartJobRequest {
+            input_path: input.to_str().unwrap().into(),
+            output_directory: root.path().to_str().unwrap().into(),
+            preset_id: "content-variation-v1".into(),
+            metadata: MetadataRequest::Preserve,
+        })
+        .await
+        .unwrap();
+    runner.wait_entered().await;
+    let value: serde_json::Value =
+        serde_json::from_slice(&std::fs::read(records.join(format!("{id}.json"))).unwrap())
+            .unwrap();
+    service.cancel_job(&id).await.unwrap();
+    runner.resume();
+    service.shutdown().await.unwrap();
+    assert!(
+        value.get("plan").is_none(),
+        "active processing plan persisted"
+    );
+    assert!(value.get("workspace").is_some(), "recovery boundary lost");
+}

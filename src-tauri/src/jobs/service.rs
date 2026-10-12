@@ -72,7 +72,6 @@ struct JobData {
 struct StoredJob {
     snapshot: JobSnapshot,
     log: LogExcerpt,
-    plan: Option<ProcessingPlan>,
     validation: Option<ValidationResult>,
     #[serde(default)]
     report_version: u32,
@@ -93,6 +92,9 @@ impl JobService {
         emit: SnapshotSink,
         emit_queue: QueueSink,
     ) -> Self {
+        if let Err(error) = scrub_history(&record_dir) {
+            eprintln!("历史记录整理未完成：{:?}", error.code);
+        }
         let mut inner = Inner {
             active: HashMap::new(),
             jobs: HashMap::new(),
@@ -118,7 +120,7 @@ impl JobService {
                         JobData {
                             snapshot: stored.snapshot,
                             log,
-                            plan: stored.plan,
+                            plan: None,
                             validation: stored.validation,
                         },
                     );
@@ -414,7 +416,7 @@ impl JobService {
             }
             job.log.append(phase_message(phase));
             if let Some(plan) = &job.plan {
-                update_record(&plan.workspace, Some(plan), Some(&job.snapshot))?;
+                update_record(&plan.workspace, Some(&job.snapshot))?;
             }
             job.snapshot.clone()
         };
@@ -462,7 +464,7 @@ impl JobService {
             {
                 let mut state = self.state.lock().await;
                 let job = state.jobs.get_mut(id).ok_or_else(unknown_job)?;
-                update_record(&plan.workspace, Some(&plan), Some(&job.snapshot))?;
+                update_record(&plan.workspace, Some(&job.snapshot))?;
                 job.plan = Some(plan.clone());
             }
             self.set_phase(id, JobState::Running, &cancel).await?;
@@ -555,7 +557,7 @@ impl JobService {
                     job.snapshot.error = Some(error);
                 }
                 if let Some(plan) = &job.plan {
-                    let _ = update_record(&plan.workspace, Some(plan), Some(&job.snapshot));
+                    let _ = update_record(&plan.workspace, Some(&job.snapshot));
                 }
             }
             job.snapshot.ended_at_ms = Some(now_ms());
@@ -622,7 +624,6 @@ impl JobService {
         let data = serde_json::to_vec_pretty(&StoredJob {
             snapshot: job.snapshot.clone(),
             log: job.log.excerpt(),
-            plan: job.plan.clone(),
             validation: job.validation.clone(),
             report_version: 2,
         })
@@ -637,6 +638,48 @@ impl JobService {
         }
         Ok(())
     }
+}
+// Older versions persisted the frozen plan. Read only the user-facing fields,
+// then atomically replace every regular history record, including latest.json.
+fn scrub_history(records: &Path) -> Result<(), AppError> {
+    let root = records.join("history");
+    let metadata = match std::fs::symlink_metadata(&root) {
+        Ok(metadata) => metadata,
+        Err(error) if error.kind() == std::io::ErrorKind::NotFound => return Ok(()),
+        Err(error) => return Err(AppError::io(error)),
+    };
+    if metadata.file_type().is_symlink() || !metadata.is_dir() {
+        return Err(AppError::new(ErrorCode::OutputPermission, "历史目录无效"));
+    }
+    for entry in std::fs::read_dir(&root).map_err(AppError::io)? {
+        let entry = entry.map_err(AppError::io)?;
+        let path = entry.path();
+        if !entry.file_type().map_err(AppError::io)?.is_file()
+            || path.extension().and_then(|ext| ext.to_str()) != Some("json")
+        {
+            continue;
+        }
+        let old = std::fs::read(&path).map_err(AppError::io)?;
+        let Ok(mut stored) = serde_json::from_slice::<StoredJob>(&old) else {
+            continue;
+        };
+        stored.snapshot.error = stored.snapshot.error.map(|error| error.for_user());
+        if stored.report_version != 2 {
+            stored.log = LogTail::from_legacy(&stored.snapshot).excerpt();
+            stored.report_version = 2;
+        }
+        let data = serde_json::to_vec_pretty(&stored)
+            .map_err(|error| AppError::new(ErrorCode::OutputPermission, error.to_string()))?;
+        if data != old {
+            let tmp = root.join(format!("{}.tmp", uuid::Uuid::new_v4()));
+            std::fs::write(&tmp, data).map_err(AppError::io)?;
+            if let Err(error) = std::fs::rename(&tmp, &path) {
+                let _ = std::fs::remove_file(tmp);
+                return Err(AppError::io(error));
+            }
+        }
+    }
+    Ok(())
 }
 fn queue_snapshot(state: &Inner) -> QueueSnapshot {
     QueueSnapshot {

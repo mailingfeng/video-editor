@@ -1,5 +1,6 @@
 //! Bounded per-job media changes; platform originality outcomes are unverified.
 //! Every choice is written into the frozen processing plan, with no frame edits.
+use super::opaque::render;
 use sha2::{Digest, Sha256};
 
 pub const ID: &str = "repeat-combined-v2";
@@ -58,9 +59,17 @@ impl Parameters {
             let at = i * 4;
             u32::from_be_bytes(self.digest[at..at + 4].try_into().unwrap()) & 0x7fff_ffff
         });
-        format!(
-            "format=yuv420p,rotate=angle='{offset:.6}+{swing:.6}*sin(2*PI*if(isnan(t),0,t)/{period:.6}+{phase:.6})':ow={canvas_w}:oh={canvas_h}:c=black,scale={width}:{height}:flags=lanczos,setsar=sar*{sar_restore:.12}:max=65535,eq=contrast={contrast:.6}:brightness='{brightness:.6}+0.008*sin(2*PI*if(isnan(t),0,t)/{period:.6}+{phase:.6})':gamma={gamma:.6}:saturation={saturation:.6}:eval=frame,unsharp=3:3:{detail:.6}:3:3:0,noise=all_seed={}:c0s={noise}:c0f=t+u,noise=all_seed={}:c1s={noise}:c1f=t+u,noise=all_seed={}:c2s={noise}:c2f=t+u",
-            seeds[0], seeds[1], seeds[2]
+        render!(
+            "format=yuv420p,rotate=angle='{offset:.6}+{swing:.6}*sin(2*PI*if(isnan(t),0,t)/{period:.6}+{phase:.6})':ow={canvas_w}:oh={canvas_h}:c=black,scale={width}:{height}:flags=lanczos,setsar=sar*{sar_restore:.12}:max=65535,eq=contrast={contrast:.6}:brightness='{brightness:.6}+0.008*sin(2*PI*if(isnan(t),0,t)/{period:.6}+{phase:.6})':gamma={gamma:.6}:saturation={saturation:.6}:eval=frame,unsharp=3:3:{detail:.6}:3:3:0,noise=all_seed={seed0}:c0s={noise}:c0f=t+u,noise=all_seed={seed1}:c1s={noise}:c1f=t+u,noise=all_seed={seed2}:c2s={noise}:c2f=t+u",
+            "{offset:.6}" => format!("{offset:.6}"), "{swing:.6}" => format!("{swing:.6}"),
+            "{period:.6}" => format!("{period:.6}"), "{phase:.6}" => format!("{phase:.6}"),
+            "{canvas_w}" => canvas_w.to_string(), "{canvas_h}" => canvas_h.to_string(),
+            "{width}" => width.to_string(), "{height}" => height.to_string(),
+            "{sar_restore:.12}" => format!("{sar_restore:.12}"), "{contrast:.6}" => format!("{contrast:.6}"),
+            "{brightness:.6}" => format!("{brightness:.6}"), "{gamma:.6}" => format!("{gamma:.6}"),
+            "{saturation:.6}" => format!("{saturation:.6}"), "{detail:.6}" => format!("{detail:.6}"),
+            "{seed0}" => seeds[0].to_string(), "{seed1}" => seeds[1].to_string(), "{seed2}" => seeds[2].to_string(),
+            "{noise}" => noise.to_string()
         )
     }
 
@@ -74,8 +83,11 @@ impl Parameters {
         let ratio = 1.3 + 0.6 * self.fraction(31);
         // Resample before frequency filters, process channels without mixing,
         // and compensate limiter lookahead including the stream's final tail.
-        format!(
+        render!(
             "aresample=48000,highpass=f={highpass},lowpass=f={lowpass},allpass=f={phase_frequency}:t=q:w=0.8,acompressor=threshold={threshold:.6}:ratio={ratio:.6}:attack=10:release=100:makeup=1:link=average:detection=rms,volume='0.94+0.035*sin(2*PI*if(isnan(t),0,t)/{period:.6}+{phase:.6})':eval=frame,alimiter=limit=0.95:level=0:latency=1"
+            , "{highpass}" => highpass.to_string(), "{lowpass}" => lowpass.to_string(),
+            "{phase_frequency}" => phase_frequency.to_string(), "{threshold:.6}" => format!("{threshold:.6}"),
+            "{ratio:.6}" => format!("{ratio:.6}"), "{period:.6}" => format!("{period:.6}"), "{phase:.6}" => format!("{phase:.6}")
         )
     }
 }

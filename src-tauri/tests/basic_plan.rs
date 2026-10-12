@@ -87,6 +87,58 @@ fn unknown_preset_is_rejected() {
 }
 
 #[test]
+fn filter_chains_match_the_pre_hardening_characterization() {
+    use sha2::{Digest, Sha256};
+    for (preset, expected) in [
+        (
+            "basic-transcode-v1",
+            "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+        ),
+        (
+            "content-variation-v1",
+            "f7957231f2e50a2b5c44fd77ab9c80eca5dddf7a8e57a926f04a509c866d6994",
+        ),
+        (
+            "repeat-combined-v2",
+            "9f981987abf5dc3184a5b528038a69448e0c3b99551db6b7f0626d34c1fb8c2e",
+        ),
+        (
+            "repeat-variant-v1",
+            "c15bea7f9fae1290741d134d293593384b9279fbdf0372f6fd0e3e1999c98024",
+        ),
+        (
+            "sample-match-v1",
+            "d198a12747f34a275c0f7eecf18e3c2028a0145e603f12ded9578e7087e227fe",
+        ),
+        (
+            "sample-match-v2",
+            "e0e996c62ff3046930afb169e77084f5d2dc1eee6d1a6afb16fd9637bbe9066d",
+        ),
+    ] {
+        let info = media();
+        let mut request = request(&info.identity.canonical_path, "/output");
+        request.preset_id = preset.into();
+        let plan = build_plan(
+            &info,
+            &request,
+            workspace(std::path::Path::new("/output")),
+            "test",
+        )
+        .unwrap();
+        let filters = format!(
+            "{}\n{}",
+            arg_value(&plan.args, "-vf").unwrap_or(""),
+            arg_value(&plan.args, "-af").unwrap_or("")
+        );
+        assert_eq!(
+            format!("{:x}", Sha256::digest(filters.as_bytes())),
+            expected,
+            "{preset}: processing behavior changed"
+        );
+    }
+}
+
+#[test]
 fn content_variation_freezes_pitch_layout_and_preserves_timing_contracts() {
     for channels in [None, Some(1), Some(2), Some(6), Some(8)] {
         let mut m = media();

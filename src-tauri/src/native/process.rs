@@ -1,10 +1,11 @@
+use super::filter_scripts::FilterScripts;
 use super::tools::{Tool, ToolPaths};
 use crate::contracts::{AppError, ErrorCode};
 use async_trait::async_trait;
 use std::{path::PathBuf, process::Stdio, time::Duration};
 use tokio::{
     io::{AsyncRead, AsyncReadExt, AsyncWriteExt},
-    sync::mpsc,
+    sync::{mpsc, oneshot},
 };
 use tokio_util::sync::CancellationToken;
 const LOG_LIMIT: usize = 65536;
@@ -80,7 +81,7 @@ impl MediaRunner for NativeRunner {
 }
 async fn run_owned(
     path: PathBuf,
-    spec: RunSpec,
+    mut spec: RunSpec,
     cancel: CancellationToken,
     events: mpsc::Sender<ProcessEvent>,
 ) -> Result<RunExit, AppError> {
@@ -92,6 +93,10 @@ async fn run_owned(
             canceled: true,
         });
     }
+    let mut scripts = FilterScripts::prepare(&mut spec)?;
+    let has_scripts = !scripts.is_empty();
+    let (loaded_tx, mut loaded_rx) = oneshot::channel();
+    let mut loaded = false;
     let mut command = tokio::process::Command::new(path);
     command
         .args(&spec.args)
@@ -106,6 +111,9 @@ async fn run_owned(
     let mut child = command.spawn().map_err(|e| {
         AppError::new(ErrorCode::ToolMissing, "无法启动媒体工具").detail(e.to_string())
     })?;
+    // Child::wait closes an attached stdin. Retain it separately so cancellation
+    // can send FFmpeg's graceful quit command before the kill timeout.
+    let mut stdin = child.stdin.take();
     let stdout = child
         .stdout
         .take()
@@ -119,7 +127,15 @@ async fn run_owned(
     let out_events = events.clone();
     let out_err = errors_tx.clone();
     let out = tokio::spawn(async move {
-        let r = read_pipe(stdout, spec.stdout_policy, false, out_events, out_cancel).await;
+        let r = read_pipe(
+            stdout,
+            spec.stdout_policy,
+            false,
+            out_events,
+            out_cancel,
+            Some(loaded_tx),
+        )
+        .await;
         if let Err(e) = &r {
             let _ = out_err.send(e.clone()).await;
         }
@@ -128,25 +144,41 @@ async fn run_owned(
     let err_cancel = cancel.clone();
     let err_events = events.clone();
     let err = tokio::spawn(async move {
-        let r = read_pipe(stderr, StdoutPolicy::Stream, true, err_events, err_cancel).await;
+        let r = read_pipe(
+            stderr,
+            StdoutPolicy::Stream,
+            true,
+            err_events,
+            err_cancel,
+            None,
+        )
+        .await;
         if let Err(e) = &r {
             let _ = errors_tx.send(e.clone()).await;
         }
         r
     });
     let mut failure = None;
-    let status = tokio::select! {
-     s=child.wait()=>Some(s),
-     _=cancel.cancelled()=>None,
-     _=events.closed()=>{cancel.cancel();None},
-        Some(e)=errors_rx.recv()=>{failure=Some(e);cancel.cancel();None},
+    let status = loop {
+        tokio::select! {
+         s=child.wait()=>break Some(s),
+         _=cancel.cancelled()=>break None,
+         _=events.closed()=>{cancel.cancel();break None},
+            Some(e)=errors_rx.recv()=>{failure=Some(e);cancel.cancel();break None},
+            result=&mut loaded_rx, if has_scripts && !loaded => {
+                loaded=true;
+                if result.is_ok() {
+                    if let Err(error)=scripts.clear() {failure=Some(error);cancel.cancel();break None;}
+                }
+            },
+        }
     };
     let canceled = status.is_none();
     let status = match status {
         Some(s) => s,
         None => {
             if spec.tool == Tool::Ffmpeg {
-                if let Some(mut stdin) = child.stdin.take() {
+                if let Some(mut stdin) = stdin.take() {
                     let _ = stdin.write_all(b"q\n").await;
                 }
                 match tokio::time::timeout(Duration::from_secs(3), child.wait()).await {
@@ -188,6 +220,7 @@ async fn read_pipe<R: AsyncRead + Unpin>(
     stderr: bool,
     events: mpsc::Sender<ProcessEvent>,
     cancel: CancellationToken,
+    mut loaded: Option<oneshot::Sender<()>>,
 ) -> Result<String, AppError> {
     let mut captured = Vec::new();
     let mut line = Vec::new();
@@ -221,6 +254,15 @@ async fn read_pipe<R: AsyncRead + Unpin>(
                         .trim_end_matches('\r')
                         .to_owned();
                     line.clear();
+                    if !stderr
+                        && s.strip_prefix("frame=")
+                            .and_then(|frame| frame.trim().parse::<u64>().ok())
+                            .is_some_and(|frame| frame > 0)
+                    {
+                        if let Some(sender) = loaded.take() {
+                            let _ = sender.send(());
+                        }
+                    }
                     let event = if stderr {
                         ProcessEvent::StderrLine(s)
                     } else {

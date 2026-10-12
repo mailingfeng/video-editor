@@ -1,5 +1,6 @@
 //! Per-job variation for repeated exports, with no claim about platform review.
 //! The frozen plan contains every seed so a run can be reproduced.
+use super::opaque::render;
 use sha2::{Digest, Sha256};
 
 pub const ID: &str = "repeat-variant-v1";
@@ -21,8 +22,8 @@ pub(super) fn video_filter(job_id: &str) -> String {
     });
     // The bundled filter overwrites cN_seed during initialization. Use an
     // explicit all_seed in each plane-only stage so all three seeds take effect.
-    format!(
-        "format=yuv420p,noise=all_seed={}:c0s=2:c0f=t+u,noise=all_seed={}:c1s=2:c1f=t+u,noise=all_seed={}:c2s=2:c2f=t+u",
-        seeds[0], seeds[1], seeds[2]
+    render!(
+        "format=yuv420p,noise=all_seed={seed0}:c0s=2:c0f=t+u,noise=all_seed={seed1}:c1s=2:c1f=t+u,noise=all_seed={seed2}:c2s=2:c2f=t+u",
+        "{seed0}" => seeds[0].to_string(), "{seed1}" => seeds[1].to_string(), "{seed2}" => seeds[2].to_string()
     )
 }
