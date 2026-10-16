@@ -168,7 +168,7 @@ assert_eq!(a, FrozenCustomParameters::resolve(&settings, "fixed-job").unwrap());
 - Produces `JobService::custom_settings(&self) -> CustomSettingsStatus`（async）、`save_custom_settings(&self, settings: CustomVariationSettings) -> Result<CustomSettingsStatus, AppError>`（async），均使用现有 state Mutex，保存须 ensure_idle。
 - Commands `get_custom_settings(state) -> Result<CustomSettingsStatus, AppError>`；`save_custom_settings(state, settings: serde_json::Value) -> Result<CustomSettingsStatus, AppError>`。start_batch／start_job 的外层请求参数以 Value 交给 U1 decode，然后传强类型服务；许可及 require_tools 顺序保持。
 
-- [ ] **1. 写失败测试**：`invalid_batch_never_reserves_jobs`、`save_and_start_share_idle_boundary`、`refill_uses_frozen_levels`、`remount_snapshot_contains_actual_selection`。等待项／runner 调用计数在非法请求前后不变；运行时保存返回 Busy，磁盘值不变；第三项用开始时档位而非随后外部改写的磁盘文件。
+- [x] **1. 写失败测试**：`invalid_batch_never_reserves_jobs`、`save_and_start_share_idle_boundary`、`refill_uses_frozen_levels`、`remount_snapshot_contains_actual_selection`。等待项／runner 调用计数在非法请求前后不变；运行时保存返回 Busy，磁盘值不变；第三项用开始时档位而非随后外部改写的磁盘文件。
 
 ```rust
 let before = service.queue_snapshot().await;
@@ -178,10 +178,10 @@ assert_eq!(runner.calls.load(Ordering::SeqCst), 0);
 ```
 
 竞争测试使用 barrier／现有 ControlledRunner 阻塞点，不靠 sleep；保存先取得锁则全批使用显式开始请求，开始先取得锁则保存 Busy。新增用户报告测试扫描 settings／history／recovery，确保仅 settings 可含档位、均无实际参数。
-- [ ] **2. 跑红**：`cargo test --locked --manifest-path src-tauri/Cargo.toml --test custom_service --test batch_lifecycle --test user_reports`。
-- [ ] **3. 实现**：Inner 持有 SettingsStore；main 从 app_data_dir 的固定文件载入。start_job 和 start_batch 均在锁内 validate_custom_selection 后预留，reserve_next 复制已冻结 custom_settings；queue_snapshot 仅在 batch 存在时生成 active_settings。保存的短小磁盘操作与 idle 检查在同一服务锁下完成；事件继续锁外发送，shutdown 不新增调度。
-- [ ] **4. 跑绿**：上述目标及 `cargo test --locked --manifest-path src-tauri/Cargo.toml --test job_lifecycle`、`cargo clippy --locked --manifest-path src-tauri/Cargo.toml --all-targets --features desktop -- -D warnings`；实际命令通过 generate_handler 注册，不增加 capability。
-- [ ] **5. 提交**：消息 `feat: freeze custom settings across native batch jobs (U5)`。
+- [x] **2. 跑红**：`cargo test --locked --manifest-path src-tauri/Cargo.toml --test custom_service --test batch_lifecycle --test user_reports`。
+- [x] **3. 实现**：Inner 持有 SettingsStore；main 从 app_data_dir 的固定文件载入。start_job 和 start_batch 均在锁内 validate_custom_selection 后预留，reserve_next 复制已冻结 custom_settings；queue_snapshot 仅在 batch 存在时生成 active_settings。保存的短小磁盘操作与 idle 检查在同一服务锁下完成；事件继续锁外发送，shutdown 不新增调度。
+- [x] **4. 跑绿**：上述目标及 `cargo test --locked --manifest-path src-tauri/Cargo.toml --test job_lifecycle`、`cargo clippy --locked --manifest-path src-tauri/Cargo.toml --all-targets --features desktop -- -D warnings`；实际命令通过 generate_handler 注册，不增加 capability。
+- [x] **5. 提交**：消息 `feat: freeze custom settings across native batch jobs (U5)`。
 
 ### Task 6: U6：前端设置状态与快照恢复
 

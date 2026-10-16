@@ -1,48 +1,3 @@
-#[cfg(test)]
-mod tests {
-    use super::*;
-    fn video(width: u32, height: u32) -> VideoInfo {
-        serde_json::from_value(serde_json::json!({"streamIndex":0,"codec":"h264","width":width,"height":height,"bitDepth":8,"pixelFormat":"yuv420p","frameRate":{"num":30,"den":1},"timeBase":{"num":1,"den":15360},"frameCount":60,"startPts":0,"durationTicks":30720,"bitRate":null,"colorRange":null,"colorSpace":null,"colorPrimaries":null,"colorTransfer":null})).unwrap()
-    }
-    #[test]
-    fn recommended_geometry_is_milder_than_level_five() {
-        let settings = crate::contracts::CustomVariationSettings::recommended();
-        let mild = FrozenCustomParameters::resolve(&settings, "geometry").unwrap();
-        let mut stronger = settings.clone();
-        stronger.foreground_scale = 5;
-        stronger.background_blur = 5;
-        let strong = FrozenCustomParameters::resolve(&stronger, "geometry").unwrap();
-        let v = video(1280, 720);
-        let a = mild.geometry(&v).unwrap();
-        let b = strong.geometry(&v).unwrap();
-        assert!((0.92..=0.944).contains(&a.ratio));
-        assert!(a.foreground_w > b.foreground_w && a.foreground_h > b.foreground_h);
-        assert!((a.sigma / b.sigma - 0.4).abs() < 1e-12);
-        assert_eq!(a.crop_w, 1280);
-        assert_eq!(a.crop_h, 720);
-    }
-    #[test]
-    fn all_levels_keep_crop_and_overlay_inside_even_frame() {
-        for level in 0..=9 {
-            let mut settings = crate::contracts::CustomVariationSettings::recommended();
-            settings.foreground_scale = level;
-            settings.background_blur = level;
-            settings.dynamic_offset = level;
-            settings.crop_scale = level;
-            let p = FrozenCustomParameters::resolve(&settings, "geometry").unwrap();
-            for (w, h) in [(2, 2), (2, 128), (128, 2), (720, 1280), (1280, 720)] {
-                let g = p.geometry(&video(w, h)).unwrap();
-                assert!(g.foreground_w >= 2 && g.foreground_w <= w && g.foreground_w % 2 == 0);
-                assert!(g.foreground_h >= 2 && g.foreground_h <= h && g.foreground_h % 2 == 0);
-                assert!(g.crop_w >= 2 && g.crop_w <= w && g.crop_w % 2 == 0);
-                assert!(g.crop_h >= 2 && g.crop_h <= h && g.crop_h % 2 == 0);
-                assert!(g.move_x <= f64::from(w - g.foreground_w) / 4.0);
-                assert!(g.move_y <= f64::from(h - g.foreground_h) / 4.0);
-            }
-        }
-    }
-}
-
 use super::FrozenCustomParameters;
 use crate::presets::opaque::{hidden, render};
 use crate::{
@@ -175,5 +130,54 @@ impl FrozenCustomParameters {
                 "{p}"=>speed.num.to_string(),"{q}"=>speed.den.to_string(),"{start}"=>start.to_string()));
         }
         Ok(Some(prefix))
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    fn video(width: u32, height: u32) -> VideoInfo {
+        serde_json::from_value(serde_json::json!({"streamIndex":0,"codec":"h264","width":width,"height":height,"bitDepth":8,"pixelFormat":"yuv420p","frameRate":{"num":30,"den":1},"timeBase":{"num":1,"den":15360},"frameCount":60,"startPts":0,"durationTicks":30720,"bitRate":null,"colorRange":null,"colorSpace":null,"colorPrimaries":null,"colorTransfer":null})).unwrap()
+    }
+    #[test]
+    fn recommended_geometry_is_milder_than_level_five() {
+        let settings = crate::contracts::CustomVariationSettings::recommended();
+        let mild = FrozenCustomParameters::resolve(&settings, "geometry").unwrap();
+        let mut stronger = settings.clone();
+        stronger.foreground_scale = 5;
+        stronger.background_blur = 5;
+        let strong = FrozenCustomParameters::resolve(&stronger, "geometry").unwrap();
+        let v = video(1280, 720);
+        let a = mild.geometry(&v).unwrap();
+        let b = strong.geometry(&v).unwrap();
+        assert!((0.92..=0.944).contains(&a.ratio));
+        assert!(a.foreground_w > b.foreground_w && a.foreground_h > b.foreground_h);
+        assert!((a.sigma / b.sigma - 0.4).abs() < 1e-12);
+        assert_eq!(a.crop_w, 1280);
+        assert_eq!(a.crop_h, 720);
+    }
+    #[test]
+    fn all_levels_keep_crop_and_overlay_inside_even_frame() {
+        for level in 0..=9 {
+            let mut settings = crate::contracts::CustomVariationSettings::recommended();
+            settings.foreground_scale = level;
+            settings.background_blur = level;
+            settings.dynamic_offset = level;
+            settings.crop_scale = level;
+            let p = FrozenCustomParameters::resolve(&settings, "geometry").unwrap();
+            for (w, h) in [(2, 2), (2, 128), (128, 2), (720, 1280), (1280, 720)] {
+                let g = p.geometry(&video(w, h)).unwrap();
+                assert!(
+                    g.foreground_w >= 2 && g.foreground_w <= w && g.foreground_w.is_multiple_of(2)
+                );
+                assert!(
+                    g.foreground_h >= 2 && g.foreground_h <= h && g.foreground_h.is_multiple_of(2)
+                );
+                assert!(g.crop_w >= 2 && g.crop_w <= w && g.crop_w.is_multiple_of(2));
+                assert!(g.crop_h >= 2 && g.crop_h <= h && g.crop_h.is_multiple_of(2));
+                assert!(g.move_x <= f64::from(w - g.foreground_w) / 4.0);
+                assert!(g.move_y <= f64::from(h - g.foreground_h) / 4.0);
+            }
+        }
     }
 }

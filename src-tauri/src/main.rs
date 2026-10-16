@@ -14,6 +14,7 @@ use video_editor::{
         tools::{current_target, expected_tool_paths, resolve_tools},
     },
     output::recovery::recover_incomplete_jobs,
+    settings::SettingsStore,
 };
 
 fn main() {
@@ -53,7 +54,12 @@ fn main() {
             }
             let handle = app.handle().clone();
             let queue_handle = handle.clone();
-            let jobs = JobService::with_queue_sink(
+            let settings = SettingsStore::load(
+                app.path()
+                    .app_data_dir()?
+                    .join("custom-variation-settings.json"),
+            );
+            let jobs = JobService::with_queue_sink_and_settings(
                 Arc::new(NativeRunner::new(tools)),
                 records,
                 Arc::new(move |snapshot| {
@@ -62,6 +68,7 @@ fn main() {
                 Arc::new(move |snapshot| {
                     let _ = queue_handle.emit("queue_snapshot", snapshot);
                 }),
+                settings,
             );
             app.manage(DesktopState {
                 jobs,
@@ -72,6 +79,8 @@ fn main() {
         })
         .invoke_handler(tauri::generate_handler![
             commands::get_license_status,
+            commands::get_custom_settings,
+            commands::save_custom_settings,
             commands::probe_input,
             commands::cancel_probe,
             commands::list_presets,

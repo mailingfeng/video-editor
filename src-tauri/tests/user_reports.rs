@@ -293,3 +293,85 @@ async fn active_recovery_record_does_not_persist_processing_arguments() {
     );
     assert!(value.get("workspace").is_some(), "recovery boundary lost");
 }
+
+#[tokio::test]
+async fn custom_levels_are_saved_without_runtime_parameters_in_reports_or_records() {
+    use video_editor::settings::SettingsStore;
+    let root = tempfile::tempdir().unwrap();
+    let input = root.path().join("source.mp4");
+    std::fs::write(&input, b"input").unwrap();
+    let runner = ControlledRunner::new(BlockAt::Validation, false);
+    let records = root.path().join("records");
+    let settings_path = root.path().join("custom-variation-settings.json");
+    let (tx, mut rx) = mpsc::unbounded_channel();
+    let service = JobService::with_queue_sink_and_settings(
+        runner.clone(),
+        records.clone(),
+        Arc::new(move |s| {
+            let _ = tx.send(s);
+        }),
+        Arc::new(|_| {}),
+        SettingsStore::load(settings_path.clone()),
+    );
+    let settings = CustomVariationSettings::recommended();
+    service
+        .save_custom_settings(settings.clone())
+        .await
+        .unwrap();
+    let saved: serde_json::Value =
+        serde_json::from_slice(&std::fs::read(settings_path).unwrap()).unwrap();
+    assert_eq!(saved.as_object().unwrap().len(), 15);
+    assert_eq!(saved["foregroundScale"], 2);
+    let id = service
+        .start_job(StartJobRequest {
+            input_path: input.to_str().unwrap().into(),
+            output_directory: root.path().to_str().unwrap().into(),
+            preset_id: "custom-variation-v1".into(),
+            custom_settings: Some(settings),
+            metadata: MetadataRequest::Preserve,
+        })
+        .await
+        .unwrap();
+    tokio::time::timeout(std::time::Duration::from_secs(3), runner.wait_entered())
+        .await
+        .unwrap();
+    fn check_records(directory: &std::path::Path) {
+        for entry in std::fs::read_dir(directory).unwrap() {
+            let path = entry.unwrap().path();
+            if path.is_dir() {
+                check_records(&path);
+            } else if path.extension().is_some_and(|e| e == "json") {
+                let text = std::fs::read_to_string(path).unwrap();
+                for secret in [
+                    "customSettings",
+                    "foregroundScale",
+                    "setpts=",
+                    "asetrate=",
+                    "all_seed=",
+                    "sigma=",
+                    "\"args\"",
+                    "\"plan\"",
+                ] {
+                    assert!(!text.contains(secret), "leaked: {secret}");
+                }
+            }
+        }
+    }
+    check_records(&records);
+    runner.resume();
+    let end = tokio::time::timeout(std::time::Duration::from_secs(3), async {
+        loop {
+            let s = rx.recv().await.unwrap();
+            if is_terminal(s.state) {
+                return s;
+            }
+        }
+    })
+    .await
+    .unwrap();
+    assert_eq!(end.state, JobState::Succeeded);
+    check_records(&records);
+    let text = service.read_log(&id).await.unwrap().text;
+    assert_no_diagnostics(&text);
+    assert!(!text.contains("custom-variation-v1"));
+}

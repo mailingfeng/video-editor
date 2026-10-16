@@ -19,6 +19,7 @@ use crate::{
         workspace::{cleanup_workspace, prepare_workspace, update_record},
     },
     presets::basic::build_plan,
+    settings::SettingsStore,
 };
 use serde::{Deserialize, Serialize};
 use std::{
@@ -46,6 +47,7 @@ struct Inner {
     queue: Vec<QueueEntry>,
     queue_version: u64,
     batch: Option<BatchSettings>,
+    settings: SettingsStore,
 }
 struct Activity {
     inspection: bool,
@@ -92,6 +94,21 @@ impl JobService {
         emit: SnapshotSink,
         emit_queue: QueueSink,
     ) -> Self {
+        Self::with_queue_sink_and_settings(
+            runner,
+            record_dir,
+            emit,
+            emit_queue,
+            SettingsStore::memory(),
+        )
+    }
+    pub fn with_queue_sink_and_settings(
+        runner: Arc<dyn MediaRunner>,
+        record_dir: PathBuf,
+        emit: SnapshotSink,
+        emit_queue: QueueSink,
+        settings: SettingsStore,
+    ) -> Self {
         if let Err(error) = scrub_history(&record_dir) {
             eprintln!("历史记录整理未完成：{:?}", error.code);
         }
@@ -103,6 +120,7 @@ impl JobService {
             queue: Vec::new(),
             queue_version: 0,
             batch: None,
+            settings,
         };
         if let Ok(bytes) = std::fs::read(record_dir.join("history/latest.json")) {
             if let Ok(mut stored) = serde_json::from_slice::<StoredJob>(&bytes) {
@@ -134,6 +152,20 @@ impl JobService {
             emit,
             emit_queue,
         }
+    }
+    pub async fn custom_settings(&self) -> CustomSettingsStatus {
+        self.state.lock().await.settings.snapshot()
+    }
+    pub async fn save_custom_settings(
+        &self,
+        settings: CustomVariationSettings,
+    ) -> Result<CustomSettingsStatus, AppError> {
+        let mut state = self.state.lock().await;
+        ensure_idle(&state)?;
+        state
+            .settings
+            .save(settings)
+            .map_err(|error| error.for_user())
     }
     pub async fn queue_snapshot(&self) -> QueueSnapshot {
         queue_snapshot(&*self.state.lock().await)
@@ -206,6 +238,7 @@ impl JobService {
         let (snapshot, launches) = {
             let mut state = self.state.lock().await;
             ensure_idle(&state)?;
+            validate_custom_selection(&settings.preset_id, settings.custom_settings.as_ref())?;
             if !state
                 .queue
                 .iter()
@@ -304,6 +337,7 @@ impl JobService {
         let (launch, snapshot) = {
             let mut state = self.state.lock().await;
             ensure_idle(&state)?;
+            validate_custom_selection(&request.preset_id, request.custom_settings.as_ref())?;
             let launch = reserve_job(&mut state, request);
             let snapshot = state.jobs[&launch.id].snapshot.clone();
             (launch, snapshot)
@@ -683,7 +717,10 @@ fn scrub_history(records: &Path) -> Result<(), AppError> {
 }
 fn queue_snapshot(state: &Inner) -> QueueSnapshot {
     QueueSnapshot {
-        active_settings: None,
+        active_settings: state.batch.as_ref().map(|batch| ActiveProcessingSettings {
+            preset_id: batch.preset_id.clone(),
+            custom_settings: batch.custom_settings.clone(),
+        }),
         version: state.queue_version,
         running: state.batch.is_some(),
         items: state
@@ -759,7 +796,7 @@ fn reserve_next(state: &mut Inner) -> Vec<Launch> {
             break;
         };
         let request = StartJobRequest {
-            custom_settings: None,
+            custom_settings: settings.custom_settings.clone(),
             input_path: state.queue[index].item.input_path.clone(),
             output_directory: settings.output_directory.clone(),
             preset_id: settings.preset_id.clone(),

@@ -1,7 +1,4 @@
-use crate::contracts::{
-    AppError, BatchSettings, ErrorCode, JobSnapshot, JobState, MediaInfo, PresetSummary,
-    QueueSnapshot, StartJobRequest,
-};
+use crate::contracts::*;
 use crate::jobs::log::LogExcerpt;
 use crate::jobs::service::JobService;
 use crate::license::{LicenseService, LicenseStatus};
@@ -63,11 +60,14 @@ pub async fn remove_item(
 #[tauri::command]
 pub async fn start_batch(
     state: State<'_, DesktopState>,
-    settings: BatchSettings,
+    settings: serde_json::Value,
 ) -> Result<QueueSnapshot, AppError> {
     state.license.require_active().await?;
     state.require_tools()?;
-    state.jobs.start_batch(settings).await
+    state
+        .jobs
+        .start_batch(decode_batch_settings(settings)?)
+        .await
 }
 #[tauri::command]
 pub async fn cancel_item(
@@ -83,11 +83,11 @@ pub fn list_presets() -> Vec<PresetSummary> {
 #[tauri::command]
 pub async fn start_job(
     state: State<'_, DesktopState>,
-    request: StartJobRequest,
+    request: serde_json::Value,
 ) -> Result<String, AppError> {
     state.license.require_active().await?;
     state.require_tools()?;
-    state.jobs.start_job(request).await
+    state.jobs.start_job(decode_start_request(request)?).await
 }
 #[tauri::command]
 pub async fn get_job_snapshot(
@@ -137,4 +137,21 @@ pub async fn reveal_output(state: State<'_, DesktopState>, job_id: String) -> Re
     tauri_plugin_opener::reveal_item_in_dir(path).map_err(|e| {
         AppError::new(ErrorCode::OutputPermission, "无法定位结果文件").detail(e.to_string())
     })
+}
+
+#[tauri::command]
+pub async fn get_custom_settings(
+    state: State<'_, DesktopState>,
+) -> Result<CustomSettingsStatus, AppError> {
+    Ok(state.jobs.custom_settings().await)
+}
+#[tauri::command]
+pub async fn save_custom_settings(
+    state: State<'_, DesktopState>,
+    settings: serde_json::Value,
+) -> Result<CustomSettingsStatus, AppError> {
+    state
+        .jobs
+        .save_custom_settings(decode_custom_settings(settings)?)
+        .await
 }
