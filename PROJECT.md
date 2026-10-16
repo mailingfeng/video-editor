@@ -1,0 +1,92 @@
+# 帧序 · 项目上下文
+
+> 核对日期：2026-10-16；代码基线：`1c712fd`；应用版本：`0.0.1-beta.6`。
+> 本文描述该基线的实现，不代表本次重新执行过平台构建或桌面验收。版本变化后以清单、代码和对应验证记录为准。
+
+## 阅读入口
+
+AI Agent 开始任务时先读 [AGENTS.md](AGENTS.md) 与本文，再按任务加载相关资料，避免把全部研发历史放入上下文。
+
+| 文档 | 回答的问题 |
+| --- | --- |
+| [ARCHITECTURE.md](ARCHITECTURE.md) | 模块在哪里、数据如何流动、哪些约束不能破坏？ |
+| [DESIGN.md](DESIGN.md) | 当前界面如何组织、状态如何呈现、视觉规范是什么？ |
+| [Agent 迭代指南](docs/agent-workflow.md) | 改动前看哪里、如何选测试、如何交接与维护知识？ |
+| [资料索引](docs/README.md) | 需求、实验、平台验收与历史证据在哪里？ |
+
+## 产品定位与实际能力
+
+帧序是本地视频批处理桌面工具。用户添加视频或文件夹，选择共享输出目录与处理预设，启动后逐文件检查、处理、完整校验，再保存为独立 MP4。当前不是时间线剪辑器；没有剪辑轨道、云端处理、账户系统或上传审核服务。
+
+核心操作链：添加输入 → 选择输出目录及预设 → 开始批次 → 查看逐文件阶段、取消或失败原因 → 定位成功结果。
+
+| 能力 | 当前行为与边界 |
+| --- | --- |
+| 输入收集 | MP4、MOV、M4V、MKV、WebM，扩展名不区分大小写；文件夹只收集当前层并排序，不递归；文件选择和拖入走相同队列入口 |
+| 输入检查 | 导入只收集路径，实际任务启动后探测媒体与逐帧时间轴；支持一个主视频轨、零或一个音轨、偶数尺寸的 8 bit SDR；音频 1–8 声道 |
+| 暂不支持 | HDR、10 bit、RGB 矩阵转换、奇数尺寸、多主视频轨或多音轨；增加支持须同时设计转换与校验策略 |
+| 输出 | H.264 / MP4、8 bit 4:2:0；有音轨时编码为 AAC / 48 kHz，保留声道数与已知布局；无音轨不新增音轨 |
+| 批次 | 固定最多两个活动任务；共享设置在开始时冻结；单项失败不阻断其他项；运行中不能导入、移除或修改设置 |
+| 结果 | 校验并保存成功才显示完成；不覆盖输入或已有文件；输出名含任务 UUID；结束条目不自动重跑 |
+| 再次处理 | 批次结束后先移除条目，再导入生成新 `itemId`；执行时生成新 `jobId` |
+| 历史 | 重挂载可查询同一原生进程的队列；重启不恢复整个队列，只加载最近一条终态历史供查看 |
+| 许可 | 截止北京时间 2026-12-31 当天结束；前后端均阻止到期后启动新任务／批次，已启动批次继续完成 |
+
+定义来源：[输入收集](src-tauri/src/media/inputs.rs)、[媒体探测](src-tauri/src/media/probe.rs)、[计划生成](src-tauri/src/presets/basic.rs)、[任务服务](src-tauri/src/jobs/service.rs)、[许可说明](docs/license.md)。
+
+## 处理预设与需求演变
+
+界面只提供两项，默认“内容变化”。标识是内部契约，不应直接作为用户文案。
+
+| 用户名称 | 内部标识 | 实际含义 |
+| --- | --- | --- |
+| 内容变化 | `content-variation-v1` | 完整原图缩小成动态前景，叠加同源模糊背景和色彩变化；音频按声道变调并补偿时长 |
+| 轻微变化 | `repeat-combined-v2` | 沿用组合变化方案，联合变化几何、色调、噪声、音频及编码参数；名称是两项之间的相对描述 |
+
+底层还接受四个内部回归预设：`basic-transcode-v1`、`sample-match-v1`、`sample-match-v2`、`repeat-variant-v1`。准确 ID 及版本以 [basic.rs](src-tauri/src/presets/basic.rs) 和各预设模块为准；旧实验方案仍用于回归，不应因界面隐藏而直接删除。
+
+早期目标希望内容基本不变；后续用户已接受明显画面与声音变化。阅读 [原始需求及更新](docs/requirements/20261002-research/requirement.md) 时须读完后续变更，不能只采用开头约束。
+
+平台原创审核是外部验收。2026-10-10 的记录包含用户对最新“内容变化”交付批次通过的反馈，但未逐份指定文件、独立核验上传哈希或审核类别。现有证据不支持“任意视频、每次处理都通过”的承诺。文件字节不同、媒体信号不同和平台认定原创是三种不同结果，必须分别记录。参见 [反馈矩阵](docs/requirements/20261002-research/platform-review-matrix.md) 与 [内容变化验收](docs/requirements/20261002-research/content-variation-validation.md)。
+
+## 技术栈与启动
+
+| 层 | 当前选择 |
+| --- | --- |
+| 界面 | React 19、TypeScript 5、Vite 7；原生 HTML 控件与手写 CSS，无 Ant Design、Redux 或路由库 |
+| 桌面 | Tauri 2；dialog / opener 插件；Rust `desktop` feature 启用桌面集成 |
+| 后端 | Rust 1.90.0、Tokio、Serde；`JobService` 管理任务、队列与历史 |
+| 媒体 | 随应用附带的 FFmpeg / FFprobe；版本与 SHA 固定于 sidecar 清单 |
+| 测试 | Vitest / Testing Library、Rust 单元与集成测试、Node 内置测试、真实媒体回归 |
+| 存储 | 本地 JSON、有限长度用户报告、任务工作区；没有数据库 |
+
+依赖版本以 [package.json](package.json)、[Cargo.toml](src-tauri/Cargo.toml) 及锁文件为准。使用 Node.js 24、npm 11、仓库固定的 Rust 工具链，安装当前平台的 Tauri 系统依赖后启动：
+
+```sh
+npm ci
+npm run prepare:sidecars
+npm run tauri dev
+```
+
+`npm run dev` 仅用于浏览器界面预览，本地文件选择、原生事件与转换需要 Tauri。macOS Intel 与 Windows x64 有锁定 sidecar；Apple Silicon 没有锁定工具对，准备脚本会拒绝。不要为绕过缺失工具改用系统 PATH。
+
+## 项目级约束
+
+1. **源文件只读。** 探测前后及输出校验阶段比较输入身份；不以原文件路径作为输出，不改写研究样本。
+2. **完整校验后提交。** 转码退出码为零只是进入校验的条件；保留逐帧时间轴、帧数、尺寸、音画起点及已知颜色和声道信息。
+3. **终态不可回退。** 保存阶段不能取消；未完成保存不得声称成功或显示 100%。
+4. **按身份与版本合并。** 队列 `itemId`、实际任务 `jobId`、队列版本与任务版本有各自作用域，不可用全局“当前任务”覆盖多行。
+5. **清理须证明归属。** 只处理登记且目录身份、归属标记通过的工作区；遇到未知文件保留并报待清理，不递归删除用户目录。
+6. **公开证据须限定范围。** 本地测试、安装资源检查、安装后工具执行、人工桌面验收和平台反馈分别说明；历史通过不等于当前提交已通过。
+
+## 平台与交付状态
+
+默认交付 Windows x64 NSIS `.exe` 与 macOS Intel `.dmg`；应用名“帧序”，标识 `com.frameshift.videoeditor`。发布规则完整保留于 [AGENTS.md](AGENTS.md)，工作流分别在 [Windows](.github/workflows/windows-x64.yml) 与 [macOS Intel](.github/workflows/macos-intel.yml)。用户要求“发布版本”才进入提交、合入、推送与双平台发布流程。
+
+[beta.6 记录](docs/evidence/beta6-validation-20261012.json) 记载版本调整后的本地检查；[处理加固证据](docs/evidence/processing-hardening-20261012.json) 与 [Windows 升级证据](docs/evidence/windows-installer-upgrade-20261012.json) 分别绑定其源码提交。当前发布说明仍标明签名、公证、完整人工桌面验收及第三方材料未齐；内测公开发布不能当作正式发行验收。
+
+已知文档漂移：sidecar 清单中的部分 Windows `NOT VERIFIED` 与 `docs/development.md` 的早期“尚未原生执行”、持久化完整计划等文字属于旧状态。工具清单用于资源身份；平台验证范围查对应提交的证据；当前存储行为查 [ARCHITECTURE.md](ARCHITECTURE.md) 与实现。不要仅凭日期或一处标记扩大验证结论。
+
+## 上下文维护
+
+任务结束时把产品行为更新到本文，把模块／不变量更新到架构文档，把界面规则更新到设计文档，把测试入口更新到迭代指南。只在出现代码无法充分表达的、已解决且已验证的教训时新增 `docs/solutions/` 条目；临时计划、实验结果和版本证据各归原目录。具体维护触发条件见 [迭代指南](docs/agent-workflow.md)。

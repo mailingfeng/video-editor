@@ -32,6 +32,17 @@ In repositories indexed by CodeGraph (a `.codegraph/` directory exists at the re
 If there is no `.codegraph/` directory, skip CodeGraph entirely — indexing is the user's decision.
 <!-- CODEGRAPH_END -->
 
+## 项目上下文与持续迭代
+
+开始任务先读 [PROJECT.md](PROJECT.md)，再按改动范围读取：
+
+- [ARCHITECTURE.md](ARCHITECTURE.md)：模块、契约、调度、媒体校验及输出安全边界。
+- [DESIGN.md](DESIGN.md)：当前界面结构、状态文案、交互与视觉规范。
+- [docs/agent-workflow.md](docs/agent-workflow.md)：代码入口、按改动选择验证、上下文维护和交接。
+- [docs/README.md](docs/README.md)：需求、历史计划、实验及平台证据索引。
+
+当前行为以实现和对应测试为准；历史记录只证明其标明的提交、平台及范围。行为、架构、界面或验证入口变化时，同步相应上下文文档；临时进展不要堆入本文件。
+
 ## 发布版本
 
 用户说“发布版本”时，默认将本次发布的代码提交、合入并推送至 `main`，然后发布以下两个平台，无需再次询问平台：
