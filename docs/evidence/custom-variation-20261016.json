@@ -1,0 +1,349 @@
+{
+  "date": "2026-10-16",
+  "sourceCommit": "e8f5620fe4a12ebfe267c3535e9a601db84c7f65",
+  "applicationVersion": "0.0.1-beta.6",
+  "branch": "feat/custom-variation",
+  "schemaVersion": 1,
+  "mappingVersion": "custom-variation-v1/1",
+  "scope": "Local implementation, generated native media, isolated browser QA; no release or remote CI",
+  "environment": {
+    "system": "macOS-14.8.8-x86_64-i386-64bit-Mach-O",
+    "machine": "x86_64",
+    "rust": "1.90.0",
+    "node": "24.11.0",
+    "npm": "11.6.1",
+    "mediaTools": "locked 9.0.2-tessus x86_64-apple-darwin",
+    "macOS": "14.8.8 (23J620)"
+  },
+  "checks": {
+    "frontend": {
+      "command": "npm run test -- --run",
+      "passed": 51,
+      "failed": 0
+    },
+    "typecheck": {
+      "command": "npm run typecheck",
+      "status": "passed"
+    },
+    "frontendBuild": {
+      "command": "npm run build",
+      "status": "passed"
+    },
+    "rust": {
+      "command": "cargo test --locked --manifest-path src-tauri/Cargo.toml",
+      "passed": 127,
+      "failed": 0,
+      "ignored": 28
+    },
+    "fmt": {
+      "command": "cargo fmt --manifest-path src-tauri/Cargo.toml -- --check",
+      "status": "passed"
+    },
+    "clippy": {
+      "command": "cargo clippy --locked --manifest-path src-tauri/Cargo.toml --all-targets --features desktop -- -D warnings",
+      "status": "passed"
+    },
+    "sidecarVerifier": {
+      "command": "npm run test:sidecars",
+      "passed": 7,
+      "failed": 0
+    },
+    "releaseVerifier": {
+      "command": "npm run test:release",
+      "passed": 16,
+      "failed": 0
+    },
+    "media": {
+      "command": "npm run test:media",
+      "passed": 22,
+      "failed": 0,
+      "targets": {
+        "pipeline_real": 8,
+        "lifecycle_real": 3,
+        "batch_real": 7,
+        "custom_real": 4
+      },
+      "scope": [
+        "original six preset characterization",
+        "CFR/VFR exact transformed relative PTS",
+        "both speed directions",
+        "positive and negative relative A/V starts with positive stream origins",
+        "mono/stereo/5.1/7.1 pitch and channel order",
+        "last 100ms audible marker and bounded tail",
+        "landscape/portrait borders and weaker default layout",
+        "crop off/on and SAR 4:3",
+        "2x2/full range/no audio/silent surround/all levels nine",
+        "bad inputs, canceled jobs, shutdown, exclusive output and unchanged source identities"
+      ]
+    },
+    "audioOriginPrecision": {
+      "status": "passed RED→GREEN",
+      "test": "reject_unrepresentable_timing",
+      "regression": "generated_custom_speed_preserves_frames_and_pitch"
+    },
+    "documentationLinks": {
+      "checked": 136,
+      "missing": 0
+    },
+    "legacyFilters": {
+      "unchangedPresets": 6,
+      "test": "filter_chains_match_the_pre_hardening_characterization"
+    }
+  },
+  "browser": {
+    "url": "http://127.0.0.1:5173/.superpowers/custom-qa.html",
+    "tool": "agent-browser (Browser skill/plugin absent)",
+    "bridge": "Isolated test DesktopApi and browser storage; not native IPC, native filesystem or real application restart",
+    "viewports": [
+      [
+        1280,
+        840
+      ],
+      [
+        960,
+        680
+      ],
+      [
+        390,
+        844
+      ]
+    ],
+    "passed": [
+      "page identity, nonblank, no overlay",
+      "14 named integer sliders and recommendation values",
+      "Home disables dependent controls and ArrowRight retains their levels",
+      "Escape closes and restores Settings focus",
+      "save failure keeps level 9 draft and displays fixed friendly error",
+      "retry succeeds, closes, restores focus and retained level returns after bridge reload",
+      "external running queue disables all 14 sliders, restore and save; cancel stays enabled",
+      "no relevant browser console or page errors",
+      "saved level 9 reloaded through test bridge; native app restart remains untested"
+    ],
+    "notes": [
+      "A busy browser daemon was diagnosed (doctor: 8 pass) and own session restarted before save/busy followups.",
+      "Native dialog constrains document focus; browser chrome Tab behavior is not a native webview acceptance result."
+    ]
+  },
+  "screenshots": [
+    {
+      "path": "/tmp/custom-variation-1280.png",
+      "sha256": "38b61ab51c7af7b3ee4114b969f1506c5be3803db36be5043978450ecdf5e5f3",
+      "sizeBytes": 103355
+    },
+    {
+      "path": "/tmp/custom-variation-960.png",
+      "sha256": "ed2005434ddb8305eb0c9f176ecebf5c77ed082b4baddbba6385f0fae9ae8ed1",
+      "sizeBytes": 62324
+    },
+    {
+      "path": "/tmp/custom-variation-390.png",
+      "sha256": "ff983fc4f762b078c6853c7642d8acb41c11fcec9c779ad394da43be528863e7",
+      "sizeBytes": 55457
+    },
+    {
+      "path": "/tmp/custom-variation-save-error.png",
+      "sha256": "e5f32bb0cf759d7409380ce9261e1a8533aa136087a3b441c396a1457c96ed52",
+      "sizeBytes": 86104
+    },
+    {
+      "path": "/tmp/custom-variation-busy.png",
+      "sha256": "0eb122375d6a5bfdb0e69e2fbf5b8203d4e3b579f24a882800854a9c46adc0c5",
+      "sizeBytes": 82855
+    }
+  ],
+  "generatedInputs": [
+    {
+      "name": "audio-leads.mp4",
+      "sha256": "522065b2947713bd45a54577cbbf75c767a9d530db9542cfd78ce76182b1e17e",
+      "sizeBytes": 62941
+    },
+    {
+      "name": "av-offset.mp4",
+      "sha256": "d4a83e9f356d2bd714e7c47ec8040ce0015a7f8fc6cc3dab925dcc4c84042304",
+      "sizeBytes": 30467
+    },
+    {
+      "name": "capture.webm",
+      "sha256": "24f0177603fa760a29f34d80d2b24ffe53fe8dbd9d28d43877ecd82acbff6326",
+      "sizeBytes": 32701
+    },
+    {
+      "name": "clip.m4v",
+      "sha256": "00145aea2fba7f6e0028c3f6d1acecabaea315847067922b6fce674274abce9c",
+      "sizeBytes": 31487
+    },
+    {
+      "name": "custom-landscape.mp4",
+      "sha256": "68ba83b29ac10b25235db9a4fa488703d7f0047083d6cee30c34469602fcd5be",
+      "sizeBytes": 84960
+    },
+    {
+      "name": "custom-portrait.mp4",
+      "sha256": "35c27ebf40d0770d58e5f555b6f627e76ab49d58a18a68b6abe80b2a31d4478f",
+      "sizeBytes": 84961
+    },
+    {
+      "name": "custom-sar.mp4",
+      "sha256": "0458d2e5142a24c6bad04d69cb742770a48945f7caec8ffbfdb51f20e02a5bb5",
+      "sizeBytes": 84960
+    },
+    {
+      "name": "custom-tiny.mp4",
+      "sha256": "fc141ea1af5bbf91518fff587ab4cc7119d6af6fccbf3526a41ee6077a088952",
+      "sizeBytes": 2343
+    },
+    {
+      "name": "custom-tones-1.mkv",
+      "sha256": "20802453eea1e15dd5f0634a8741d579b949a7d6a430cd04e09a1e07a8b3f8f5",
+      "sizeBytes": 163592
+    },
+    {
+      "name": "custom-tones-2.mkv",
+      "sha256": "806ec7af5169246f2c476d1b0f49482c224dfe7b2f8ea67f9e1e621216e6a3d2",
+      "sizeBytes": 310223
+    },
+    {
+      "name": "custom-tones-6.mkv",
+      "sha256": "e799603ba2104e2901e99e98e580aff168663b6af9f3cd88db485ae2d3f2374c",
+      "sizeBytes": 776338
+    },
+    {
+      "name": "custom-tones-8.mkv",
+      "sha256": "6108c66e1805b52739267b531979b49be60dc7d72abe5de5c536caa8c2565139",
+      "sizeBytes": 1032788
+    },
+    {
+      "name": "damaged.mp4",
+      "sha256": "52dacf4b6d318cbc5a9b394b2c09a0428513b6780502d7d6cdd3ee3441308c68",
+      "sizeBytes": 21
+    },
+    {
+      "name": "full-range.mp4",
+      "sha256": "a24c3867d2e8b84d74ec4fa1dd276cfc0b7147a173a110c8d5180ab0f8020d7c",
+      "sizeBytes": 83496
+    },
+    {
+      "name": "hdr.mp4",
+      "sha256": "2233eaabb5ed2908f23e1959251a8bf08a627e498db30082f279d801d89803cc",
+      "sizeBytes": 18049
+    },
+    {
+      "name": "lifecycle 空格.mp4",
+      "sha256": "190118d0f22ccfa03898c4d8568192532122c96129855fef162ce5211d3b8f8d",
+      "sizeBytes": 247320
+    },
+    {
+      "name": "no-audio.mp4",
+      "sha256": "0ecc4299a53d8300ef051914a76add37d254d4baf87eabfdb27a82dede4986cb",
+      "sizeBytes": 19372
+    },
+    {
+      "name": "phase-low-rate.mkv",
+      "sha256": "29e592651696c332f3105a592a6f05f2853766513ee9980d2757a30e9665285d",
+      "sizeBytes": 31602
+    },
+    {
+      "name": "phase-low-rate.mp4",
+      "sha256": "0a47a9e89198ec810302ce5125554c1daeb7f185d5dc3da200584135c72b3687",
+      "sizeBytes": 24574
+    },
+    {
+      "name": "phase-surround.mkv",
+      "sha256": "c24cc696643df5d7cdbdc8f811eb1ceb11df58a9af6229161138a820b03441e7",
+      "sizeBytes": 559328
+    },
+    {
+      "name": "phone.mov",
+      "sha256": "7144b89b03627118907635d2e98e9d765c535a41deb91b685fc549e03e0baa60",
+      "sizeBytes": 31550
+    },
+    {
+      "name": "rgb.mp4",
+      "sha256": "311c17a4f792e42989ef6a74c4f9102cde54beebe86d75769831b23cffcd807e",
+      "sizeBytes": 6938
+    },
+    {
+      "name": "sample-tones.mp4",
+      "sha256": "1d962c93d61b496b5663ee10fae5bfd1fab42f7746127678c1af44cc1394b0cd",
+      "sizeBytes": 51439
+    },
+    {
+      "name": "surround-71.mp4",
+      "sha256": "ed367db40eefdf56bd350b399054d1efc3e52d56d260f585b393446e35e62d4d",
+      "sizeBytes": 22224
+    },
+    {
+      "name": "surround.mkv",
+      "sha256": "09bf1a321c07a35f1776fe4db6b8b64f42587fcafa7e8ceb178b075519b0bbdd",
+      "sizeBytes": 20500
+    },
+    {
+      "name": "vfr.mp4",
+      "sha256": "6eba04fc3c9233e18ad5082dfb6eca599398d77578566b20decf81ddc4a98980",
+      "sizeBytes": 17627
+    },
+    {
+      "name": "短片 空格 '引号'.mp4",
+      "sha256": "ba0c9fb2a3b9be65408f18cc5ccd935094ed9d3bb4a5d5d3505f66ad75c90091",
+      "sizeBytes": 31499
+    }
+  ],
+  "nativeMac": {
+    "status": "DEVELOPMENT CHECKED",
+    "sourceCommit": "e8f5620fe4a12ebfe267c3535e9a601db84c7f65",
+    "command": "node node_modules/@tauri-apps/cli/tauri.js build --target x86_64-apple-darwin --bundles app",
+    "finalBuildDuration": "3m34s (dependencies cached)",
+    "bundle": "src-tauri/target/x86_64-apple-darwin/release/bundle/macos/帧序.app",
+    "copiedApplication": "/tmp/frameshift-custom-variation-native.app",
+    "applicationSha256": "0fb81d957eb84dd75147a7c51445645d603a3cd818f35abc4f6e0c9d748988ef",
+    "toolHashes": {
+      "ffmpeg": "a45b462cf91ed89148ae218c4577e30896485d7a6792c3673bcf5f823fa01b63",
+      "ffprobe": "a29f8c2e03553223a8b480b1a1f04c42f680c138fa952c20086718a075db38cb"
+    },
+    "resourceStatus": "DEVELOPMENT CHECKED",
+    "releaseStatus": "NOT VERIFIED",
+    "hardening": {
+      "templateScan": "passed",
+      "debugArtifacts": []
+    },
+    "warnings": [
+      "license material missing from lock manifest",
+      "corresponding-source material missing from lock manifest",
+      "resource distribution status: development-only; corresponding source and license materials require release verification",
+      "video-editor signature: /usr/bin/codesign: exit 1: /tmp/frameshift-custom-variation-native.app/Contents/MacOS/video-editor: code object is not signed at all\nIn architecture: x86_64\n",
+      "ffmpeg signature: /usr/bin/codesign: exit 1: /tmp/frameshift-custom-variation-native.app/Contents/MacOS/ffmpeg: code object is not signed at all\nIn architecture: x86_64\n",
+      "ffprobe signature: /usr/bin/codesign: exit 1: /tmp/frameshift-custom-variation-native.app/Contents/MacOS/ffprobe: code object is not signed at all\nIn architecture: x86_64\n",
+      "bundle assessment/notarization: /usr/bin/codesign: exit 1: /tmp/frameshift-custom-variation-native.app: code object is not signed at all\nIn architecture: x86_64\n",
+      "native installation receipt missing"
+    ],
+    "copiedToolRegression": {
+      "passed": 4,
+      "failed": 0,
+      "command": "VIDEO_EDITOR_INSTALLED_EXE=/tmp/frameshift-custom-variation-native.app/Contents/MacOS/video-editor VIDEO_EDITOR_FIXTURE_DIR=$PWD/.media-fixtures cargo test --locked --manifest-path src-tauri/Cargo.toml --test custom_real generated_ -- --ignored --test-threads=1",
+      "note": "Harness compiled from final source. Tools tested from copied app; SHA verified identical after final app replacement. The main GUI was not launched; no DMG/Finder installation receipt claimed."
+    }
+  },
+  "decisions": [
+    "Ruling: Normalize U1–U8 headings to Task N: UN so skill scripts can extract briefs — no scope or behavior change — cost if wrong: documentation labels only.",
+    "Task 4: Ruling: Extract crate-private audio_timing from U3 to share exact audio target computation with audio_filter(video,audio), and guard settb intermediate integer precision — avoids duplicate formulas and precision loss before setpts — cost if wrong: unsupported extreme timelines may be rejected more conservatively. RED intermediate-overflow case observed before fix.",
+    "Task 5: Ruling: Apply clippy-required test ordering and is_multiple_of in U4 video test module during native gate — no product semantics change — cost if wrong: test organization only.",
+    "Task 6: Ruling: Add hook-internal getSnapshot() reader alongside the planned UI state — starting in the same event as opening/saving must observe the ref lock before React renders — cost if wrong: extra internal hook method to maintain, no wire change.",
+    "Task 6: Ruling: Preserve frozen badge for legacy running snapshots when preset is now correctly unknown — a small ProcessingView condition is needed before U7 so existing remount behavior stays visible — cost if wrong: duplicate frozen status badge only.",
+    "Task 8: Ruling: Uniform-speed average rate must agree exactly with decoded count/effective duration, while its target duration keeps the approved transformed-one-frame tolerance; exact PTS digest remains mandatory — native MP4 retains nominal final-frame duration after setpts, making exact source-average×speed equality stronger than spec §6.3 — cost if wrong: only final-frame duration differences within the already approved frame tolerance are accepted. Native RED captured in u8-speed-red.log; U3 wrong-rate assertion remains. FFmpeg setpts source reference: https://github.com/FFmpeg/FFmpeg/blob/master/libavfilter/setpts.c .",
+    "Task 8: Ruling: Use per-channel Rubber Band for custom tempo/pitch, retaining the same frozen pitch ratio and speed — atempo experiment lost 2135 samples on generated 5.1 silence, Rubber Band lost 711 with the same target, within the single 1024-sample bounded pad; both locked buildconfs enable librubberband — cost if wrong: custom audio texture differs from the initial implementation; old presets unchanged and frequency/tail tests gate it.",
+    "Task 8: Ruling: For exact custom audio counts, exclude a leading native AAC packet only when target/observed start differ by exactly 1024 samples (±1 sample), never the 50ms mux tolerance — positive-start MP4 exposes priming without skip side data — cost if wrong: an artificial file with the same exact start/duration pattern could be interpreted as encoder priming; truncated-tail negative control must still fail."
+  ],
+  "review": {
+    "status": "pending final self-review",
+    "reason": "AGENTS.md maps subagent review to sequential main-thread execution"
+  },
+  "notExecuted": [
+    "Windows native build/installation/media",
+    "remote CI",
+    "both platform manual desktop dialogs and clean-machine interaction",
+    "actual native settings save/restart UI (store persistence tested with real files)",
+    "private original video regression",
+    "signing/notarization/GitHub release"
+  ],
+  "logArtifacts": "Full command logs in ignored worktree .superpowers/u8-*.log; screenshots outside repo. Source-controlled tests and workflows reproduce the gates."
+}

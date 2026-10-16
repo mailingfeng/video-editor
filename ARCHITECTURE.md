@@ -1,6 +1,6 @@
 # 帧序 · 架构上下文
 
-> 2026-10-16 核对，基于 `1c712fd`。这是当前实现的导航与约束，历史计划中的目标不能替代实现证据。
+> 2026-10-16 核对，功能基线 `e8f5620`，含本轮自定义变化验收修正。这是当前实现的导航与约束，历史计划中的目标不能替代实现证据。
 
 ## 系统边界
 
@@ -50,7 +50,7 @@ Rust 数据定义位于 [contracts](src-tauri/src/contracts/mod.rs)，TypeScript
 | `JobSnapshot` | `jobId` 在预留执行时生成；携带实际阶段、进度、错误、结果路径及 `cleanupPending` |
 | `QueueSnapshot` | `version` 管结构变化与关联，`running` 来源于是否存在冻结批次设置 |
 | `JobSnapshot.version` | 只比较同一 `jobId` 的更新；不能与队列版本或另一个任务的版本比较 |
-| `BatchSettings` | 输出目录、预设与元数据策略；开始后冻结并用于后续补位任务 |
+| `BatchSettings` | 输出目录、预设、元数据及可选公开自定义档位；开始后冻结并用于后续补位任务 |
 | `ProcessingPlan` | 完整输入信息、参数、工作区与校验策略；任务内存使用，当前不写入恢复／历史 JSON |
 | `FileIdentity` | 规范路径、字节数、修改时间与 SHA256；`modifiedNs` 在 wire 中用字符串表达 |
 
@@ -85,8 +85,8 @@ probing → preparing → running → validating → committing → succeeded
 
 完整标准见 [probe.rs](src-tauri/src/media/probe.rs)、[timeline.rs](src-tauri/src/media/timeline.rs)、[validate.rs](src-tauri/src/media/validate.rs)。修改预设时同样受这些约束：
 
-- 时间轴来自真实帧，不把 `nb_frames` 或容器帧率当作唯一事实。逐帧相对时间戳归一化为有理数秒后计算 SHA256，允许等价时间基但拒绝帧顺序／间隔变化。
-- 转码和完整解码使用 `-fps_mode:v passthrough -enc_time_base:v demux`，防止 VFR 被隐式重采样。末帧时长只能来自帧时长、轨道终点或已确认均匀帧间隔。
+- 时间轴来自真实帧，不把 `nb_frames` 或容器帧率当作唯一事实。逐帧相对时间戳归一化为有理数秒后计算 SHA256，允许等价时间基；原速对源摘要、变速对统一变换后的摘要，拒绝不符合目标的帧顺序／间隔变化。
+- 转码使用 `-fps_mode:v passthrough`；Preserve 的编码时间基为 demux，UniformSpeed 使用精确目标编码时间基／轨道 timescale。完整解码使用 passthrough／demux，防止 VFR 被隐式重采样。末帧时长只能来自帧时长、轨道终点或已确认均匀帧间隔。
 - 输出核对 H.264、8 bit 4:2:0、原尺寸、帧数、逐帧时间戳、视频起点和时长；有音轨时核对 AAC / 48 kHz、声道数、已知布局、音频时长和音画相对起点。
 - 当前视频时长／起点容差为平均一帧，音频为平均一帧与 50 ms 的较大值；不要通过放宽容差掩盖处理错误。
 - 已知颜色标记必须保留；未知保持未知。`yuvj420p` 仅在源和输出均已知为全范围且位深匹配时作为等价输出接受。元数据不全不能写成“颜色已完整保留”。
@@ -136,3 +136,15 @@ probing → preparing → running → validating → committing → succeeded
 | 界面隐藏旧预设，内核保留回归入口 | 用户选择保持简洁，同时守住历史媒体兼容性；删除需要先评估调用与测试依赖 |
 
 以上理由结合代码和既有方案整理，属于维护解释；不追认为当时存在独立 ADR。新增重大选择应在对应计划中记录原因、替代方案及验证结果，并同步本页。
+
+## 自定义变化的设置与时间策略
+
+- [custom.rs](src-tauri/src/contracts/custom.rs) 验证必填的 schema v1 与 14 个整数档位。自定义缺配置、其他模式夹带配置、缺项／未知项／非法值均返回 `invalid_settings`；命令先解码 Value 再进入强类型服务。
+- [SettingsStore](src-tauri/src/settings/store.rs) 仅在固定应用数据路径读写公开档位，限长 16 KiB，拒绝链接／重解析目标。异常读取只回退；显式保存使用同目录唯一临时文件、同步和原子替换，成功后才更新内存。默认服务构造使用内存存储，测试不会读写真实应用配置。
+- `Inner` 的同一互斥锁串行处理空闲检查、保存、开始校验与批次预留。`reserve_next` 从已冻结 BatchSettings 复制档位；队列的 `activeSettings` 随结构版本表示实际批次，结束后省略。磁盘后续变化不会影响补位。
+- [自定义预设](src-tauri/src/presets/custom/mod.rs) 为每个效果从任务 ID 和独立效果键推导随机流。只有公开档位可序列化；固定数值仅存在内存。布局、画面、声音与编码按固定顺序构建，新模板仍经 opaque 编码和原生私有脚本传递。
+- [TimingPolicy](src-tauri/src/contracts/timing.rs) 区分 Preserve／UniformSpeed；[timing.rs](src-tauri/src/media/timing.rs) 用有理数统一变换视频和音频，保护 timescale、乘法及 FFmpeg 表达式整数精度。变速验证重新流式扫描受身份保护的源帧，不能缩放旧哈希。
+- 视频目标摘要精确匹配，帧数不变；末帧封装时长仍受目标平均一帧容差约束。变速平均帧率须与解码帧数／有效时长的有理数严格一致。音频另校验目标有效 48 kHz 采样数（至多一采样误差）；仅识别与目标起点相差精确 1024 采样的 AAC 前导编码延迟，不借 50 ms 封装容差接受尾部缺失。
+- 自定义声音使用逐声道 Rubber Band（锁定的两平台工具已有该功能）独立处理速度与音高；长窗口、质量模式及平滑瞬态由 LFE 音调／尾部验收校准。只允许有界 `pad_len=1024` 后裁齐目标；旧六套预设滤镜保持不变。
+
+前端 [useCustomSettings](src/features/processing/useCustomSettings.ts) 分离保存值与草稿，使用同步 ref 锁和挂载／请求代次保护迟到回包。开始读取最新编辑锁，模式恢复依据 `activeSettings`；旧／未知运行模式显示冻结状态，不以记忆设置猜测。

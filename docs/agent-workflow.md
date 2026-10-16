@@ -1,6 +1,6 @@
 # AI Agent 持续迭代指南
 
-> 2026-10-16，基于 `1c712fd`。本文给出本仓库的工作入口与验证选择；命令清单不是本轮执行记录。
+> 2026-10-16，功能基线 `e8f5620`（自定义变化）。本文给出本仓库的工作入口与验证选择；命令清单不是本轮执行记录。
 
 ## 开始任务
 
@@ -60,7 +60,7 @@ npm run test:media
 npm run test:media -- --sample-dir docs/requirements/20261002-research
 ```
 
-`test:media` 生成忽略的 `.media-fixtures/`，顺序执行 `pipeline_real`、`lifecycle_real`、`batch_real` 中适用的 ignored 测试。指定 sample-dir 后查找 `原视频.mp4`；兼容性实样 `provided_compatible_media_end_to_end` 被脚本显式跳过，需要单独执行：
+`test:media` 生成忽略的 `.media-fixtures/`，顺序执行 `pipeline_real`、`lifecycle_real`、`batch_real`、`custom_real` 中适用的 ignored 测试。指定 sample-dir 后查找 `原视频.mp4`；兼容性实样 `provided_compatible_media_end_to_end` 被脚本显式跳过，需要单独执行：
 
 ```sh
 VIDEO_EDITOR_COMPAT_SAMPLE="$PWD/docs/requirements/20261002-research/h264.mp4" \
@@ -129,3 +129,11 @@ CI 产出构建／验证附件，并不自动证明最终 Release 发布及附�
 ```
 
 交付前检查相对链接、源码名称和 `git diff --check`，确认没有新增视频、临时媒体、凭据或构建产物。是否提交、推送、发布以用户授权与既有规则为准；单纯更新上下文文档不触发发布。
+
+## 自定义变化回归入口
+
+设置／冻结／草稿分别查 `custom_settings`、`custom_settings_store`、`custom_service` 及 `useCustomSettings.test.tsx`；媒体时钟查 `custom_timing`／`output_validation`。修改映射须同时跑 `custom_plan` 和 `cargo test --locked --manifest-path src-tauri/Cargo.toml --lib presets::custom`，私有几何测试不会随集成目标自动运行。
+
+`npm run test:media` 现在包含 custom_real 的四个 generated_ 场景（正反变速、音高与多声道尾音、布局／裁切／SAR、全部关闭／推荐／各项 9／全 9），batch_real 另外覆盖自定义并发、取消／退出、坏输入与输出冲突。音调用窗口频谱测量，避免振幅调制导致过零计数漏周期。仅普通 cargo test 通过仍不能声称这些 ignored 场景通过。
+
+本轮证据与源码关联见[自定义变化验证记录](evidence/custom-variation-20261016.json)。参数公式在已确认规格，实际随机值不写入用户设置或记录；测试不得把完整计划序列化到文件。映射、处理算法或校验解释有调整时，在证据中留下依据与残余风险，不扩大完整性容差。

@@ -233,17 +233,17 @@ expect(screen.getAllByRole('slider')).toHaveLength(14);
 
 **Interfaces:** `support/custom_media.rs` 提供 `tool_paths() -> ToolPaths`，优先 VIDEO_EDITOR_INSTALLED_EXE；异步测试函数 `decode_pcm(path: &Path) -> DecodedPcm`、`decode_frames(path: &Path) -> Vec<u8>`、`run_custom(input: &Path, settings: CustomVariationSettings, job_id: &str) -> Result<ValidatedCustomOutput, AppError>`。DecodedPcm 含 `sample_rate: u32, channels: u8, samples: Vec<f32>`（交错声道），ValidatedCustomOutput 含 `result: ValidationResult, plan: ProcessingPlan, directory: tempfile::TempDir`。最后一项使用真实 NativeRunner、prepare_workspace、build_plan 和 validate_output，临时目录由返回对象持有，不能绕过归属／私有脚本；测试内 plan 不写盘。服务级批次测试继续从 JobService 运行，验证真实调度与取消。
 
-- [ ] **1. 写失败媒体测试并准备 fixture**：新 generated_ 用例标 ignored，但真实运行选中。添加横屏／竖屏边框标记、2×2、非方形像素、CFR／VFR、已知逐声道音调及最后 100 ms 非静音标记；复用已有 offset、全范围、无音轨及 surround fixture。
+- [x] **1. 写失败媒体测试并准备 fixture**：新 generated_ 用例标 ignored，但真实运行选中。添加横屏／竖屏边框标记、2×2、非方形像素、CFR／VFR、已知逐声道音调及最后 100 ms 非静音标记；复用已有 offset、全范围、无音轨及 surround fixture。
   - `generated_custom_speed_preserves_frames_and_pitch`：显式固定 jobId 覆盖正／负速度，VFR 摘要与目标精确相等；仅 speed 的音调误差 ≤2%，帧数不变。
   - `generated_custom_pitch_surround_and_tail`：1／2／5.1／7.1 声道的目标频率相对误差 ≤2%；LFE 采用 90 Hz 原信号；尾标记在目标末尾可检测，末尾合成补齐 ≤1024 samples，波形有限且无过载。
   - `generated_custom_layout_and_crop`：隔离编码和其他效果，对照源图／内容变化／custom 推荐／custom 布局 5；确认推荐前景更大、背景更弱，crop=0 四边标记保留，crop>0 只去计划区域，SAR 未意外变形。
   - `generated_custom_all_levels_and_boundaries`：全部 0、推荐、14 项单独 9、全 9；坏输入失败、其余有效输入通过完整校验；不强求静音、低分辨率相邻档位产生不同哈希。
   - batch_real 增加自定义设置的两活动＋一等待、活动取消／关闭、单项失败继续；保留输入 SHA 与输出排他检查。
-- [ ] **2. 运行选中的媒体红灯**：先 `npm run prepare:sidecars`，再 `node scripts/generate-fixtures.mjs`；设置 VIDEO_EDITOR_FIXTURE_DIR 后 `cargo test --locked --manifest-path src-tauri/Cargo.toml --test custom_real generated_ -- --ignored --test-threads=1`。应有针对真实缺陷的失败；不能让“0 tests”或缺工具错误充当红灯。若现实现已通过，用故意错误目标／被截断的对照输出验证断言能拒绝，不无意义回退正确代码。
-- [ ] **3. 修复实际差距并接入门禁**：只修证据指向的代码，必要时回到对应任务单元；保持公式与验收边界。check-media 顺序追加 custom_real，非零退出即失败；Windows 安装后单独运行 custom_real，显式设置 fixture／installed exe 和检查 LASTEXITCODE；macOS 已安装步骤通过 check-media 覆盖该目标。fixture 在忽略目录，不依赖研究原片才能覆盖新功能。
-- [ ] **4. 运行本地自动门禁**：按下方完整命令组执行；新 ignored 用例确实运行，旧六预设摘要及既有媒体回归通过；加固测试证明新模板没有因普通格式字符串绕过编码，设置／历史不落实际参数。失败保留真实日志，不写验证已完成。
-- [ ] **5. 桌面与原生验收**：按规格 A16 验证三种宽度、键盘、焦点、保存失败／重启恢复；有条件的平台原生构建、安装资源与安装后 custom_real 另记录。不能因本地支持一个平台就声称两个平台完成。执行本计划本身不授权推送、远程发布或创建 Release；未执行项写入交付限制。
-- [ ] **6. 同步与提交**：更新四份当前上下文、原生验收步骤与 docs 索引；证据关联实际源码提交、schema／映射版本、测试命令、样本范围、截图／日志及未执行项。消息 `test: verify custom variation media and desktop behavior (U8)`，只暂存代码、测试和文档，不含媒体或参考图。
+- [x] **2. 运行选中的媒体红灯**：先 `npm run prepare:sidecars`，再 `node scripts/generate-fixtures.mjs`；设置 VIDEO_EDITOR_FIXTURE_DIR 后 `cargo test --locked --manifest-path src-tauri/Cargo.toml --test custom_real generated_ -- --ignored --test-threads=1`。应有针对真实缺陷的失败；不能让“0 tests”或缺工具错误充当红灯。若现实现已通过，用故意错误目标／被截断的对照输出验证断言能拒绝，不无意义回退正确代码。
+- [x] **3. 修复实际差距并接入门禁**：只修证据指向的代码，必要时回到对应任务单元；保持公式与验收边界。check-media 顺序追加 custom_real，非零退出即失败；Windows 安装后单独运行 custom_real，显式设置 fixture／installed exe 和检查 LASTEXITCODE；macOS 已安装步骤通过 check-media 覆盖该目标。fixture 在忽略目录，不依赖研究原片才能覆盖新功能。
+- [x] **4. 运行本地自动门禁**：按下方完整命令组执行；新 ignored 用例确实运行，旧六预设摘要及既有媒体回归通过；加固测试证明新模板没有因普通格式字符串绕过编码，设置／历史不落实际参数。失败保留真实日志，不写验证已完成。
+- [x] **5. 桌面与原生验收**：按规格 A16 验证三种宽度、键盘、焦点、保存失败／重启恢复；有条件的平台原生构建、安装资源与安装后 custom_real 另记录。不能因本地支持一个平台就声称两个平台完成。执行本计划本身不授权推送、远程发布或创建 Release；未执行项写入交付限制。
+- [x] **6. 同步与提交**：更新四份当前上下文、原生验收步骤与 docs 索引；证据关联实际源码提交、schema／映射版本、测试命令、样本范围、截图／日志及未执行项。消息 `test: verify custom variation media and desktop behavior (U8)`，只暂存代码、测试和文档，不含媒体或参考图。
 
 ## 完整本地门禁与交付判定
 

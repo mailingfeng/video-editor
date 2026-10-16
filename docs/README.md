@@ -29,7 +29,7 @@
 | --- | --- |
 | [初版设计](superpowers/specs/2026-10-02-video-processing-desktop-design.md) / [初版计划](superpowers/plans/2026-10-02-video-processing-desktop.md) | 理解最初问题和实现路线；单任务时代的内容不能覆盖当前批次模型 |
 | [文件夹导入与并发计划](plans/2026-10-06-1711-feat-folder-import-concurrent-processing-plan.md) | 需求、关键技术取舍、验收场景；是否落地以当前代码和测试为准 |
-| [自定义变化设计](superpowers/specs/2026-10-16-custom-variation-design.md) / [实施计划](superpowers/plans/2026-10-16-custom-variation.md) | 规格已确认：独立强度档位、克制的推荐布局、可选裁切／变速与对应校验；计划待审阅，尚未实施 |
+| [自定义变化设计](superpowers/specs/2026-10-16-custom-variation-design.md) / [实施计划](superpowers/plans/2026-10-16-custom-variation.md) | 已实现独立档位、克制推荐布局、可选裁切／变速与对应校验；校准取舍及平台未验范围查验证记录 |
 | [需求及后续更新](requirements/20261002-research/requirement.md) | 目标与用户约束演变；需读后续对明显视听变化的授权 |
 | [媒体分析报告](requirements/20261002-research/analysis-report.md) / [参考对分析](requirements/20261002-research/reference-pairs-analysis.md) | 样本技术差异；不构成通用平台审核效果证据 |
 | [平台审核反馈矩阵](requirements/20261002-research/platform-review-matrix.md) | 已记录的成功／失败、样本与反馈范围 |
@@ -51,3 +51,5 @@
 根上下文是持续更新的当前说明；`requirements/` 保存需求与实验；`plans/`、`superpowers/` 保存规划历史；`evidence/` 保存具体提交与平台的验证；`releases/` 保存版本说明。未来 `solutions/` 只存符合 ce-compound 门槛的持久经验。
 
 `references/` 是参考素材，不自动成为已采纳设计规范；新素材是否纳入版本控制按任务范围判断。测试视频和临时产物留在忽略路径，不能随文档归档进仓库或发布附件。
+
+- [自定义变化验证记录](evidence/custom-variation-20261016.json)：本轮测试、媒体、浏览器与原生资源检查范围；不等于双平台发行验收。
