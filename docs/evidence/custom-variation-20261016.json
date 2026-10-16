@@ -320,7 +320,12 @@
       "passed": 4,
       "failed": 0,
       "command": "VIDEO_EDITOR_INSTALLED_EXE=/tmp/frameshift-custom-variation-native.app/Contents/MacOS/video-editor VIDEO_EDITOR_FIXTURE_DIR=$PWD/.media-fixtures cargo test --locked --manifest-path src-tauri/Cargo.toml --test custom_real generated_ -- --ignored --test-threads=1",
-      "note": "Harness compiled from final source. Tools tested from copied app; SHA verified identical after final app replacement. The main GUI was not launched; no DMG/Finder installation receipt claimed."
+      "note": "Harness compiled from final source. Tools tested from copied app; SHA verified identical after final app replacement. The main GUI was not launched; no DMG/Finder installation receipt claimed.",
+      "finalCopiedApplicationRun": {
+        "passed": 4,
+        "failed": 0,
+        "durationSeconds": 33.84
+      }
     }
   },
   "decisions": [
@@ -334,8 +339,24 @@
     "Task 8: Ruling: For exact custom audio counts, exclude a leading native AAC packet only when target/observed start differ by exactly 1024 samples (±1 sample), never the 50ms mux tolerance — positive-start MP4 exposes priming without skip side data — cost if wrong: an artificial file with the same exact start/duration pattern could be interpreted as encoder priming; truncated-tail negative control must still fail."
   ],
   "review": {
-    "status": "pending final self-review",
-    "reason": "AGENTS.md maps subagent review to sequential main-thread execution"
+    "status": "self-review complete",
+    "range": {
+      "base": "4e1d1f85a06e65cf9c4d473483ba50ab05f78ea4",
+      "head": "ca00128"
+    },
+    "reason": "AGENTS.md requires sequential main-thread execution; no independent reviewer",
+    "critical": [],
+    "important": [],
+    "minorDeferred": [],
+    "declinedToJudge": [],
+    "focusChecked": [
+      "late load/save and active queue structural version ownership",
+      "save/start mutex boundary and frozen refill",
+      "unsafe/oversize/future-schema storage recovery and failed replacement",
+      "source/target timing, 2^53/i32/checked arithmetic, AAC priming and strict tail count",
+      "tiny/portrait/even crop and SAR plus foreground dependency behavior"
+    ],
+    "assessment": "Ready for local integration within recorded verification scope; not a signed, notarized or dual-platform release acceptance."
   },
   "notExecuted": [
     "Windows native build/installation/media",
