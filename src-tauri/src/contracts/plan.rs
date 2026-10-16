@@ -1,4 +1,4 @@
-use super::{MediaInfo, Rational};
+use super::{CustomVariationSettings, MediaInfo, Rational, TimingPolicy};
 use serde::{Deserialize, Serialize};
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(tag = "mode", rename_all = "snake_case", deny_unknown_fields)]
@@ -15,6 +15,8 @@ pub struct StartJobRequest {
     pub input_path: String,
     pub output_directory: String,
     pub preset_id: String,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub custom_settings: Option<CustomVariationSettings>,
     pub metadata: MetadataRequest,
 }
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
@@ -45,6 +47,8 @@ pub struct ValidationPolicy {
     pub channels: Option<u8>,
     pub video_tolerance_seconds: f64,
     pub audio_tolerance_seconds: f64,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub audio_target_samples: Option<u64>,
 }
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
@@ -56,6 +60,8 @@ pub struct ProcessingPlan {
     pub args: Vec<String>,
     pub workspace: OutputWorkspace,
     pub policy: ValidationPolicy,
+    #[serde(default)]
+    pub timing: TimingPolicy,
 }
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]

@@ -40,6 +40,7 @@ fn setup(
         }),
     );
     let settings = BatchSettings {
+        custom_settings: None,
         output_directory: dir.path().to_str().unwrap().into(),
         preset_id: "basic-transcode-v1".into(),
         metadata: MetadataRequest::Preserve,
@@ -325,6 +326,7 @@ async fn override_is_frozen_for_each_input_and_legacy_entry_remains_exclusive() 
         ErrorCode::Busy
     );
     let request = StartJobRequest {
+        custom_settings: None,
         input_path: paths[0].clone(),
         output_directory: settings.output_directory,
         preset_id: settings.preset_id,

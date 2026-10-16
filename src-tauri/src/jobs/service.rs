@@ -683,6 +683,7 @@ fn scrub_history(records: &Path) -> Result<(), AppError> {
 }
 fn queue_snapshot(state: &Inner) -> QueueSnapshot {
     QueueSnapshot {
+        active_settings: None,
         version: state.queue_version,
         running: state.batch.is_some(),
         items: state
@@ -758,6 +759,7 @@ fn reserve_next(state: &mut Inner) -> Vec<Launch> {
             break;
         };
         let request = StartJobRequest {
+            custom_settings: None,
             input_path: state.queue[index].item.input_path.clone(),
             output_directory: settings.output_directory.clone(),
             preset_id: settings.preset_id.clone(),

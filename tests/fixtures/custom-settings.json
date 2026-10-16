@@ -1,0 +1,17 @@
+{
+  "schemaVersion": 1,
+  "foregroundScale": 2,
+  "backgroundBlur": 2,
+  "dynamicOffset": 5,
+  "cropScale": 0,
+  "hue": 5,
+  "saturation": 5,
+  "tone": 5,
+  "noise": 5,
+  "softness": 0,
+  "pitch": 5,
+  "timbre": 5,
+  "volume": 5,
+  "speed": 0,
+  "encoding": 5
+}

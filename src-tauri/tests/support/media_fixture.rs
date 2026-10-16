@@ -45,6 +45,7 @@ pub fn media() -> MediaInfo {
 }
 pub fn request(input: &str, output: &str) -> StartJobRequest {
     StartJobRequest {
+        custom_settings: None,
         input_path: input.into(),
         output_directory: output.into(),
         preset_id: "basic-transcode-v1".into(),
@@ -67,4 +68,9 @@ pub fn workspace(root: &Path) -> OutputWorkspace {
             file_id: "0".into(),
         },
     }
+}
+
+#[allow(dead_code)]
+pub fn zero_custom() -> CustomVariationSettings {
+    serde_json::from_value(serde_json::json!({"schemaVersion":1,"foregroundScale":0,"backgroundBlur":0,"dynamicOffset":0,"cropScale":0,"hue":0,"saturation":0,"tone":0,"noise":0,"softness":0,"pitch":0,"timbre":0,"volume":0,"speed":0,"encoding":0})).unwrap()
 }

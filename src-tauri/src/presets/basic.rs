@@ -215,6 +215,7 @@ pub fn build_plan(
     let frame_seconds = v.frame_rate.den as f64 / v.frame_rate.num as f64;
     let video_duration = v.duration_ticks as f64 * v.time_base.num as f64 / v.time_base.den as f64;
     let policy = ValidationPolicy {
+        audio_target_samples: None,
         width: v.width,
         height: v.height,
         frame_rate: v.frame_rate,
@@ -229,6 +230,7 @@ pub fn build_plan(
         audio_tolerance_seconds: frame_seconds.max(0.05),
     };
     Ok(ProcessingPlan {
+        timing: crate::contracts::TimingPolicy::Preserve,
         job_id: job_id.into(),
         source: info.clone(),
         preset_id: request.preset_id.clone(),

@@ -72,6 +72,7 @@ fn fixtures() -> PathBuf {
 }
 fn settings(output: &Path, metadata: MetadataRequest) -> BatchSettings {
     BatchSettings {
+        custom_settings: None,
         output_directory: output.display().to_string(),
         preset_id: "basic-transcode-v1".into(),
         metadata,

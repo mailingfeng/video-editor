@@ -47,6 +47,7 @@ async fn decode(args: &[&str]) -> Vec<u8> {
 }
 fn request(input: &Path, output: &Path) -> StartJobRequest {
     StartJobRequest {
+        custom_settings: None,
         input_path: input.display().to_string(),
         output_directory: output.display().to_string(),
         preset_id: "basic-transcode-v1".into(),

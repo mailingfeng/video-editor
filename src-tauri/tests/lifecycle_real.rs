@@ -58,6 +58,7 @@ fn source() -> PathBuf {
 }
 fn request(output: &Path) -> StartJobRequest {
     StartJobRequest {
+        custom_settings: None,
         input_path: source().display().to_string(),
         output_directory: output.display().to_string(),
         preset_id: "content-variation-v1".into(),

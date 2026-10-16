@@ -11,6 +11,7 @@ async fn terminal_event_allows_starting_the_next_job() {
     let input = d.path().join("source.mp4");
     std::fs::write(&input, b"input").unwrap();
     let request = StartJobRequest {
+        custom_settings: None,
         input_path: input.to_str().unwrap().into(),
         output_directory: d.path().to_str().unwrap().into(),
         preset_id: "basic-transcode-v1".into(),
@@ -78,6 +79,7 @@ fn setup(
     });
     let service = JobService::new(runner.clone(), d.path().join("records"), sink);
     let request = StartJobRequest {
+        custom_settings: None,
         input_path: input.to_str().unwrap().into(),
         output_directory: d.path().to_str().unwrap().into(),
         preset_id: "basic-transcode-v1".into(),

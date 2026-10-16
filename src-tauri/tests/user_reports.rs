@@ -71,6 +71,7 @@ async fn run(fail: bool) -> (tempfile::TempDir, JobService, JobSnapshot) {
     );
     service
         .start_job(StartJobRequest {
+            custom_settings: None,
             input_path: input.to_str().unwrap().into(),
             output_directory: root.path().to_str().unwrap().into(),
             preset_id: "content-variation-v1".into(),
@@ -271,6 +272,7 @@ async fn active_recovery_record_does_not_persist_processing_arguments() {
     let service = JobService::new(runner.clone(), records.clone(), Arc::new(|_| {}));
     let id = service
         .start_job(StartJobRequest {
+            custom_settings: None,
             input_path: input.to_str().unwrap().into(),
             output_directory: root.path().to_str().unwrap().into(),
             preset_id: "content-variation-v1".into(),

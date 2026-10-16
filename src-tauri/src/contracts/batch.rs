@@ -1,4 +1,6 @@
-use super::{JobSnapshot, MediaInfo, MetadataRequest};
+use super::{
+    ActiveProcessingSettings, CustomVariationSettings, JobSnapshot, MediaInfo, MetadataRequest,
+};
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -7,6 +9,8 @@ pub struct BatchSettings {
     pub output_directory: String,
     pub preset_id: String,
     pub metadata: MetadataRequest,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub custom_settings: Option<CustomVariationSettings>,
 }
 
 #[derive(Debug, Clone, Copy, Serialize, Deserialize, PartialEq, Eq)]
@@ -34,4 +38,6 @@ pub struct QueueSnapshot {
     pub version: u64,
     pub running: bool,
     pub items: Vec<QueueItem>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub active_settings: Option<ActiveProcessingSettings>,
 }

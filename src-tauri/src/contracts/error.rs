@@ -2,6 +2,7 @@ use serde::{Deserialize, Serialize};
 #[derive(Debug, Clone, Copy, Serialize, Deserialize, PartialEq, Eq)]
 #[serde(rename_all = "snake_case")]
 pub enum ErrorCode {
+    InvalidSettings,
     UnsupportedInput,
     DamagedMedia,
     ToolMissing,
@@ -45,6 +46,7 @@ impl AppError {
     }
     pub fn for_user(&self) -> Self {
         let message = match self.code {
+            ErrorCode::InvalidSettings => "处理设置无效，请恢复推荐设置后重试。",
             ErrorCode::UnsupportedInput => "该视频暂不支持处理，请尝试更换视频文件。",
             ErrorCode::DamagedMedia => {
                 "无法读取视频文件，请确认文件可以正常播放，或重新获取文件后重试。"

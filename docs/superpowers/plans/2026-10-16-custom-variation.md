@@ -2,7 +2,7 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 >
-> 仓库适配：AGENTS.md 要求子代理任务在主线程顺序执行，优先采用 `superpowers:executing-plans`。本计划尚待用户审阅和确认执行方式，不因规格已确认而开始写产品代码。
+> 仓库适配：AGENTS.md 要求子代理任务在主线程顺序执行，优先采用 `superpowers:executing-plans`。用户已于 2026-10-16 确认本计划及主线程顺序实施方式。
 
 **Goal:** 新增带 14 项独立强度档位、克制推荐布局、持久设置及严格变速校验的“自定义变化”模式。
 
@@ -61,7 +61,7 @@
 
 顺序依赖：U1 → U2 → U3 → U4 → U5 → U6 → U7 → U8。U2、U3 的逻辑虽可独立理解，仍按仓库要求顺序实施。每个任务先跑失败测试，再实现、验证和提交；提交只显式暂存本任务实际修改的文件。计划中的测试结果均是预期，尚未执行。
 
-### U1：公开档位契约与兼容字段
+### Task 1: U1：公开档位契约与兼容字段
 
 **Files:** Create `src-tauri/src/contracts/custom.rs`、`src-tauri/src/contracts/timing.rs`、`src-tauri/tests/custom_settings.rs`、`tests/fixtures/custom-settings.json`、`tests/fixtures/queue-custom-snapshot.json`；Modify `src-tauri/src/contracts/{mod,error,plan,batch}.rs`、`src/api/contracts.ts`、`src-tauri/tests/wire_contract.rs`。仅为新增字段适配 Rust 字面量：`src-tauri/src/{jobs/service,presets/basic}.rs` 与 `src-tauri/tests/{basic_plan,batch_lifecycle,batch_real,job_lifecycle,lifecycle_real,pipeline_real,user_reports}.rs`、`src-tauri/tests/support/media_fixture.rs`。
 
@@ -74,7 +74,7 @@
 - TS 定义 `CustomLevelKey = Exclude<keyof CustomVariationSettings, 'schemaVersion'>`，供 U6/U7 按字段编辑；Rust 与 TS 的公开类型只含档位，不包含 TimingPolicy 或音频采样校验目标。
 - Test-only `zero_custom() -> CustomVariationSettings` 加入 `src-tauri/tests/support/media_fixture.rs`，合法 schema 为 1、14 档全部 0。
 
-- [ ] **1. 写失败测试**：`recommended_and_untrusted_settings`、`custom_mode_requires_settings`、`legacy_and_custom_wire_roundtrip`，固定值必须断言：
+- [x] **1. 写失败测试**：`recommended_and_untrusted_settings`、`custom_mode_requires_settings`、`legacy_and_custom_wire_roundtrip`，固定值必须断言：
 
 ```rust
 let settings = CustomVariationSettings::recommended();
@@ -86,12 +86,12 @@ assert!(validate_custom_selection("content-variation-v1", Some(&settings)).is_er
 ```
 
 对每个字段分别提交 `-1 / 1.5 / 10 / null / "5" / 缺失`、未知字段／schema，断言 InvalidSettings；旧 fixture 序列化逐值不变，新 fixture 含公开档位且没有实际参数。
-- [ ] **2. 跑红**：`cargo test --locked --manifest-path src-tauri/Cargo.toml --test custom_settings --test wire_contract`；预期新符号未定义或新断言失败，不能由无关环境错误充当红灯。
-- [ ] **3. 实现**：按 Interfaces 增加 DTO、运行时验证和 `invalid_settings` 用户文案；请求／快照可选字段用 `serde(default, skip_serializing_if = "Option::is_none")`，未知字段拒绝。TS 保持相同字段和状态。旧 Rust 请求填 None、旧计划填 Preserve、旧 policy.audio_target_samples 填 None，不改变原六预设字符串。
-- [ ] **4. 跑绿**：上述测试、`cargo test --locked --manifest-path src-tauri/Cargo.toml`、`npm run typecheck`；新契约断言通过，原有非 ignored 回归无新增失败。
-- [ ] **5. 提交**：显式暂存 Files，消息 `feat: define validated custom variation settings (U1)`。
+- [x] **2. 跑红**：`cargo test --locked --manifest-path src-tauri/Cargo.toml --test custom_settings --test wire_contract`；预期新符号未定义或新断言失败，不能由无关环境错误充当红灯。
+- [x] **3. 实现**：按 Interfaces 增加 DTO、运行时验证和 `invalid_settings` 用户文案；请求／快照可选字段用 `serde(default, skip_serializing_if = "Option::is_none")`，未知字段拒绝。TS 保持相同字段和状态。旧 Rust 请求填 None、旧计划填 Preserve、旧 policy.audio_target_samples 填 None，不改变原六预设字符串。
+- [x] **4. 跑绿**：上述测试、`cargo test --locked --manifest-path src-tauri/Cargo.toml`、`npm run typecheck`；新契约断言通过，原有非 ignored 回归无新增失败。
+- [x] **5. 提交**：显式暂存 Files，消息 `feat: define validated custom variation settings (U1)`。
 
-### U2：有界设置保存与损坏回退
+### Task 2: U2：有界设置保存与损坏回退
 
 **Files:** Create `src-tauri/src/settings/{mod,store}.rs`、`src-tauri/tests/custom_settings_store.rs`；Modify `src-tauri/src/lib.rs`。
 
@@ -112,7 +112,7 @@ assert_eq!(SettingsStore::load(path).snapshot().settings, saved.settings);
 - [ ] **4. 跑绿**：重复上述测试和 `cargo test --locked --manifest-path src-tauri/Cargo.toml --test user_reports --test output_workspace`；磁盘中仅含 schemaVersion 与 14 档，不含种子、滤镜、输出路径。
 - [ ] **5. 提交**：消息 `feat: persist custom intensity settings safely (U2)`，只暂存本任务 Files。
 
-### U3：精确变速时间轴与验证分支
+### Task 3: U3：精确变速时间轴与验证分支
 
 **Files:** Create `src-tauri/src/media/timing.rs`、`src-tauri/tests/custom_timing.rs`；Modify `src-tauri/src/media/{mod,timeline,probe,validate}.rs`、`src-tauri/tests/output_validation.rs`。
 
@@ -135,7 +135,7 @@ assert_eq!(project_video_pts(&source.video, &policy, 5080).unwrap(), 523000);
 - [ ] **4. 跑绿**：上述测试及 `cargo test --locked --manifest-path src-tauri/Cargo.toml --test input_probe --test basic_plan --test job_lifecycle`；不得通过跳过目标摘要或扩大现有容差转绿。
 - [ ] **5. 提交**：消息 `feat: validate uniform-speed media timelines exactly (U3)`。
 
-### U4：冻结效果映射与自定义处理计划
+### Task 4: U4：冻结效果映射与自定义处理计划
 
 **Files:** Create `src-tauri/src/presets/custom/{mod,video,audio}.rs`、`src-tauri/tests/custom_plan.rs`；Modify `src-tauri/src/presets/{mod,basic}.rs`、`src-tauri/tests/basic_plan.rs`。本任务只新增 build_plan 分支，暂不在 list_presets 启用未接好设置的 UI 入口。
 
@@ -160,7 +160,7 @@ assert_eq!(a, FrozenCustomParameters::resolve(&settings, "fixed-job").unwrap());
 - [ ] **5. 跑绿并核对旧方案**：custom_plan、`cargo test --locked --manifest-path src-tauri/Cargo.toml --lib presets::custom`、`cargo test --locked --manifest-path src-tauri/Cargo.toml --test basic_plan --test output_validation --test user_reports`；各选中目标应确实运行测试，原六预设 characterization 摘要不变。全 9 计划不能包含非法尺寸、NaN 或不受限参数。
 - [ ] **6. 提交**：消息 `feat: build controlled custom video and audio variation (U4)`。
 
-### U5：设置命令与原生批次冻结
+### Task 5: U5：设置命令与原生批次冻结
 
 **Files:** Modify `src-tauri/src/{commands,main}.rs`、`src-tauri/src/jobs/service.rs`、`src-tauri/tests/{batch_lifecycle,job_lifecycle,user_reports}.rs`、`src-tauri/tests/support/controlled_runner.rs`；Create `src-tauri/tests/custom_service.rs`。
 
@@ -183,7 +183,7 @@ assert_eq!(runner.calls.load(Ordering::SeqCst), 0);
 - [ ] **4. 跑绿**：上述目标及 `cargo test --locked --manifest-path src-tauri/Cargo.toml --test job_lifecycle`、`cargo clippy --locked --manifest-path src-tauri/Cargo.toml --all-targets --features desktop -- -D warnings`；实际命令通过 generate_handler 注册，不增加 capability。
 - [ ] **5. 提交**：消息 `feat: freeze custom settings across native batch jobs (U5)`。
 
-### U6：前端设置状态与快照恢复
+### Task 6: U6：前端设置状态与快照恢复
 
 **Files:** Create `src/features/processing/useCustomSettings.ts`、`src/features/processing/useCustomSettings.test.tsx`；Modify `src/api/desktop.ts`、`src/features/processing/{useProcessing,queueState}.ts`、`src/features/processing/useProcessing.test.tsx`、`src/features/processing/queueState.test.ts`、`src/features/processing/ProcessingView.test.tsx`。
 
@@ -206,7 +206,7 @@ expect(api.startBatch).not.toHaveBeenCalled(); // 草稿打开时重复开始
 - [ ] **4. 跑绿**：上述测试、`npm run typecheck`、`npm run test -- --run`；原模式不因设置服务失败而不可用，已有乱序／重挂载回归通过。
 - [ ] **5. 提交**：消息 `feat: manage custom settings drafts and batch restoration (U6)`。
 
-### U7：设置弹窗与第三模式入口
+### Task 7: U7：设置弹窗与第三模式入口
 
 **Files:** Create `src/features/processing/CustomSettingsDialog.tsx`、`src/features/processing/CustomSettingsDialog.test.tsx`；Modify `src/features/processing/{ProcessingView.tsx,processing.css,ProcessingView.test.tsx}`、`src-tauri/src/presets/basic.rs`、`src-tauri/tests/basic_plan.rs`。
 
@@ -227,7 +227,7 @@ expect(screen.getAllByRole('slider')).toHaveLength(14);
 - [ ] **4. 启用入口并跑绿**：list_presets 在原两项后加 custom-variation-v1 / 1 / 自定义变化；更新“仅两模式”旧断言为三模式但保持原两项身份与默认规则。运行上述测试、`npm run typecheck`、`npm run build`、`cargo test --locked --manifest-path src-tauri/Cargo.toml --test basic_plan`。
 - [ ] **5. 提交**：消息 `feat: expose custom variation intensity settings (U7)`。
 
-### U8：真实媒体、原生门禁与知识交付
+### Task 8: U8：真实媒体、原生门禁与知识交付
 
 **Files:** Create `src-tauri/tests/custom_real.rs`、`src-tauri/tests/support/custom_media.rs`；Modify `scripts/{generate-fixtures,check-media}.mjs`、`.github/workflows/{windows-x64,macos-intel}.yml`、`src-tauri/tests/{batch_real,user_reports}.rs`、`scripts/verify-release.test.mjs`（必要时修改 verify-release.mjs 的自定义模板特征）、`PROJECT.md`、`ARCHITECTURE.md`、`DESIGN.md`、`docs/{agent-workflow,windows-desktop-acceptance,macos-intel-desktop-acceptance,README}.md`。验证后 Create `docs/evidence/custom-variation-YYYYMMDD.json`，使用实际完成日期，不预先写成功记录。
 
