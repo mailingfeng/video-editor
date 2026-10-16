@@ -29,6 +29,7 @@
 | --- | --- |
 | [初版设计](superpowers/specs/2026-10-02-video-processing-desktop-design.md) / [初版计划](superpowers/plans/2026-10-02-video-processing-desktop.md) | 理解最初问题和实现路线；单任务时代的内容不能覆盖当前批次模型 |
 | [文件夹导入与并发计划](plans/2026-10-06-1711-feat-folder-import-concurrent-processing-plan.md) | 需求、关键技术取舍、验收场景；是否落地以当前代码和测试为准 |
+| [自定义变化设计](superpowers/specs/2026-10-16-custom-variation-design.md) | 待审阅规格：独立强度档位、克制的推荐布局、可选裁切／变速与对应校验；尚未实施 |
 | [需求及后续更新](requirements/20261002-research/requirement.md) | 目标与用户约束演变；需读后续对明显视听变化的授权 |
 | [媒体分析报告](requirements/20261002-research/analysis-report.md) / [参考对分析](requirements/20261002-research/reference-pairs-analysis.md) | 样本技术差异；不构成通用平台审核效果证据 |
 | [平台审核反馈矩阵](requirements/20261002-research/platform-review-matrix.md) | 已记录的成功／失败、样本与反馈范围 |
