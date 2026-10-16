@@ -97,7 +97,7 @@ assert!(validate_custom_selection("content-variation-v1", Some(&settings)).is_er
 
 **Interfaces:** Consumes U1 DTO。Produces `SettingsStore::load(path: PathBuf) -> Self`、`SettingsStore::memory() -> Self`、`snapshot(&self) -> CustomSettingsStatus`、`save(&mut self, settings: CustomVariationSettings) -> Result<CustomSettingsStatus, AppError>`。memory 只供服务默认构造及测试，不写父目录；load 在初始化读取一次。
 
-- [ ] **1. 写失败测试**：`missing_file_uses_recommendation`、`save_survives_reload`、`unsafe_or_future_settings_recover_without_rewrite`、`failed_replace_keeps_previous`。读取超过 16384 字节、未知 schema、损坏 JSON／目录／链接得到 Recovered 且原字节不变；缺失为 Default 且 notice=None；保存后新 store 必须得到 Saved 和同一份档位。
+- [x] **1. 写失败测试**：`missing_file_uses_recommendation`、`save_survives_reload`、`unsafe_or_future_settings_recover_without_rewrite`、`failed_replace_keeps_previous`。读取超过 16384 字节、未知 schema、损坏 JSON／目录／链接得到 Recovered 且原字节不变；缺失为 Default 且 notice=None；保存后新 store 必须得到 Saved 和同一份档位。
 
 ```rust
 let mut store = SettingsStore::load(path.clone());
@@ -107,10 +107,10 @@ assert_eq!(SettingsStore::load(path).snapshot().settings, saved.settings);
 ```
 
 失败替换用可控文件系统冲突／测试边界制造，断言旧内存值未更新、既有有效文件未被本操作截断、本操作临时文件清理；不能只在 root 下 chmod 后假定写失败。Unix symlink 与 Windows reparse／链接按平台能力分别验证，不能静默把未执行当通过。
-- [ ] **2. 跑红**：`cargo test --locked --manifest-path src-tauri/Cargo.toml --test custom_settings_store`，预期缺少存储模块。
-- [ ] **3. 实现**：只接受固定应用目录路径；读取前和持有文件句柄后检查普通文件／链接属性，限长读取至 16385 字节以识别超限。保存先验值，再写同目录 UUID 临时普通文件、sync、原子替换、成功后更新内存；拒绝链接／重解析目标。读取回退不自动覆写，错误提示采用规格文案。
-- [ ] **4. 跑绿**：重复上述测试和 `cargo test --locked --manifest-path src-tauri/Cargo.toml --test user_reports --test output_workspace`；磁盘中仅含 schemaVersion 与 14 档，不含种子、滤镜、输出路径。
-- [ ] **5. 提交**：消息 `feat: persist custom intensity settings safely (U2)`，只暂存本任务 Files。
+- [x] **2. 跑红**：`cargo test --locked --manifest-path src-tauri/Cargo.toml --test custom_settings_store`，预期缺少存储模块。
+- [x] **3. 实现**：只接受固定应用目录路径；读取前和持有文件句柄后检查普通文件／链接属性，限长读取至 16385 字节以识别超限。保存先验值，再写同目录 UUID 临时普通文件、sync、原子替换、成功后更新内存；拒绝链接／重解析目标。读取回退不自动覆写，错误提示采用规格文案。
+- [x] **4. 跑绿**：重复上述测试和 `cargo test --locked --manifest-path src-tauri/Cargo.toml --test user_reports --test output_workspace`；磁盘中仅含 schemaVersion 与 14 档，不含种子、滤镜、输出路径。
+- [x] **5. 提交**：消息 `feat: persist custom intensity settings safely (U2)`，只暂存本任务 Files。
 
 ### Task 3: U3：精确变速时间轴与验证分支
 

@@ -7,3 +7,4 @@ pub mod media;
 pub mod native;
 pub mod output;
 pub mod presets;
+pub mod settings;
