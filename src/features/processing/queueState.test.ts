@@ -30,3 +30,12 @@ describe('queue version and job ownership',()=>{
     expect(s.pending).toEqual({}); expect(s.queue.items[0].snapshot).toBeNull();
   });
 });
+
+it('keeps_active_settings_with_the_newest_structure',()=>{
+ const active={presetId:'custom-variation-v1'};
+ let state=mergeQueue(emptyQueueState(),{...queue(8,[item('a','A')]),activeSettings:active});
+ state=mergeQueue(state,{...queue(2,[item('a','A')]),activeSettings:{presetId:'content-variation-v1'}});
+ expect(state.queue.activeSettings).toEqual(active);
+ state=mergeJob(state,job('A',12));expect(state.queue.activeSettings).toEqual(active);
+ state=mergeQueue(state,queue(9,[item('a','A')],false));expect(state.queue.activeSettings).toBeUndefined();
+});

@@ -3,6 +3,7 @@ import type {DesktopApi} from '../../api/desktop';
 import type {JobSnapshot,LogExcerpt,PresetSummary,QueueSnapshot} from '../../api/contracts';
 import {emptyQueueState,mergeJob,mergeQueue,terminal,type QueueState} from './queueState';
 import {useLicense} from './useLicense';
+import {useCustomSettings} from './useCustomSettings';
 
 function message(error:unknown):string {
   if (typeof error==='object' && error!==null && 'message' in error) return String(error.message);
@@ -96,7 +97,9 @@ export function useProcessing(api:DesktopApi) {
   },[api,accept,importPaths,update]);
 
   const busy=starting || state.queue.running;
-  const preset=presets.find(p=>p.presetId===presetId)??presets.find(p=>p.presetId==='content-variation-v1')??presets[0]??null;
+  const custom=useCustomSettings(api,busy);
+  const selectedPresetId=state.queue.running?state.queue.activeSettings?.presetId:presetId;
+  const preset=state.queue.running?presets.find(p=>p.presetId===selectedPresetId)??null:presets.find(p=>p.presetId===selectedPresetId)??presets.find(p=>p.presetId==='content-variation-v1')??presets[0]??null;
   function selectPreset(id:string){
     if(startLock.current || busy || importing || !presets.some(p=>p.presetId===id))return;
     setPresetId(id);
@@ -133,8 +136,11 @@ export function useProcessing(api:DesktopApi) {
   }
   async function start(){
     if(!license.licenseAllowed || startLock.current || importLock.current || stateRef.current.queue.running || !stateRef.current.queue.items.some(i=>i.state==='waiting') || !outputDirectory || !preset)return;
+    const settings=custom.getSnapshot();
+    const isCustom=preset.presetId==='custom-variation-v1';
+    if(settings.open||settings.saving||(isCustom&&(settings.loading||!settings.status)))return;
     startLock.current=true;setStarting(true);setError(null);const attempt=epoch.current;
-    try{const next=await api.startBatch({outputDirectory,presetId:preset.presetId,metadata:{mode:'preserve'}});if(mounted.current && attempt===epoch.current)accept(next);}
+    try{const next=await api.startBatch({outputDirectory,presetId:preset.presetId,metadata:{mode:'preserve'},...(isCustom?{customSettings:settings.status!.settings}:{})});if(mounted.current && attempt===epoch.current)accept(next);}
     catch(e){if(mounted.current && attempt===epoch.current){
       setError(message(e));
       if(typeof e==='object' && e!==null && 'code' in e && e.code==='license_expired')license.markLicenseExpired();
@@ -160,6 +166,6 @@ export function useProcessing(api:DesktopApi) {
     if(snap?.state!=='succeeded')return;const attempt=epoch.current;
     try{await api.revealOutput(snap.jobId);}catch(e){if(mounted.current && attempt===epoch.current)setError(message(e));}
   }
-  return {...license,queue:state.queue,selectedItem,media:selectedItem?.media??null,snapshot,previousResult,presets,preset,outputDirectory,log,logLoading,logError,error,importing,starting,busy,
+  return {...license,custom,queue:state.queue,selectedItem,media:selectedItem?.media??null,snapshot,previousResult,presets,preset,outputDirectory,log,logLoading,logError,error,importing,starting,busy,
     selectItem,selectPreset,selectInput,selectFolder,selectOutput,start,removeItem:(id:string)=>itemAction(id,'remove'),cancelItem:(id:string)=>itemAction(id,'cancel'),refreshLog,reveal};
 }

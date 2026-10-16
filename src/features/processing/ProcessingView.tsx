@@ -68,7 +68,7 @@ export function ProcessingView({api}: {api: DesktopApi}) {
               </li>;
             })}</ul> : <div className="empty"><Icon name="upload"/><h3>添加需要处理的视频</h3><p>支持 MP4、MOV、M4V、MKV、WebM，也可选择文件夹批量添加。</p></div>}
           </section>
-          <section className="panel settings"><div className="panel-head"><h2>处理设置</h2>{p.preset && <span className="badge">{presetLabel}</span>}</div><div className="panel-body">
+          <section className="panel settings"><div className="panel-head"><h2>处理设置</h2>{(p.preset || restoredBatch) && <span className="badge">{presetLabel}</span>}</div><div className="panel-body">
             <label className="field"><span>处理预设</span><select value={restoredBatch ? '' : p.preset?.presetId ?? ''} disabled={!api.available || p.busy || p.importing || p.presets.length < 2} aria-label="处理预设" onChange={event => p.selectPreset(event.target.value)}>{restoredBatch && <option value="">本批设置已固定</option>}{p.presets.map(preset => <option key={preset.presetId} value={preset.presetId}>{preset.title}</option>)}</select></label>
             <p className="helper">本批视频共用所选设置。处理完成后自动保存为新文件，不覆盖已有文件。</p>
           </div></section>

@@ -1,16 +1,18 @@
 import {act, cleanup, renderHook, waitFor} from '@testing-library/react';
 import {afterEach, expect, it, vi} from 'vitest';
 import type {DesktopApi} from '../../api/desktop';
-import type {JobSnapshot, QueueSnapshot} from '../../api/contracts';
+import fixture from '../../../tests/fixtures/custom-settings.json';
+import type {CustomSettingsStatus, JobSnapshot, QueueSnapshot} from '../../api/contracts';
 import {useProcessing} from './useProcessing';
 
 afterEach(cleanup);
-function deferred<T>() {let resolve!:(v:T)=>void;const promise=new Promise<T>(r=>{resolve=r;});return {promise,resolve};}
+function deferred<T>() {let resolve!:(v:T)=>void;let reject!:(e:unknown)=>void;const promise=new Promise<T>((r,j)=>{resolve=r;reject=j;});return {promise,resolve,reject};}
 const snap=(jobId:string):JobSnapshot=>({jobId,version:1,state:'running',progress:null,startedAtMs:1,endedAtMs:null,outputPath:null,error:null,cleanupPending:false});
 const q:QueueSnapshot={version:1,running:true,items:['a','b'].map(id=>({itemId:id,inputPath:`/${id}.mp4`,state:'started',jobId:id,snapshot:snap(id),media:null}))};
 function fakeApi() {
   const jobs=new Set<(s:JobSnapshot)=>void>(); const queues=new Set<(s:QueueSnapshot)=>void>();
-  const api:DesktopApi={available:true,pickInput:vi.fn(async()=>'/a.mp4'),pickInputFolder:vi.fn(async()=>null),pickOutputDirectory:vi.fn(async()=>'/out'),
+  const defaults:CustomSettingsStatus={settings:{...fixture,schemaVersion:1},recommended:{...fixture,schemaVersion:1},source:'default',notice:null};
+  const api:DesktopApi={available:true,getCustomSettings:vi.fn(async()=>defaults),saveCustomSettings:vi.fn(async(settings:CustomSettingsStatus['settings'])=>({...defaults,settings,source:'saved' as const})),pickInput:vi.fn(async()=>'/a.mp4'),pickInputFolder:vi.fn(async()=>null),pickOutputDirectory:vi.fn(async()=>'/out'),
     probeInput:vi.fn(),cancelProbe:vi.fn(),startJob:vi.fn(),getJobSnapshot:vi.fn(),cancelJob:vi.fn(),
     getLicenseStatus:vi.fn(async()=>({expiresAtMs:1798732800000,effectiveTimeMs:1791630000000,expired:false,ntpAvailable:true})),
     listPresets:vi.fn(async()=>[{presetId:'basic-transcode-v1',version:1,title:'基础转换',evidenceStatus:'checked'}]),
@@ -72,4 +74,46 @@ it('ignores a late import response after unmount',async()=>{
   await waitFor(()=>expect(api.importPaths).toHaveBeenCalledOnce());hook.unmount();
   await act(async()=>{pending.resolve(q);await importing;});
   expect(api.startBatch).not.toHaveBeenCalled();
+});
+
+it('late_settings_do_not_override_active_batch',async()=>{
+ const {api,queues}=fakeApi();const pending=deferred<CustomSettingsStatus>();vi.mocked(api.getCustomSettings).mockReturnValue(pending.promise);
+ const active={presetId:'custom-variation-v1',customSettings:{...fixture,schemaVersion:1 as const,speed:9}};
+ vi.mocked(api.listPresets).mockResolvedValue([{presetId:'custom-variation-v1',version:1,title:'自定义变化',evidenceStatus:''},{presetId:'content-variation-v1',version:1,title:'内容变化',evidenceStatus:''}]);
+ vi.mocked(api.getQueueSnapshot).mockResolvedValue({...q,version:8,activeSettings:active});
+ const hook=renderHook(()=>useProcessing(api));await waitFor(()=>expect(hook.result.current.preset?.presetId).toBe('custom-variation-v1'));
+ act(()=>queues.forEach(fn=>fn({...q,version:2,activeSettings:{presetId:'content-variation-v1'}})));
+ await act(async()=>pending.resolve({settings:{...fixture,schemaVersion:1},recommended:{...fixture,schemaVersion:1},source:'saved',notice:null}));
+ expect(hook.result.current.queue.activeSettings).toEqual(active);expect(hook.result.current.preset?.presetId).toBe('custom-variation-v1');
+});
+it('legacy_modes_do_not_wait_for_custom_loading',async()=>{
+ const {api}=fakeApi();const pending=deferred<CustomSettingsStatus>();vi.mocked(api.getCustomSettings).mockReturnValue(pending.promise);
+ vi.mocked(api.getQueueSnapshot).mockResolvedValue({version:1,running:false,items:[{...q.items[0],jobId:null,snapshot:null,state:'waiting'}]});
+ vi.mocked(api.startBatch).mockResolvedValue(q);
+ const hook=renderHook(()=>useProcessing(api));await waitFor(()=>expect(hook.result.current.licenseAllowed).toBe(true));
+ await waitFor(()=>expect(hook.result.current.preset).not.toBeNull());await act(()=>hook.result.current.selectOutput());
+ expect(hook.result.current.custom.loading).toBe(true);await act(()=>hook.result.current.start());
+ expect(api.startBatch).toHaveBeenCalledWith({outputDirectory:'/out',presetId:'basic-transcode-v1',metadata:{mode:'preserve'}});
+});
+it('custom_uses_saved_levels_and_blocks_start_while_draft_is_open',async()=>{
+ const {api}=fakeApi();vi.mocked(api.listPresets).mockResolvedValue([{presetId:'custom-variation-v1',version:1,title:'自定义变化',evidenceStatus:''}]);
+ vi.mocked(api.getQueueSnapshot).mockResolvedValue({version:1,running:false,items:[{...q.items[0],jobId:null,snapshot:null,state:'waiting'}]});
+ vi.mocked(api.startBatch).mockRejectedValue({code:'invalid_settings',message:'设置无效'});
+ const hook=renderHook(()=>useProcessing(api));await waitFor(()=>expect(hook.result.current.custom.status).not.toBeNull());await waitFor(()=>expect(hook.result.current.licenseAllowed).toBe(true));
+ await act(()=>hook.result.current.selectOutput());act(()=>hook.result.current.custom.openDialog());
+ await act(()=>hook.result.current.start());expect(api.startBatch).not.toHaveBeenCalled();
+ act(()=>hook.result.current.custom.cancel());await act(()=>hook.result.current.start());
+ expect(api.startBatch).toHaveBeenCalledWith({outputDirectory:'/out',presetId:'custom-variation-v1',metadata:{mode:'preserve'},customSettings:fixture});
+ expect(hook.result.current.custom.status?.settings).toEqual(fixture);
+});
+it('unknown_active_preset_never_falls_back_to_a_remembered_mode',async()=>{
+ const {api}=fakeApi();vi.mocked(api.getQueueSnapshot).mockResolvedValue({...q,activeSettings:{presetId:'future-mode'}});
+ const hook=renderHook(()=>useProcessing(api));await waitFor(()=>expect(hook.result.current.queue.activeSettings?.presetId).toBe('future-mode'));
+ await waitFor(()=>expect(hook.result.current.presets).toHaveLength(1));expect(hook.result.current.preset).toBeNull();
+});
+it('opening_a_draft_blocks_a_start_in_the_same_event',async()=>{
+ const {api}=fakeApi();vi.mocked(api.getQueueSnapshot).mockResolvedValue({version:1,running:false,items:[{...q.items[0],jobId:null,snapshot:null,state:'waiting'}]});
+ const hook=renderHook(()=>useProcessing(api));await waitFor(()=>expect(hook.result.current.custom.status).not.toBeNull());await waitFor(()=>expect(hook.result.current.licenseAllowed).toBe(true));
+ await act(()=>hook.result.current.selectOutput());await act(async()=>{hook.result.current.custom.openDialog();await hook.result.current.start();});
+ expect(api.startBatch).not.toHaveBeenCalled();expect(hook.result.current.custom.open).toBe(true);
 });

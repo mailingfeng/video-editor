@@ -1,6 +1,7 @@
 import {act,cleanup,fireEvent,render,screen,waitFor,within} from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import {afterEach,beforeAll,describe,expect,it,vi} from 'vitest';
+import fixture from '../../../tests/fixtures/custom-settings.json';
 import type {DesktopApi} from '../../api/desktop';
 import type {JobSnapshot,MediaInfo,QueueItem,QueueSnapshot} from '../../api/contracts';
 import {ProcessingView} from './ProcessingView';
@@ -17,7 +18,7 @@ function deferred<T>(){let resolve!:(v:T)=>void;const promise=new Promise<T>(r=>
 function fakeApi(initial:QueueItem[]=[]){
   let q:QueueSnapshot={version:1,running:false,items:initial};
   const listeners=new Set<(s:JobSnapshot)=>void>();const queues=new Set<(s:QueueSnapshot)=>void>();let drop:(paths:string[])=>void=()=>{};
-  const api:DesktopApi={available:true,pickInput:vi.fn(async()=>media.identity.canonicalPath),pickInputFolder:vi.fn(async()=>'/input'),pickOutputDirectory:vi.fn(async()=>'/output'),probeInput:vi.fn(),cancelProbe:vi.fn(),startJob:vi.fn(),getJobSnapshot:vi.fn(),cancelJob:vi.fn(),
+  const api:DesktopApi={available:true,getCustomSettings:vi.fn(async()=>({settings:{...fixture,schemaVersion:1 as const},recommended:{...fixture,schemaVersion:1 as const},source:'default' as const,notice:null})),saveCustomSettings:vi.fn(),pickInput:vi.fn(async()=>media.identity.canonicalPath),pickInputFolder:vi.fn(async()=>'/input'),pickOutputDirectory:vi.fn(async()=>'/output'),probeInput:vi.fn(),cancelProbe:vi.fn(),startJob:vi.fn(),getJobSnapshot:vi.fn(),cancelJob:vi.fn(),
     getLicenseStatus:vi.fn(async()=>({expiresAtMs:1798732800000,effectiveTimeMs:1791630000000,expired:false,ntpAvailable:true})),
     listPresets:vi.fn(async()=>[{presetId:'repeat-combined-v2',version:2,title:'轻微变化',evidenceStatus:''},{presetId:'content-variation-v1',version:1,title:'内容变化',evidenceStatus:''}]),getCurrentJobSnapshot:vi.fn(async()=>null),
     getQueueSnapshot:vi.fn(async()=>q),importPaths:vi.fn(async(paths:string[])=>{q={...q,version:q.version+1,items:[...q.items,...paths.filter(path=>!q.items.some(i=>i.inputPath===path)).map((path,index)=>waiting(`added-${q.version}-${index}`,path))]};return q;}),

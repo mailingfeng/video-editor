@@ -2,10 +2,12 @@ import { invoke, isTauri } from '@tauri-apps/api/core';
 import { listen } from '@tauri-apps/api/event';
 import { getCurrentWebview } from '@tauri-apps/api/webview';
 import { open } from '@tauri-apps/plugin-dialog';
-import type { BatchSettings, JobSnapshot, LicenseStatus, LogExcerpt, MediaInfo, PresetSummary, QueueSnapshot, StartJobRequest } from './contracts';
+import type { CustomSettingsStatus, CustomVariationSettings, BatchSettings, JobSnapshot, LicenseStatus, LogExcerpt, MediaInfo, PresetSummary, QueueSnapshot, StartJobRequest } from './contracts';
 
 export interface DesktopApi {
   available: boolean;
+  getCustomSettings(): Promise<CustomSettingsStatus>;
+  saveCustomSettings(settings:CustomVariationSettings): Promise<CustomSettingsStatus>;
   getLicenseStatus(): Promise<LicenseStatus>;
   pickInput(): Promise<string | null>;
   pickInputFolder(): Promise<string | null>;
@@ -31,6 +33,8 @@ export interface DesktopApi {
 }
 export const desktopApi: DesktopApi = {
   available: isTauri(),
+  getCustomSettings:()=>invoke('get_custom_settings'),
+  saveCustomSettings:(settings)=>invoke('save_custom_settings',{settings}),
   getLicenseStatus: () => invoke('get_license_status'),
   pickInput: async () => {
     const selected = await open({multiple: false, directory: false, filters: [{name: '视频文件', extensions: ['mp4','mov','m4v','mkv','webm']}]});

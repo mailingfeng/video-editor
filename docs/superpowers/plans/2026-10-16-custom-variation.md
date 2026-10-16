@@ -191,7 +191,7 @@ assert_eq!(runner.calls.load(Ordering::SeqCst), 0);
 - `useCustomSettings(api: DesktopApi, busy: boolean)` 返回 `status: CustomSettingsStatus|null, loading, saving, open, draft, error, openDialog(): void, setLevel(key: CustomLevelKey, value: number): void, restoreRecommended(): void, cancel(): void, save(): Promise<boolean>`；CustomLevelKey 为 14 字段名去掉 schemaVersion。
 - useProcessing 返回上述状态为 `custom`，按 queue.activeSettings 恢复运行模式；start 只在自定义时携带保存值，并在 loading／open／saving 时拦截自定义开始，open／saving 时拦截所有开始。
 
-- [ ] **1. 写失败测试**：`cancel_does_not_save`、`failed_save_keeps_draft`、`late_settings_do_not_override_active_batch`、`legacy_modes_do_not_wait_for_custom_loading`；队列版本 8 的 activeSettings 不被版本 2 回包替换，custom 原生拒绝时不改用户保存值。
+- [x] **1. 写失败测试**：`cancel_does_not_save`、`failed_save_keeps_draft`、`late_settings_do_not_override_active_batch`、`legacy_modes_do_not_wait_for_custom_loading`；队列版本 8 的 activeSettings 不被版本 2 回包替换，custom 原生拒绝时不改用户保存值。
 
 ```ts
 expect(api.saveCustomSettings).not.toHaveBeenCalled(); // 修改草稿再取消
@@ -201,10 +201,10 @@ expect(api.startBatch).not.toHaveBeenCalled(); // 草稿打开时重复开始
 ```
 
 测试 fakeApi 新增接口及 deferred reject 支持，断言挂载代次变化、保存双击、卸载后回包及订阅清理；不把测试用假 API 扩成产品抽象。
-- [ ] **2. 跑红**：`npm run test -- --run src/features/processing/useCustomSettings.test.tsx src/features/processing/useProcessing.test.tsx src/features/processing/queueState.test.ts`。
-- [ ] **3. 实现**：保存值与草稿分开，保存使用 ref 锁与 request generation，成功前不更新 status；初始读返回若落后于保存或运行快照则不能覆盖。mergeQueue 保持按结构版本选择 activeSettings，job 事件仍只更新对应 job；旧快照没有 activeSettings 时保留“批次设置已冻结”的未知模式回退，不拿记忆值猜测。setLevel 拒绝非整数／越界值，不静默改成合法档位；只用原生返回的推荐值，不在前端复制参数映射表。
-- [ ] **4. 跑绿**：上述测试、`npm run typecheck`、`npm run test -- --run`；原模式不因设置服务失败而不可用，已有乱序／重挂载回归通过。
-- [ ] **5. 提交**：消息 `feat: manage custom settings drafts and batch restoration (U6)`。
+- [x] **2. 跑红**：`npm run test -- --run src/features/processing/useCustomSettings.test.tsx src/features/processing/useProcessing.test.tsx src/features/processing/queueState.test.ts`。
+- [x] **3. 实现**：保存值与草稿分开，保存使用 ref 锁与 request generation，成功前不更新 status；初始读返回若落后于保存或运行快照则不能覆盖。mergeQueue 保持按结构版本选择 activeSettings，job 事件仍只更新对应 job；旧快照没有 activeSettings 时保留“批次设置已冻结”的未知模式回退，不拿记忆值猜测。setLevel 拒绝非整数／越界值，不静默改成合法档位；只用原生返回的推荐值，不在前端复制参数映射表。
+- [x] **4. 跑绿**：上述测试、`npm run typecheck`、`npm run test -- --run`；原模式不因设置服务失败而不可用，已有乱序／重挂载回归通过。
+- [x] **5. 提交**：消息 `feat: manage custom settings drafts and batch restoration (U6)`。
 
 ### Task 7: U7：设置弹窗与第三模式入口
 
