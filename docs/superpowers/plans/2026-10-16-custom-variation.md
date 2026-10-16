@@ -120,7 +120,7 @@ assert_eq!(SettingsStore::load(path).snapshot().settings, saved.settings);
 - Produces `Timeline::with_timing(source: &VideoInfo, policy: &TimingPolicy) -> Result<Self, AppError>`，原 new 不变；`expected_timeline(runner: &dyn MediaRunner, source: &MediaInfo, policy: &TimingPolicy, cancel: CancellationToken) -> Result<Option<VideoTimeline>, AppError>`。Preserve 取原摘要；变速流式读源帧，不能对源哈希做“缩放”。
 - Keeps `verify_specifications(plan, output)` 的原签名，作为 Preserve 兼容入口；UniformSpeed 调用该入口而未提供目标摘要时拒绝。新增 `verify_specifications_against(plan: &ProcessingPlan, output: &MediaInfo, expected: Option<&VideoTimeline>) -> Result<(), AppError>` 供完整校验和新测试使用；完整 validate_output 必须先取得真实目标摘要。
 
-- [ ] **1. 写失败测试**：`uniform_speed_projects_vfr_and_offsets`、`reject_unrepresentable_timing`、`wrong_middle_timestamp_fails`。源 `A/B=1/1000`、起点 5000 ticks、速度 103/100 时：
+- [x] **1. 写失败测试**：`uniform_speed_projects_vfr_and_offsets`、`reject_unrepresentable_timing`、`wrong_middle_timestamp_fails`。源 `A/B=1/1000`、起点 5000 ticks、速度 103/100 时：
 
 ```rust
 assert_eq!(target.video_time_base, Rational { num: 1, den: 103000 });
@@ -130,10 +130,10 @@ assert_eq!(project_video_pts(&source.video, &policy, 5080).unwrap(), 523000);
 ```
 
 同样测试 97/100、非单位时间基分子、负音频起点；只改变中间帧但帧数／总时长相同必须失败。`short_audio_tail_is_not_hidden_by_mux_tolerance` 在 policy 目标 48000 samples、输出有效时长仅 47000 samples 时必须失败，即使差值小于 50 ms。timescale 超 i32、零／负速度、checked 乘法溢出或表达式整数超过 `2^53-1` 在媒体运行前拒绝。源 identity、原摘要不被目标值覆盖。
-- [ ] **2. 跑红**：`cargo test --locked --manifest-path src-tauri/Cargo.toml --test custom_timing --test output_validation`；确认失败指向新投影／校验分支。
-- [ ] **3. 实现**：按规格 §6.2 的统一锚点和有理数公式；UniformSpeed 输出 TB 为 `1/(B×P)`，相对 ticks 为 `Δpts×A×Q`。让现有 read_timeline 在 crate 内接受转换后的 Timeline，保留取消、错误、末帧策略；验证前后继续核对输入身份。规格检查用目标时长／起点／平均帧率及逐帧摘要，保留严格 Preserve 分支；audio_target_samples 为 Some 时，按输出有效轨道时长／尾部裁剪信息还原 48 kHz 有效采样数，误差至多一个采样，不能靠封装的 50 ms 容差通过；无可靠有效时长就失败。
-- [ ] **4. 跑绿**：上述测试及 `cargo test --locked --manifest-path src-tauri/Cargo.toml --test input_probe --test basic_plan --test job_lifecycle`；不得通过跳过目标摘要或扩大现有容差转绿。
-- [ ] **5. 提交**：消息 `feat: validate uniform-speed media timelines exactly (U3)`。
+- [x] **2. 跑红**：`cargo test --locked --manifest-path src-tauri/Cargo.toml --test custom_timing --test output_validation`；确认失败指向新投影／校验分支。
+- [x] **3. 实现**：按规格 §6.2 的统一锚点和有理数公式；UniformSpeed 输出 TB 为 `1/(B×P)`，相对 ticks 为 `Δpts×A×Q`。让现有 read_timeline 在 crate 内接受转换后的 Timeline，保留取消、错误、末帧策略；验证前后继续核对输入身份。规格检查用目标时长／起点／平均帧率及逐帧摘要，保留严格 Preserve 分支；audio_target_samples 为 Some 时，按输出有效轨道时长／尾部裁剪信息还原 48 kHz 有效采样数，误差至多一个采样，不能靠封装的 50 ms 容差通过；无可靠有效时长就失败。
+- [x] **4. 跑绿**：上述测试及 `cargo test --locked --manifest-path src-tauri/Cargo.toml --test input_probe --test basic_plan --test job_lifecycle`；不得通过跳过目标摘要或扩大现有容差转绿。
+- [x] **5. 提交**：消息 `feat: validate uniform-speed media timelines exactly (U3)`。
 
 ### Task 4: U4：冻结效果映射与自定义处理计划
 

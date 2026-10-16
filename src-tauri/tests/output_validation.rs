@@ -130,6 +130,9 @@ fn changed_frame_timestamps_fail_even_when_count_and_duration_match() {
         verify_specifications(&plan, &output).unwrap_err().code,
         ErrorCode::ValidationFailed
     );
+    assert!(
+        video_editor::media::validate::verify_specifications_against(&plan, &output, None).is_err()
+    );
 }
 async fn validate_fixture(name: &str) -> Result<ValidationResult, AppError> {
     let d = tempfile::tempdir().unwrap();
@@ -284,4 +287,81 @@ fn full_range_decoder_alias_is_validated_as_8_bit_420() {
         verify_specifications(&p, &output).unwrap_err().code,
         ErrorCode::ValidationFailed
     );
+}
+
+#[test]
+fn short_audio_tail_is_not_hidden_by_mux_tolerance() {
+    let mut source = media();
+    let audio = source.audio.as_mut().unwrap();
+    audio.sample_rate = 48000;
+    audio.time_base = Rational { num: 1, den: 48000 };
+    audio.duration_ticks = 48000;
+    let mut plan = build_plan(
+        &source,
+        &request("/input.mp4", "/output"),
+        workspace(std::path::Path::new("/output")),
+        "audio-tail",
+    )
+    .unwrap();
+    plan.policy.audio_target_samples = Some(48000);
+    let mut output = source.clone();
+    output.audio.as_mut().unwrap().duration_ticks = 47000;
+    assert_eq!(
+        verify_specifications(&plan, &output).unwrap_err().code,
+        ErrorCode::ValidationFailed
+    );
+    output.audio.as_mut().unwrap().duration_ticks = 47999;
+    assert!(verify_specifications(&plan, &output).is_ok());
+}
+
+#[test]
+fn wrong_middle_timestamp_fails() {
+    use video_editor::media::{
+        timeline::Timeline, timing::target_timing, validate::verify_specifications_against,
+    };
+    let mut source = media();
+    source.audio = None;
+    source.video.time_base = Rational { num: 1, den: 1000 };
+    source.video.start_pts = 5000;
+    source.video.duration_ticks = 120;
+    source.video.frame_count = 3;
+    source.video.frame_rate = Rational { num: 25, den: 1 };
+    let mut plan = build_plan(
+        &source,
+        &request("/input.mp4", "/output"),
+        workspace(std::path::Path::new("/output")),
+        "speed",
+    )
+    .unwrap();
+    plan.timing = TimingPolicy::UniformSpeed {
+        speed: Rational { num: 103, den: 100 },
+    };
+    let target = target_timing(&source, &plan.timing).unwrap();
+    plan.policy.video_duration_seconds = 0.12 / 1.03;
+    plan.policy.frame_rate = target.frame_rate;
+    let mut output = source.clone();
+    output.video.time_base = target.video_time_base;
+    output.video.start_pts = target.video_start_pts;
+    output.video.duration_ticks = target.video_duration_ticks;
+    output.video.frame_rate = target.frame_rate;
+    let mut expected = Timeline::with_timing(&source.video, &plan.timing).unwrap();
+    for (pts, duration) in [(5000, 33), (5033, 47), (5080, 40)] {
+        expected
+            .push(&format!("pts={pts}|duration={duration}"))
+            .unwrap();
+    }
+    let expected = expected.finish().unwrap().timeline;
+    let mut wrong = Timeline::new(target.video_time_base, Some(527000));
+    for (pts, duration) in [(515000, 3400), (518400, 4600), (523000, 4000)] {
+        wrong
+            .push(&format!("pts={pts}|duration={duration}"))
+            .unwrap();
+    }
+    output.video.timeline = Some(wrong.finish().unwrap().timeline);
+    assert!(verify_specifications_against(&plan, &output, Some(&expected)).is_err());
+    output.video.timeline = Some(expected.clone());
+    assert!(verify_specifications_against(&plan, &output, Some(&expected)).is_ok());
+    assert!(verify_specifications(&plan, &output).is_err());
+    output.video.frame_rate = Rational { num: 25, den: 1 };
+    assert!(verify_specifications_against(&plan, &output, Some(&expected)).is_err());
 }

@@ -41,7 +41,11 @@ pub async fn validate_output(
     if output.identity.size_bytes == 0 {
         return Err(failed("输出为空"));
     }
-    verify_specifications(plan, &output)?;
+    let expected =
+        super::timing::expected_timeline(runner, &plan.source, &plan.timing, cancel.clone())
+            .await
+            .map_err(as_validation)?;
+    verify_specifications_against(plan, &output, expected.as_ref())?;
     let args = ["-v", "error", "-xerror", "-i"]
         .into_iter()
         .map(String::from)
@@ -128,6 +132,26 @@ async fn verify_input_identity(
     Ok(())
 }
 pub fn verify_specifications(plan: &ProcessingPlan, output: &MediaInfo) -> Result<(), AppError> {
+    if !matches!(plan.timing, TimingPolicy::Preserve) {
+        return Err(failed("变速校验缺少目标时间轴"));
+    }
+    verify_specifications_against(plan, output, plan.source.video.timeline.as_ref())
+}
+
+pub fn verify_specifications_against(
+    plan: &ProcessingPlan,
+    output: &MediaInfo,
+    expected: Option<&VideoTimeline>,
+) -> Result<(), AppError> {
+    let expected = if matches!(plan.timing, TimingPolicy::Preserve) {
+        plan.source.video.timeline.as_ref()
+    } else {
+        expected
+    };
+    if !matches!(plan.timing, TimingPolicy::Preserve) && expected.is_none() {
+        return Err(failed("变速校验缺少目标时间轴"));
+    }
+    let target = super::timing::target_timing(&plan.source, &plan.timing).map_err(as_validation)?;
     let p = &plan.policy;
     let v = &output.video;
     // Decoders report full-range H.264 using the deprecated yuvj420p alias.
@@ -141,12 +165,13 @@ pub fn verify_specifications(plan: &ProcessingPlan, output: &MediaInfo) -> Resul
         || !pixel_matches
         || v.width != p.width
         || v.height != p.height
-        || (plan.source.video.timeline.is_none() && v.frame_rate != p.frame_rate)
+        || ((expected.is_none() || !matches!(plan.timing, TimingPolicy::Preserve))
+            && v.frame_rate != target.frame_rate)
         || v.frame_count != p.frame_count
     {
         return Err(failed("视频规格或帧数与处理计划不一致"));
     }
-    if let Some(source) = &plan.source.video.timeline {
+    if let Some(source) = expected {
         if v.timeline
             .as_ref()
             .is_none_or(|current| current.timestamp_sha256 != source.timestamp_sha256)
@@ -155,14 +180,14 @@ pub fn verify_specifications(plan: &ProcessingPlan, output: &MediaInfo) -> Resul
         }
     }
     if exceeds(
-        seconds(v.duration_ticks, v.time_base) - p.video_duration_seconds,
+        seconds(v.duration_ticks, v.time_base)
+            - seconds(target.video_duration_ticks, target.video_time_base),
         p.video_tolerance_seconds,
     ) {
         return Err(failed("视频时长超过允许偏差"));
     }
     if exceeds(
-        seconds(v.start_pts, v.time_base)
-            - seconds(plan.source.video.start_pts, plan.source.video.time_base),
+        seconds(v.start_pts, v.time_base) - seconds(target.video_start_pts, target.video_time_base),
         p.video_tolerance_seconds,
     ) {
         return Err(failed("视频起点发生变化"));
@@ -184,12 +209,15 @@ pub fn verify_specifications(plan: &ProcessingPlan, output: &MediaInfo) -> Resul
         &plan.source.audio,
     ) {
         (None, None, None, None) => {}
-        (Some(a), Some(channels), Some(duration), Some(source)) => {
+        (Some(a), Some(channels), Some(_duration), Some(source)) => {
             if a.codec != "aac"
                 || a.sample_rate != 48000
                 || a.channels != channels
                 || exceeds(
-                    seconds(a.duration_ticks, a.time_base) - duration,
+                    seconds(a.duration_ticks, a.time_base)
+                        - target
+                            .audio_duration_seconds
+                            .ok_or_else(|| failed("目标音频时长缺失"))?,
                     p.audio_tolerance_seconds,
                 )
             {
@@ -198,8 +226,19 @@ pub fn verify_specifications(plan: &ProcessingPlan, output: &MediaInfo) -> Resul
             if source.channel_layout.is_some() && source.channel_layout != a.channel_layout {
                 return Err(failed("音频声道布局发生变化"));
             }
-            let expected = seconds(source.start_pts, source.time_base)
-                - seconds(plan.source.video.start_pts, plan.source.video.time_base);
+            if let Some(samples) = p.audio_target_samples {
+                if a.duration_ticks <= 0 || a.time_base.num <= 0 || a.time_base.den == 0 {
+                    return Err(failed("音频有效采样数无法确认"));
+                }
+                let actual = seconds(a.duration_ticks, a.time_base) * 48000.0;
+                if !actual.is_finite() || (actual - samples as f64).abs() > 1.0 + 1e-8 {
+                    return Err(failed("音频有效采样数与目标不一致"));
+                }
+            }
+            let expected = target
+                .audio_start_seconds
+                .ok_or_else(|| failed("目标音频起点缺失"))?
+                - seconds(target.video_start_pts, target.video_time_base);
             let actual = seconds(a.start_pts, a.time_base) - seconds(v.start_pts, v.time_base);
             if exceeds(actual - expected, p.audio_tolerance_seconds) {
                 return Err(failed("音视频相对起点发生变化"));

@@ -179,7 +179,7 @@ pub async fn probe_input(
     Ok(info)
 }
 
-async fn read_timeline(
+pub(crate) async fn read_timeline(
     runner: &dyn MediaRunner,
     path: &str,
     stream_index: u32,

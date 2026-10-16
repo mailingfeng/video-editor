@@ -1,8 +1,9 @@
-use crate::contracts::{AppError, ErrorCode, Rational, VideoTimeline};
+use crate::contracts::{AppError, ErrorCode, Rational, TimingPolicy, VideoInfo, VideoTimeline};
 use sha2::{Digest, Sha256};
 
 pub struct Timeline {
     base: Rational,
+    transform: Option<(VideoInfo, TimingPolicy)>,
     stream_end: Option<i64>,
     first: Option<i64>,
     last: i64,
@@ -25,6 +26,7 @@ impl Timeline {
     pub fn new(base: Rational, stream_end: Option<i64>) -> Self {
         Self {
             base,
+            transform: None,
             stream_end,
             first: None,
             last: 0,
@@ -34,6 +36,18 @@ impl Timeline {
             count: 0,
             timestamps: Sha256::new(),
         }
+    }
+
+    pub fn with_timing(source: &VideoInfo, policy: &TimingPolicy) -> Result<Self, AppError> {
+        let (base, start, duration, _) = super::timing::video_target(source, policy)?;
+        let end = start
+            .checked_add(duration)
+            .ok_or_else(super::timing::timing_error)?;
+        let mut timeline = Self::new(base, Some(end));
+        if !matches!(policy, TimingPolicy::Preserve) {
+            timeline.transform = Some((source.clone(), policy.clone()));
+        }
+        Ok(timeline)
     }
 
     pub fn push(&mut self, line: &str) -> Result<(), AppError> {
@@ -63,6 +77,16 @@ impl Timeline {
                     .and_then(|s| s.parse::<i64>().ok())
                     .filter(|d| *d > 0)
             });
+        let (pts, duration) = if let Some((source, policy)) = &self.transform {
+            (
+                super::timing::project_video_pts(source, policy, pts)?,
+                duration
+                    .map(|d| super::timing::project_video_duration(source, policy, d))
+                    .transpose()?,
+            )
+        } else {
+            (pts, duration)
+        };
         let first = *self.first.get_or_insert(pts);
         if self.count > 0 {
             let interval = pts
