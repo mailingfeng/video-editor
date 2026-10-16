@@ -406,9 +406,9 @@ fn combined_processing_freezes_video_audio_and_encoding_without_changing_media_p
 }
 
 #[test]
-fn desktop_options_offer_only_content_and_light_variation() {
+fn desktop_options_offer_content_light_and_custom_variation() {
     let presets = video_editor::presets::list_presets();
-    assert_eq!(presets.len(), 2);
+    assert_eq!(presets.len(), 3);
     assert_eq!(
         (&*presets[0].preset_id, &*presets[0].title),
         ("content-variation-v1", "内容变化")
@@ -417,10 +417,21 @@ fn desktop_options_offer_only_content_and_light_variation() {
         (&*presets[1].preset_id, &*presets[1].title),
         ("repeat-combined-v2", "轻微变化")
     );
+    assert_eq!(
+        (
+            &*presets[2].preset_id,
+            presets[2].version,
+            &*presets[2].title
+        ),
+        ("custom-variation-v1", 1, "自定义变化")
+    );
     for preset in presets {
         let m = media();
         let mut r = request(&m.identity.canonical_path, "/output");
         r.preset_id = preset.preset_id;
+        if r.preset_id == "custom-variation-v1" {
+            r.custom_settings = Some(CustomVariationSettings::recommended());
+        }
         let p = build_plan(&m, &r, workspace(std::path::Path::new("/output")), "test").unwrap();
         assert_eq!(p.version, preset.version);
     }

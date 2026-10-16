@@ -3,6 +3,7 @@ import type { DesktopApi } from '../../api/desktop';
 import type { JobState, QueueItem } from '../../api/contracts';
 import { useProcessing } from './useProcessing';
 import { FileDetailsDialog } from './FileDetailsDialog';
+import {CustomSettingsDialog} from './CustomSettingsDialog';
 import './processing.css';
 
 const labels: Record<JobState, string> = {probing:'检查视频', preparing:'准备任务', running:'处理中', validating:'校验结果', committing:'保存结果', succeeded:'处理完成', failed:'处理失败', canceling:'正在取消', canceled:'已取消'};
@@ -18,12 +19,14 @@ export function ProcessingView({api}: {api: DesktopApi}) {
   const needsOutput = !p.outputDirectory;
   const startHint = p.licenseHint ?? (needsOutput ? '请先选择保存位置，再开始处理视频。' : null);
   const startHintVisible = Boolean(startHint) && showStartHint;
-  const startDisabled = !p.licenseAllowed || p.busy || p.importing || !p.queue.items.some(item => item.state === 'waiting') || needsOutput || p.presets.length === 0;
+  const customMode=p.preset?.presetId==='custom-variation-v1';
+  const customUnavailable=customMode&&(p.custom.loading||!p.custom.status);
+  const startDisabled = p.custom.open || p.custom.saving || customUnavailable || !p.licenseAllowed || p.busy || p.importing || !p.queue.items.some(item => item.state === 'waiting') || needsOutput || p.presets.length === 0;
   const [details, setDetails] = useState<{itemId:string;kind:'media'|'logs'}|null>(null);
   const detailsItem = p.queue.items.find(item => item.itemId === details?.itemId);
   const snap = p.snapshot;
-  // Restored batches do not expose their original preset; avoid guessing it.
-  const restoredBatch = p.queue.running && !p.outputDirectory;
+  // Older snapshots may not identify the frozen selection.
+  const restoredBatch = p.queue.running && !p.preset;
   const presetLabel = restoredBatch ? '批次设置已冻结' : p.preset ? p.preset.title : '加载处理预设';
   const previousResult = p.previousResult;
   const percent = (item:QueueItem) => item.snapshot?.progress == null ? null : item.snapshot.state === 'succeeded' ? 100 : Math.min(99, Math.floor(item.snapshot.progress * 100));
@@ -70,11 +73,18 @@ export function ProcessingView({api}: {api: DesktopApi}) {
           </section>
           <section className="panel settings"><div className="panel-head"><h2>处理设置</h2>{(p.preset || restoredBatch) && <span className="badge">{presetLabel}</span>}</div><div className="panel-body">
             <label className="field"><span>处理预设</span><select value={restoredBatch ? '' : p.preset?.presetId ?? ''} disabled={!api.available || p.busy || p.importing || p.presets.length < 2} aria-label="处理预设" onChange={event => p.selectPreset(event.target.value)}>{restoredBatch && <option value="">本批设置已固定</option>}{p.presets.map(preset => <option key={preset.presetId} value={preset.presetId}>{preset.title}</option>)}</select></label>
+            {customMode&&<>
+              <div className="custom-settings-summary"><span className="small muted">{p.busy?'本批设置已固定':p.custom.status?.source==='saved'?'已保存设置':'推荐设置'}</span><button className="btn" disabled={!api.available||p.busy||p.importing||p.custom.loading||p.custom.saving||!p.custom.status} onClick={p.custom.openDialog}>设置</button></div>
+              {p.custom.loading&&<p className="helper custom-settings-status" role="status">正在加载自定义设置…</p>}
+              {p.custom.status?.notice&&<p className="notice warning custom-settings-status" role="status">{p.custom.status.notice}</p>}
+              {p.custom.error&&!p.custom.open&&<p className="notice error custom-settings-status" role="alert">{p.custom.error}</p>}
+            </>}
             <p className="helper">本批视频共用所选设置。处理完成后自动保存为新文件，不覆盖已有文件。</p>
           </div></section>
         </div>
       </div> : <section className="panel"><div className="panel-head"><div><h2>任务记录</h2><small>{snap ? `任务 ${snap.jobId}` : '尚无任务记录'}</small></div><button className="btn" disabled={!snap || p.logLoading} onClick={() => void p.refreshLog()}>刷新日志</button></div>{previousResult && <div className="notice">上次结果</div>}<div className="report-summary"><div><span>状态</span><strong>{snap ? labels[snap.state] : p.selectedItem?.state === 'canceled' ? '已取消' : '等待开始'}</strong></div><div><span>结果路径</span><strong>{snap?.outputPath ?? '—'}</strong></div></div>{p.logError && <div className="notice error" role="alert">{p.logError}</div>}<pre className="log-body" aria-busy={p.logLoading}>{p.log?.text || (p.logLoading ? '正在读取日志…' : '开始处理后，此处显示各阶段进度、记录时间与结果提示。')}</pre>{p.log?.truncated && <p className="helper log-footer">仅显示最近 64 KiB 日志。</p>}</section>}
     </main>
+    {p.custom.open&&p.custom.draft&&p.custom.status&&<CustomSettingsDialog draft={p.custom.draft} recommended={p.custom.status.recommended} busy={p.busy} saving={p.custom.saving} error={p.custom.error} onLevelChange={p.custom.setLevel} onRestore={p.custom.restoreRecommended} onCancel={p.custom.cancel} onSave={p.custom.save}/>}
     {details && detailsItem && <FileDetailsDialog key={`${details.itemId}-${details.kind}`} kind={details.kind} item={detailsItem} status={status(detailsItem)} log={p.log} logLoading={p.logLoading} logError={p.logError} onClose={() => setDetails(null)} onRefresh={() => void p.refreshLog()}/>}
   </div>;
 }

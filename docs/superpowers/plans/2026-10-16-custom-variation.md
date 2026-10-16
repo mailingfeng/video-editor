@@ -212,7 +212,7 @@ expect(api.startBatch).not.toHaveBeenCalled(); // 草稿打开时重复开始
 
 **Interfaces:** `CustomSettingsDialog({draft, recommended, busy, saving, error, onLevelChange, onRestore, onCancel, onSave})`：draft/recommended 为 U1 CustomVariationSettings，busy/saving 为 boolean，error 为 string|null，onLevelChange 为 `(key: CustomLevelKey, value: number) => void`，onRestore/onCancel 为 `() => void`，onSave 为 `() => Promise<boolean>`。回调绑定 U6，不直接 invoke；开启／关闭由父组件挂载和原生 dialog 生命周期处理。
 
-- [ ] **1. 写失败测试**：`only_custom_exposes_settings`、`all_fourteen_levels_are_accessible`、`dependencies_preserve_hidden_values`、`external_start_locks_draft`。默认仍 content-variation-v1；只有自定义有设置入口；14 个整数滑杆名称明确；前景 0 禁用背景／位移但重新开启恢复旧值；保存中不能关闭，外部开始后能取消但不能改／存；恢复推荐不立即写盘。
+- [x] **1. 写失败测试**：`only_custom_exposes_settings`、`all_fourteen_levels_are_accessible`、`dependencies_preserve_hidden_values`、`external_start_locks_draft`。默认仍 content-variation-v1；只有自定义有设置入口；14 个整数滑杆名称明确；前景 0 禁用背景／位移但重新开启恢复旧值；保存中不能关闭，外部开始后能取消但不能改／存；恢复推荐不立即写盘。
 
 ```ts
 expect(screen.getByRole('slider', {name:'前景缩放'})).toHaveValue('2');
@@ -222,10 +222,10 @@ expect(screen.getAllByRole('slider')).toHaveLength(14);
 ```
 
 复用当前 jsdom dialog shim，仅以其测试行为；焦点限制和返回须真浏览器验证。非法 API 错误不直接作为任意 HTML／原始工具消息显示。
-- [ ] **2. 跑红**：`npm run test -- --run src/features/processing/CustomSettingsDialog.test.tsx src/features/processing/ProcessingView.test.tsx`。
-- [ ] **3. 实现**：五组固定顺序、最大宽 880px、可滚动内容及可见操作区；每项仅档位、推荐标记和简短说明，裁切提示可能影响边缘字幕。不显示实际倍速／频率／比例。接入 loading、recovered、保存失败及运行中提示。
-- [ ] **4. 启用入口并跑绿**：list_presets 在原两项后加 custom-variation-v1 / 1 / 自定义变化；更新“仅两模式”旧断言为三模式但保持原两项身份与默认规则。运行上述测试、`npm run typecheck`、`npm run build`、`cargo test --locked --manifest-path src-tauri/Cargo.toml --test basic_plan`。
-- [ ] **5. 提交**：消息 `feat: expose custom variation intensity settings (U7)`。
+- [x] **2. 跑红**：`npm run test -- --run src/features/processing/CustomSettingsDialog.test.tsx src/features/processing/ProcessingView.test.tsx`。
+- [x] **3. 实现**：五组固定顺序、最大宽 880px、可滚动内容及可见操作区；每项仅档位、推荐标记和简短说明，裁切提示可能影响边缘字幕。不显示实际倍速／频率／比例。接入 loading、recovered、保存失败及运行中提示。
+- [x] **4. 启用入口并跑绿**：list_presets 在原两项后加 custom-variation-v1 / 1 / 自定义变化；更新“仅两模式”旧断言为三模式但保持原两项身份与默认规则。运行上述测试、`npm run typecheck`、`npm run build`、`cargo test --locked --manifest-path src-tauri/Cargo.toml --test basic_plan`。
+- [x] **5. 提交**：消息 `feat: expose custom variation intensity settings (U7)`。
 
 ### Task 8: U8：真实媒体、原生门禁与知识交付
 

@@ -15,6 +15,12 @@ pub fn list_presets() -> Vec<PresetSummary> {
             title: "轻微变化".into(),
             evidence_status: String::new(),
         },
+        PresetSummary {
+            preset_id: custom::ID.into(),
+            version: 1,
+            title: "自定义变化".into(),
+            evidence_status: String::new(),
+        },
     ]
 }
 pub fn build_plan(

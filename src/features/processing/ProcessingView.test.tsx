@@ -236,3 +236,14 @@ describe('batch desktop interface',()=>{
     expect(within(dialog).getByText('仅显示最近 64 KiB 日志。')).toBeVisible();
   });
 });
+
+it('only_custom_exposes_settings',async()=>{
+ const {api}=fakeApi([waiting()]);vi.mocked(api.listPresets).mockResolvedValue([{presetId:'content-variation-v1',version:1,title:'内容变化',evidenceStatus:''},{presetId:'repeat-combined-v2',version:2,title:'轻微变化',evidenceStatus:''},{presetId:'custom-variation-v1',version:1,title:'自定义变化',evidenceStatus:''}]);
+ vi.mocked(api.saveCustomSettings).mockImplementation(async settings=>({settings,recommended:{...fixture,schemaVersion:1},source:'saved',notice:null}));
+ const user=await ready(api);expect(screen.getByRole('combobox',{name:'处理预设'})).toHaveValue('content-variation-v1');expect(screen.queryByRole('button',{name:'设置'})).not.toBeInTheDocument();
+ await user.selectOptions(screen.getByRole('combobox',{name:'处理预设'}),'custom-variation-v1');await user.click(screen.getByRole('button',{name:'设置'}));
+ expect(screen.getAllByRole('slider')).toHaveLength(14);expect(screen.getByRole('button',{name:'开始处理'})).toBeDisabled();
+ fireEvent.change(screen.getByRole('slider',{name:'前景缩放'}),{target:{value:'9'}});await user.click(screen.getByRole('button',{name:'恢复推荐'}));
+ expect(screen.getByRole('slider',{name:'前景缩放'})).toHaveValue('2');expect(api.saveCustomSettings).not.toHaveBeenCalled();
+ await user.click(screen.getByRole('button',{name:'保存设置'}));await waitFor(()=>expect(screen.queryByRole('dialog')).not.toBeInTheDocument());expect(api.saveCustomSettings).toHaveBeenCalledOnce();
+});
