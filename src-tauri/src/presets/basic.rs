@@ -1,5 +1,5 @@
 use super::opaque::hidden;
-use super::{combined, content, repeat, sample};
+use super::{combined, content, custom, repeat, sample};
 use crate::{contracts::*, media::probe::validate_input};
 pub fn list_presets() -> Vec<PresetSummary> {
     vec![
@@ -23,8 +23,9 @@ pub fn build_plan(
     workspace: OutputWorkspace,
     job_id: &str,
 ) -> Result<ProcessingPlan, AppError> {
+    validate_custom_selection(&request.preset_id, request.custom_settings.as_ref())?;
     let (audio_filter, version) = match request.preset_id.as_str() {
-        "basic-transcode-v1" | repeat::ID | content::ID => (None, 1),
+        "basic-transcode-v1" | repeat::ID | content::ID | custom::ID => (None, 1),
         combined::ID => (None, 2),
         sample::ID => (Some(sample::audio_filter()), 1),
         sample::V2_ID => (Some(sample::v2_audio_filter()), 2),
@@ -40,10 +41,25 @@ pub fn build_plan(
     let combined =
         (request.preset_id == combined::ID).then(|| combined::Parameters::for_job(job_id));
     let content = (request.preset_id == content::ID).then(|| content::Parameters::for_job(job_id));
+    let custom = request
+        .custom_settings
+        .as_ref()
+        .map(|s| custom::FrozenCustomParameters::resolve(s, job_id))
+        .transpose()?;
+    let timing = custom
+        .as_ref()
+        .map_or(TimingPolicy::Preserve, |p| p.timing());
+    let target = crate::media::timing::target_timing(info, &timing)?;
+    let custom_encoding = custom
+        .as_ref()
+        .map(|p| p.encoding(info))
+        .transpose()?
+        .flatten();
     let encoding = combined
         .as_ref()
-        .map(|p| (p.crf, p.gop))
-        .or_else(|| content.as_ref().map(|p| (p.crf, p.gop)));
+        .map(|p| (p.crf, u32::from(p.gop)))
+        .or_else(|| content.as_ref().map(|p| (p.crf, u32::from(p.gop))))
+        .or_else(|| custom_encoding.as_ref().map(|p| (p.crf, p.gop)));
     let v = &info.video;
     if v.frame_count == 0 || v.duration_ticks <= 0 {
         return Err(AppError::new(
@@ -101,8 +117,21 @@ pub fn build_plan(
     pair("-sc_threshold", "0".into());
     pair("-bf", "0".into());
     pair("-fps_mode:v", "passthrough".into());
-    pair("-enc_time_base:v", "demux".into());
-    pair("-video_track_timescale", v.time_base.den.to_string());
+    pair(
+        "-enc_time_base:v",
+        if matches!(timing, TimingPolicy::Preserve) {
+            "demux".into()
+        } else {
+            format!(
+                "{}/{}",
+                target.video_time_base.num, target.video_time_base.den
+            )
+        },
+    );
+    pair(
+        "-video_track_timescale",
+        target.video_time_base.den.to_string(),
+    );
     pair("-avoid_negative_ts", "disabled".into());
     if let Some((crf, _)) = encoding {
         pair("-crf", crf.to_string());
@@ -125,6 +154,10 @@ pub fn build_plan(
         pair("-vf", parameters.video_filter(v.width, v.height));
     } else if let Some(parameters) = &content {
         pair("-vf", parameters.video_filter(v.width, v.height));
+    } else if let Some(parameters) = &custom {
+        if let Some(filter) = parameters.video_filter(v)? {
+            pair("-vf", filter);
+        }
     } else if sample_matching {
         pair("-vf", sample::video_filter());
     } else if request.preset_id == repeat::ID {
@@ -177,6 +210,10 @@ pub fn build_plan(
             pair("-af", parameters.audio_filter());
         } else if let Some(parameters) = &content {
             pair("-af", parameters.audio_filter(a));
+        } else if let Some(parameters) = &custom {
+            if let Some(filter) = parameters.audio_filter(a, v)? {
+                pair("-af", filter);
+            }
         } else if let Some(filter) = audio_filter {
             // Without an explicit resample, low-rate AAC can silently bypass
             // the 5500 Hz lowpass; automatic conversion depends on sample format.
@@ -212,25 +249,26 @@ pub fn build_plan(
         args.push("-an".into());
     }
     args.push(workspace.temp_path.clone());
-    let frame_seconds = v.frame_rate.den as f64 / v.frame_rate.num as f64;
-    let video_duration = v.duration_ticks as f64 * v.time_base.num as f64 / v.time_base.den as f64;
+    let frame_seconds = target.frame_rate.den as f64 / target.frame_rate.num as f64;
+    let video_duration = target.video_duration_ticks as f64 * target.video_time_base.num as f64
+        / target.video_time_base.den as f64;
     let policy = ValidationPolicy {
-        audio_target_samples: None,
+        audio_target_samples: custom
+            .as_ref()
+            .filter(|p| p.has_audio_effects() || !matches!(timing, TimingPolicy::Preserve))
+            .and(target.audio_samples_48k),
         width: v.width,
         height: v.height,
-        frame_rate: v.frame_rate,
+        frame_rate: target.frame_rate,
         frame_count: v.frame_count,
         video_duration_seconds: video_duration,
-        audio_duration_seconds: info
-            .audio
-            .as_ref()
-            .map(|a| a.duration_ticks as f64 * a.time_base.num as f64 / a.time_base.den as f64),
+        audio_duration_seconds: target.audio_duration_seconds,
         channels: info.audio.as_ref().map(|a| a.channels),
         video_tolerance_seconds: frame_seconds,
         audio_tolerance_seconds: frame_seconds.max(0.05),
     };
     Ok(ProcessingPlan {
-        timing: crate::contracts::TimingPolicy::Preserve,
+        timing,
         job_id: job_id.into(),
         source: info.clone(),
         preset_id: request.preset_id.clone(),

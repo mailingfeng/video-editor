@@ -82,6 +82,17 @@ pub(crate) fn video_target(
     if timescale > i32::MAX as i128 {
         return Err(timing_error());
     }
+    let source_end = source
+        .start_pts
+        .checked_add(source.duration_ticks)
+        .ok_or_else(timing_error)?;
+    // settb rescales input PTS before setpts; its intermediate integers must
+    // also remain exactly representable by FFmpeg's expression evaluator.
+    exact(multiply(&[
+        source_end as i128,
+        source.time_base.num as i128,
+        p,
+    ])?)?;
     let start = project_video_pts(source, policy, source.start_pts)?;
     let duration = project_video_duration(source, policy, source.duration_ticks)?;
     exact(start as i128 + duration as i128)?;
@@ -147,7 +158,6 @@ pub(crate) fn project_video_duration(
 pub fn target_timing(source: &MediaInfo, policy: &TimingPolicy) -> Result<TargetTiming, AppError> {
     let (video_time_base, video_start_pts, video_duration_ticks, frame_rate) =
         video_target(&source.video, policy)?;
-    let (p, q) = speed_ratio(policy)?;
     let mut target = TargetTiming {
         video_time_base,
         video_start_pts,
@@ -158,30 +168,9 @@ pub fn target_timing(source: &MediaInfo, policy: &TimingPolicy) -> Result<Target
         audio_samples_48k: None,
     };
     if let Some(audio) = &source.audio {
-        if audio.time_base.num <= 0 || audio.time_base.den == 0 || audio.duration_ticks <= 0 {
-            return Err(timing_error());
-        }
-        let v0 = source.video.start_pts as f64 * source.video.time_base.num as f64
-            / source.video.time_base.den as f64;
-        let a0 = audio.start_pts as f64 * audio.time_base.num as f64 / audio.time_base.den as f64;
-        let start = v0 + (a0 - v0) * q as f64 / p as f64;
-        let numerator = multiply(&[
-            audio.duration_ticks as i128,
-            audio.time_base.num as i128,
-            q,
-            48000,
-        ])?;
-        let denominator = multiply(&[audio.time_base.den as i128, p])?;
-        let rounded = numerator
-            .checked_add(denominator / 2)
-            .ok_or_else(timing_error)?
-            / denominator;
-        let samples = u64::try_from(rounded).map_err(|_| timing_error())?;
-        if !start.is_finite() || samples == 0 || rounded > EXACT_INTEGER {
-            return Err(timing_error());
-        }
+        let (start, duration, samples) = audio_timing(audio, &source.video, policy)?;
         target.audio_start_seconds = Some(start);
-        target.audio_duration_seconds = Some(numerator as f64 / denominator as f64 / 48000.0);
+        target.audio_duration_seconds = Some(duration);
         target.audio_samples_48k = Some(samples);
     }
     Ok(target)
@@ -222,4 +211,38 @@ pub async fn expected_timeline(
         return Err(timing_error());
     }
     Ok(Some(report.timeline))
+}
+
+pub(crate) fn audio_timing(
+    audio: &AudioInfo,
+    video: &VideoInfo,
+    policy: &TimingPolicy,
+) -> Result<(f64, f64, u64), AppError> {
+    let (p, q) = speed_ratio(policy)?;
+    if audio.time_base.num <= 0 || audio.time_base.den == 0 || audio.duration_ticks <= 0 {
+        return Err(timing_error());
+    }
+    let v0 = video.start_pts as f64 * video.time_base.num as f64 / video.time_base.den as f64;
+    let a0 = audio.start_pts as f64 * audio.time_base.num as f64 / audio.time_base.den as f64;
+    let start = v0 + (a0 - v0) * q as f64 / p as f64;
+    let numerator = multiply(&[
+        audio.duration_ticks as i128,
+        audio.time_base.num as i128,
+        q,
+        48000,
+    ])?;
+    let denominator = multiply(&[audio.time_base.den as i128, p])?;
+    let rounded = numerator
+        .checked_add(denominator / 2)
+        .ok_or_else(timing_error)?
+        / denominator;
+    let samples = u64::try_from(rounded).map_err(|_| timing_error())?;
+    if !start.is_finite() || samples == 0 || rounded > EXACT_INTEGER {
+        return Err(timing_error());
+    }
+    Ok((
+        start,
+        numerator as f64 / denominator as f64 / 48000.0,
+        samples,
+    ))
 }

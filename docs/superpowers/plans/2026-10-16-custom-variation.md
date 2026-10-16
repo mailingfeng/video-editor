@@ -141,7 +141,7 @@ assert_eq!(project_video_pts(&source.video, &policy, 5080).unwrap(), 523000);
 
 **Interfaces:** Consumes U1 设置和 U3 时间函数。Produces `custom::ID`、`FrozenCustomParameters::resolve(settings: &CustomVariationSettings, job_id: &str) -> Result<Self, AppError>`、`timing(&self) -> TimingPolicy`、`video_filter(&self, video: &VideoInfo) -> Result<Option<String>, AppError>`、`audio_filter(&self, audio: &AudioInfo, video: &VideoInfo) -> Result<Option<String>, AppError>`、`encoding(&self, source: &MediaInfo) -> Result<Option<CustomEncoding>, AppError>`。`CustomEncoding { crf: u8, gop: u32, audio_bit_rate: Option<u64> }`；参数结构不派生序列化，数值无法安全表示时返回错误，不饱和截断 GOP。
 
-- [ ] **1. 写失败测试**：`defaults_are_milder_than_content_layout`、`zero_has_no_extra_filters`、`each_level_is_finite_and_independent`、`small_geometry_stays_valid`、`speed_and_pitch_have_separate_time_controls`。逐项枚举 0..9，固定 jobId 的参数应可复现，改 hue 不改变 speed／pitch；推荐 2 档比例在偶数取整前为 0.92..0.944，模糊为参考的 0.4 倍。全 0 的 args／policy 除身份、元数据标识外对齐基础转码，timing=Preserve。
+- [x] **1. 写失败测试**：`defaults_are_milder_than_content_layout`、`zero_has_no_extra_filters`、`each_level_is_finite_and_independent`、`small_geometry_stays_valid`、`speed_and_pitch_have_separate_time_controls`。逐项枚举 0..9，固定 jobId 的参数应可复现，改 hue 不改变 speed／pitch；推荐 2 档比例在偶数取整前为 0.92..0.944，模糊为参考的 0.4 倍。全 0 的 args／policy 除身份、元数据标识外对齐基础转码，timing=Preserve。
 
 ```rust
 let mut settings = CustomVariationSettings::recommended();
@@ -154,11 +154,11 @@ assert_eq!(a, FrozenCustomParameters::resolve(&settings, "fixed-job").unwrap());
 ```
 
 数值测试放于 custom 模块私有测试可检查几何／sigma，不为测试向 IPC 暴露参数。添加 2×2、2×128、128×2、竖屏、SAR 处理及全 9；前景 0 不生成背景／位移，但保存档位不被改成 0。音频测试覆盖逐声道映射、speed/pitch 独立及未启用音频效果时无残留 limiter。
-- [ ] **2. 跑红**：`cargo test --locked --manifest-path src-tauri/Cargo.toml --test custom_plan`；预期 custom 模块／新 preset 尚不可用。模块内几何／映射断言另外用 `cargo test --locked --manifest-path src-tauri/Cargo.toml --lib presets::custom` 运行，不能遗漏私有单元测试。
-- [ ] **3. 实现独立映射**：用 SHA256(`custom-variation-v1:jobId:effect-key`) 的独立流，落实规格 §3.1 全部公式、§3.2 抽样及固定效果顺序。video/audio 只构建本领域模板；模板通过 opaque hidden/render 编码。颜色／噪声／柔化作用主画面，裁切只发生于明确启用的 cropScale。裁切尺寸与位置按 4:2:0 对齐；裁切为 Cw×Ch 再缩放回 W×H 后，用 `setsar=sar*W*Ch/(H*Cw)` 恢复原 SAR，不把非方形像素强制变成 1:1。
-- [ ] **4. 接入计划并验证尾部**：build_plan 校验模式／档位、生成一次 frozen 参数，将 timing 及目标策略写内存计划。UniformSpeed 使用目标编码器 TB／轨道 timescale，不能继续指定 demux TB；变调补偿和速度合并到逐声道处理，目标采样数来自 U3。自定义启用音频效果或 speed 非零时设置 policy.audio_target_samples，纯基础转码和旧预设保持 None。末端只允许有界 `apad=pad_len=1024` 后按目标采样数裁齐，不能用 `whole_len` 隐藏任意长度缺口；仍达不到目标时由独立采样数检查失败。最终解码声音及尾部标记由 U8 验证，不能仅断言滤镜含有 apad。
-- [ ] **5. 跑绿并核对旧方案**：custom_plan、`cargo test --locked --manifest-path src-tauri/Cargo.toml --lib presets::custom`、`cargo test --locked --manifest-path src-tauri/Cargo.toml --test basic_plan --test output_validation --test user_reports`；各选中目标应确实运行测试，原六预设 characterization 摘要不变。全 9 计划不能包含非法尺寸、NaN 或不受限参数。
-- [ ] **6. 提交**：消息 `feat: build controlled custom video and audio variation (U4)`。
+- [x] **2. 跑红**：`cargo test --locked --manifest-path src-tauri/Cargo.toml --test custom_plan`；预期 custom 模块／新 preset 尚不可用。模块内几何／映射断言另外用 `cargo test --locked --manifest-path src-tauri/Cargo.toml --lib presets::custom` 运行，不能遗漏私有单元测试。
+- [x] **3. 实现独立映射**：用 SHA256(`custom-variation-v1:jobId:effect-key`) 的独立流，落实规格 §3.1 全部公式、§3.2 抽样及固定效果顺序。video/audio 只构建本领域模板；模板通过 opaque hidden/render 编码。颜色／噪声／柔化作用主画面，裁切只发生于明确启用的 cropScale。裁切尺寸与位置按 4:2:0 对齐；裁切为 Cw×Ch 再缩放回 W×H 后，用 `setsar=sar*W*Ch/(H*Cw)` 恢复原 SAR，不把非方形像素强制变成 1:1。
+- [x] **4. 接入计划并验证尾部**：build_plan 校验模式／档位、生成一次 frozen 参数，将 timing 及目标策略写内存计划。UniformSpeed 使用目标编码器 TB／轨道 timescale，不能继续指定 demux TB；变调补偿和速度合并到逐声道处理，目标采样数来自 U3。自定义启用音频效果或 speed 非零时设置 policy.audio_target_samples，纯基础转码和旧预设保持 None。末端只允许有界 `apad=pad_len=1024` 后按目标采样数裁齐，不能用 `whole_len` 隐藏任意长度缺口；仍达不到目标时由独立采样数检查失败。最终解码声音及尾部标记由 U8 验证，不能仅断言滤镜含有 apad。
+- [x] **5. 跑绿并核对旧方案**：custom_plan、`cargo test --locked --manifest-path src-tauri/Cargo.toml --lib presets::custom`、`cargo test --locked --manifest-path src-tauri/Cargo.toml --test basic_plan --test output_validation --test user_reports`；各选中目标应确实运行测试，原六预设 characterization 摘要不变。全 9 计划不能包含非法尺寸、NaN 或不受限参数。
+- [x] **6. 提交**：消息 `feat: build controlled custom video and audio variation (U4)`。
 
 ### Task 5: U5：设置命令与原生批次冻结
 
