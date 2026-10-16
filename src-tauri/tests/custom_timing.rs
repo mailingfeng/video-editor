@@ -118,6 +118,9 @@ fn reject_unrepresentable_timing() {
     intermediate.video.start_pts = 0;
     intermediate.video.duration_ticks = 88_000_000_000_000;
     assert!(target_timing(&intermediate, &policy).is_err());
+    let mut audio_extreme = source();
+    audio_extreme.audio.as_mut().unwrap().start_pts = i64::MAX;
+    assert!(target_timing(&audio_extreme, &policy).is_err());
     let mut large = source();
     large.video.time_base.num = i64::MAX;
     assert!(target_timing(&large, &policy).is_err());

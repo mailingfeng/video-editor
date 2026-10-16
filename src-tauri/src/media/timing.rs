@@ -237,7 +237,13 @@ pub(crate) fn audio_timing(
         .ok_or_else(timing_error)?
         / denominator;
     let samples = u64::try_from(rounded).map_err(|_| timing_error())?;
-    if !start.is_finite() || samples == 0 || rounded > EXACT_INTEGER {
+    if !start.is_finite()
+        || samples == 0
+        || rounded > EXACT_INTEGER
+        || (start * 48000.0).abs() > EXACT_INTEGER as f64
+        || (a0 * 48000.0).abs() > EXACT_INTEGER as f64
+        || (v0 * 48000.0).abs() > EXACT_INTEGER as f64
+    {
         return Err(timing_error());
     }
     Ok((
