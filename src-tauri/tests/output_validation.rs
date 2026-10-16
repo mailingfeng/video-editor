@@ -365,3 +365,27 @@ fn wrong_middle_timestamp_fails() {
     output.video.frame_rate = Rational { num: 25, den: 1 };
     assert!(verify_specifications_against(&plan, &output, Some(&expected)).is_err());
 }
+
+#[test]
+fn positive_audio_offset_accounts_for_exact_aac_encoder_priming() {
+    let mut source = media();
+    let audio = source.audio.as_mut().unwrap();
+    audio.sample_rate = 48000;
+    audio.time_base = Rational { num: 1, den: 48000 };
+    audio.start_pts = 4800;
+    audio.duration_ticks = 48000;
+    let mut plan = build_plan(
+        &source,
+        &request("/in.mp4", "/out"),
+        workspace(std::path::Path::new("/out")),
+        "priming",
+    )
+    .unwrap();
+    plan.policy.audio_target_samples = Some(48000);
+    let mut output = source.clone();
+    output.audio.as_mut().unwrap().start_pts = 3776;
+    output.audio.as_mut().unwrap().duration_ticks = 49024;
+    assert!(verify_specifications(&plan, &output).is_ok());
+    output.audio.as_mut().unwrap().duration_ticks = 48024;
+    assert!(verify_specifications(&plan, &output).is_err());
+}

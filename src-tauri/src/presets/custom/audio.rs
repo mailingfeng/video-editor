@@ -16,7 +16,6 @@ impl FrozenCustomParameters {
         }
         let (start, _, samples) = audio_timing(audio, video, &self.timing())?;
         let speed = self.speed();
-        let mut channel_filters = Vec::new();
         let mut pitch_factor = 1.0;
         if self.settings.pitch > 0 {
             let sign = if self.random[9][0] & 1 == 0 {
@@ -27,13 +26,14 @@ impl FrozenCustomParameters {
             let semitones = sign * Self::weight(self.settings.pitch) * (2.0 + self.fraction(9, 1));
             let rate = (48000.0 * 2.0_f64.powf(semitones / 12.0)).round() as u32;
             pitch_factor = f64::from(rate) / 48000.0;
-            channel_filters
-                .push(render!("asetrate={rate},aresample=48000","{rate}"=>rate.to_string()));
         }
-        let tempo = speed.num as f64 / speed.den as f64 / pitch_factor;
-        if self.settings.pitch > 0 || self.settings.speed > 0 {
-            channel_filters.push(render!("atempo={tempo}","{tempo}"=>format!("{tempo:.15}")));
-        }
+        let channel_filters = if self.settings.pitch > 0 || self.settings.speed > 0 {
+            vec![
+                render!("rubberband=tempo={tempo}:pitch={pitch}:channels=apart:pitchq=quality:window=long:transients=smooth", "{tempo}"=>format!("{:.15}",speed.num as f64/speed.den as f64), "{pitch}"=>format!("{pitch_factor:.15}")),
+            ]
+        } else {
+            Vec::new()
+        };
         let mut filter = hidden!("aresample=48000,asetpts=PTS-STARTPTS");
         if !channel_filters.is_empty() {
             let shift = channel_filters.join(",");

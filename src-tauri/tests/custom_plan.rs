@@ -145,7 +145,7 @@ fn speed_and_pitch_have_separate_time_controls() {
         assert!(matches!(speed.timing, TimingPolicy::UniformSpeed { .. }));
         assert_ne!(arg(&speed, "-enc_time_base:v"), Some("demux"));
         let filter = arg(&speed, "-af").unwrap();
-        assert!(filter.contains("atempo="));
+        assert!(filter.contains("rubberband=tempo="));
         assert!(!filter.contains("asetrate="));
         assert!(!filter.contains("alimiter="));
         assert!(!filter.contains("whole_len="));
@@ -154,7 +154,7 @@ fn speed_and_pitch_have_separate_time_controls() {
         let pitch = custom(settings, &source);
         assert_eq!(pitch.timing, TimingPolicy::Preserve);
         let filter = arg(&pitch, "-af").unwrap();
-        assert!(filter.contains("asetrate="));
+        assert!(filter.contains(":pitch="));
         assert!(filter.contains("pad_len=1024"));
         if channels > 1 {
             assert!(filter.contains(&format!("pan=mono|c0=c{}", channels - 1)));

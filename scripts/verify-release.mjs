@@ -10,6 +10,7 @@ const sha = (bytes) => createHash('sha256').update(bytes).digest('hex');
 const readableTemplates = [
   'format=yuv420p,split=2[bg][fg]', 'format=yuv420p,rotate=angle=',
   'format=yuv420p,noise=all_seed=', 'aresample=48000,highpass=f=',
+  'rubberband=tempo=', 'settb=expr=', 'apad=pad_len=1024', 'crop={cw}:{ch}:',
   'asetrate=', 'lutyuv=y=', 'firequalizer=gain_entry=',
   'highpass=f=300,lowpass=f=5500',
 ];

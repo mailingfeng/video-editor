@@ -30,6 +30,7 @@ export async function generateFixtures() {
   make('full-range.mp4', [...video,'-t','1.2','-c:v','mjpeg','-pix_fmt','yuvj420p','-color_range','pc','-colorspace','bt709']);
   make('rgb.mp4', ['-f','lavfi','-i','testsrc=size=128x96:rate=30','-t','1.2','-c:v','libx264rgb','-pix_fmt','rgb24']);
   make('av-offset.mp4', [...video,'-itsoffset','0.12',...audio,...encode]);
+  make('audio-leads.mp4', [...video,...audio,'-copyts','-t','3.6','-vf','setpts=PTS+1.12/TB','-af','asetpts=PTS+1.0/TB','-c:v','libx264','-pix_fmt','yuv420p','-c:a','aac','-avoid_negative_ts','disabled']);
   make('phone.mov', [...video,...audio,...encode]);
   make('clip.m4v', [...video,...audio,...encode]);
   make('surround.mkv', [...video,'-f','lavfi','-i','anullsrc=channel_layout=5.1:sample_rate=44100',...encode]);
@@ -37,6 +38,16 @@ export async function generateFixtures() {
   make('capture.webm', [...video,...audio,'-t','1.2','-c:v','libvpx-vp9','-pix_fmt','yuv420p','-c:a','libopus','-ar','48000']);
   make('vfr.mp4', [...video,'-vf',"select='not(eq(mod(n,7),0))'",'-fps_mode','vfr',...encode]);
   make('hdr.mp4', [...video,'-t','1.2','-c:v','libx264','-pix_fmt','yuv420p10le','-color_primaries','bt2020','-color_trc','smpte2084','-colorspace','bt2020nc']);
+  const border = (w,h) => `color=gray:size=${w}x${h}:rate=25,drawbox=x=0:y=0:w=4:h=ih:color=red:t=fill,drawbox=x=iw-4:y=0:w=4:h=ih:color=green:t=fill,drawbox=x=0:y=0:w=iw:h=4:color=blue:t=fill,drawbox=x=0:y=ih-4:w=iw:h=4:color=yellow:t=fill`;
+  for (const [name,w,h] of [['landscape',320,240],['portrait',240,320]]) {
+    make(`custom-${name}.mp4`,['-f','lavfi','-i',border(w,h),'-t','2.4','-c:v','libx264','-b:v','300k','-minrate','300k','-maxrate','300k','-bufsize','600k','-x264-params','nal-hrd=cbr','-pix_fmt','yuv420p']);
+  }
+  make('custom-sar.mp4',['-f','lavfi','-i',`${border(320,240)},setsar=4/3`,'-t','2.4','-c:v','libx264','-b:v','300k','-minrate','300k','-maxrate','300k','-bufsize','600k','-x264-params','nal-hrd=cbr','-pix_fmt','yuv420p']);
+  make('custom-tiny.mp4',['-f','lavfi','-i','color=gray:size=2x2:rate=25','-t','1.2','-c:v','libx264','-pix_fmt','yuv420p']);
+  for (const [channels,layout] of [[1,'mono'],[2,'stereo'],[6,'5.1'],[8,'7.1']]) {
+    const tones = [610,730,850,90,1090,1230,1370,1490].slice(0,channels).map(f=>`(0.12+0.25*gte(t,2.3))*sin(2*PI*${f}*t)`).join('|');
+    make(`custom-tones-${channels}.mkv`,[...video,'-f','lavfi','-i',`aevalsrc='${tones}':s=48000:c=${layout}`,'-t','2.4','-c:v','libx264','-pix_fmt','yuv420p','-c:a','flac']);
+  }
   await writeFile(path.join(fixtureDir,'damaged.mp4'), Buffer.from('incomplete MP4 header'));
   return fixtureDir;
 }

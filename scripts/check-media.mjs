@@ -30,3 +30,8 @@ if (process.exitCode === 0) {
   if (batch.error) throw batch.error;
   process.exitCode = batch.status ?? 1;
 }
+if (process.exitCode === 0) {
+  const custom = spawnSync('cargo', ['test','--locked','--manifest-path','src-tauri/Cargo.toml','--test','custom_real','generated_','--','--ignored','--test-threads=1'], {cwd:root, stdio:'inherit', env});
+  if (custom.error) throw custom.error;
+  process.exitCode = custom.status ?? 1;
+}

@@ -77,6 +77,16 @@ test('main_with_a_readable_processing_template_is_rejected',async t=> {
   assert.match(result.errors.join('\n'),/readable processing template/);
 });
 
+for (const template of ['rubberband=tempo=', 'settb=expr=', 'apad=pad_len=1024', 'crop={cw}:{ch}:']) {
+  test(`main_with_custom_template_${template}_is_rejected`,async t=> {
+    const f=await fixture(t);
+    await writeFile(f.file('video-editor'),Buffer.concat([f.bytes,Buffer.from(template)]),{mode:0o755});
+    const result=await verifyPackage(f.options,f.native);
+    assert.equal(result.exitCode,1);
+    assert.match(result.errors.join('\n'),/readable processing template/);
+  });
+}
+
 test('installed_debug_artifacts_are_rejected',async t=> {
   const f = await fixture(t);
   await writeFile(path.join(f.bin,'video-editor.pdb'),'private symbols');

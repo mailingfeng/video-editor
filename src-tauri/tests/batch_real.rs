@@ -131,6 +131,16 @@ fn copies(root: &Path, name: &str, count: usize) -> Vec<PathBuf> {
 #[tokio::test]
 #[ignore = "requires native tools and generated fixtures"]
 async fn generated_batch_validates_metadata_preserves_inputs_and_continues_after_failure() {
+    batch_validates(false).await;
+}
+
+#[tokio::test]
+#[ignore = "requires native tools and generated fixtures"]
+async fn generated_custom_batch_validates_metadata_preserves_inputs_and_continues_after_failure() {
+    batch_validates(true).await;
+}
+
+async fn batch_validates(custom: bool) {
     let root = tempfile::tempdir().unwrap();
     let paths = copies(root.path(), "短片 空格 '引号'.mp4", 3);
     let native = runner(false);
@@ -196,7 +206,7 @@ async fn generated_batch_validates_metadata_preserves_inputs_and_continues_after
             .unwrap();
         assert_eq!(imported.items.len(), 4);
         let start = service
-            .start_batch(settings(&output, metadata.clone()))
+            .start_batch(chosen_settings(&output, metadata.clone(), custom))
             .await
             .unwrap();
         assert_eq!(start.items.iter().filter(|i| i.job_id.is_some()).count(), 2);
@@ -230,8 +240,13 @@ async fn generated_batch_validates_metadata_preserves_inputs_and_continues_after
                     assert_eq!(
                         result.comment,
                         Some(format!(
-                            "{}; video-editor/basic-transcode-v1",
-                            source.comment.as_deref().unwrap()
+                            "{}; video-editor/{}",
+                            source.comment.as_deref().unwrap(),
+                            if custom {
+                                "custom-variation-v1"
+                            } else {
+                                "basic-transcode-v1"
+                            }
                         ))
                     );
                 }
@@ -262,6 +277,16 @@ async fn generated_batch_validates_metadata_preserves_inputs_and_continues_after
 #[tokio::test]
 #[ignore = "requires native tools and generated fixtures"]
 async fn generated_batch_cancels_waiting_and_active_individually() {
+    batch_cancels(false).await;
+}
+
+#[tokio::test]
+#[ignore = "requires native tools and generated fixtures"]
+async fn generated_custom_batch_cancels_waiting_and_active_individually() {
+    batch_cancels(true).await;
+}
+
+async fn batch_cancels(custom: bool) {
     let root = tempfile::tempdir().unwrap();
     let paths = copies(root.path(), "lifecycle 空格.mp4", 4);
     let native = runner(true);
@@ -276,7 +301,11 @@ async fn generated_batch_cancels_waiting_and_active_individually() {
         .unwrap()
         .items;
     service
-        .start_batch(settings(root.path(), MetadataRequest::Preserve))
+        .start_batch(chosen_settings(
+            root.path(),
+            MetadataRequest::Preserve,
+            custom,
+        ))
         .await
         .unwrap();
     service.cancel_item(&items[2].item_id).await.unwrap();
@@ -315,6 +344,16 @@ async fn generated_batch_cancels_waiting_and_active_individually() {
 #[tokio::test]
 #[ignore = "requires native tools and generated fixtures"]
 async fn generated_batch_shutdown_reaps_two_media_activities() {
+    batch_shutdown(false).await;
+}
+
+#[tokio::test]
+#[ignore = "requires native tools and generated fixtures"]
+async fn generated_custom_batch_shutdown_reaps_two_media_activities() {
+    batch_shutdown(true).await;
+}
+
+async fn batch_shutdown(custom: bool) {
     let root = tempfile::tempdir().unwrap();
     let paths = copies(root.path(), "lifecycle 空格.mp4", 3);
     let native = runner(true);
@@ -324,7 +363,11 @@ async fn generated_batch_shutdown_reaps_two_media_activities() {
         .await
         .unwrap();
     let initial = service
-        .start_batch(settings(root.path(), MetadataRequest::Preserve))
+        .start_batch(chosen_settings(
+            root.path(),
+            MetadataRequest::Preserve,
+            custom,
+        ))
         .await
         .unwrap();
     let mut progressing = std::collections::HashSet::new();
@@ -419,4 +462,58 @@ async fn provided_sample_batch_preserves_original_and_validates_all_outputs() {
     );
     service.shutdown().await.unwrap();
     assert_eq!(native.max_active.load(Ordering::SeqCst), 2);
+}
+
+fn chosen_settings(output: &Path, metadata: MetadataRequest, custom: bool) -> BatchSettings {
+    let mut value = settings(output, metadata);
+    if custom {
+        value.preset_id = "custom-variation-v1".into();
+        value.custom_settings = Some(CustomVariationSettings::recommended());
+    }
+    value
+}
+#[tokio::test]
+#[ignore = "requires native tools and generated fixtures"]
+async fn generated_custom_batch_preserves_existing_outputs_on_conflict() {
+    let root = tempfile::tempdir().unwrap();
+    let paths = copies(root.path(), "短片 空格 '引号'.mp4", 3);
+    let native = runner(false);
+    let (service, mut rx) = service(native.clone(), root.path());
+    service
+        .import_paths(paths.iter().map(|p| p.display().to_string()).collect())
+        .await
+        .unwrap();
+    let initial = service
+        .start_batch(chosen_settings(
+            root.path(),
+            MetadataRequest::Preserve,
+            true,
+        ))
+        .await
+        .unwrap();
+    assert_eq!(
+        initial.items.iter().filter(|i| i.job_id.is_some()).count(),
+        2
+    );
+    let id = initial.items[0].job_id.as_ref().unwrap();
+    let conflict = root.path().join(format!(
+        "{}_processed_{id}.mp4",
+        paths[0].file_stem().unwrap().to_str().unwrap()
+    ));
+    std::fs::write(&conflict, b"keep existing output").unwrap();
+    let ends = completed(&mut rx, 3).await;
+    assert_eq!(ends[id].state, JobState::Failed);
+    assert_eq!(
+        ends[id].error.as_ref().unwrap().code,
+        ErrorCode::OutputConflict
+    );
+    assert_eq!(std::fs::read(conflict).unwrap(), b"keep existing output");
+    assert_eq!(
+        ends.values()
+            .filter(|s| s.state == JobState::Succeeded)
+            .count(),
+        2
+    );
+    service.shutdown().await.unwrap();
+    assert_eq!(native.active.load(Ordering::SeqCst), 0);
 }

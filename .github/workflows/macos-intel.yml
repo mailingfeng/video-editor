@@ -128,6 +128,7 @@ jobs:
           writeFileSync('.ci-evidence/build.json',JSON.stringify({target:'x86_64-apple-darwin',sourceCommit:process.env.GITHUB_SHA,runUrl:`https://github.com/${process.env.GITHUB_REPOSITORY}/actions/runs/${process.env.GITHUB_RUN_ID}`,builtAt:new Date().toISOString(),runner:process.env.ImageOS,os:os.release(),installer,installerSizeBytes:bytes.length,installerSha256:createHash('sha256').update(bytes).digest('hex'),releaseStatus:'NOT VERIFIED',scope:'Intel CI build, DMG installation and native bundled-tool checks; unsigned internal beta, desktop acceptance pending'},null,2)+'\n');
           JS
 
+      # check-media includes custom variation, pitch/tail, and exact VFR checks.
       - name: Media regression using installed tools
         run: |
           if [[ -f docs/requirements/20261002-research/原视频.mp4 ]]; then

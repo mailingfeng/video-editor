@@ -165,8 +165,8 @@ pub fn verify_specifications_against(
         || !pixel_matches
         || v.width != p.width
         || v.height != p.height
-        || ((expected.is_none() || !matches!(plan.timing, TimingPolicy::Preserve))
-            && v.frame_rate != target.frame_rate)
+        || (expected.is_none() && v.frame_rate != target.frame_rate)
+        || (!matches!(plan.timing, TimingPolicy::Preserve) && !frame_rate_matches_timeline(v))
         || v.frame_count != p.frame_count
     {
         return Err(failed("视频规格或帧数与处理计划不一致"));
@@ -230,7 +230,18 @@ pub fn verify_specifications_against(
                 if a.duration_ticks <= 0 || a.time_base.num <= 0 || a.time_base.den == 0 {
                     return Err(failed("音频有效采样数无法确认"));
                 }
-                let actual = seconds(a.duration_ticks, a.time_base) * 48000.0;
+                let mut actual = seconds(a.duration_ticks, a.time_base) * 48000.0;
+                // Positive-start AAC can expose the encoder's leading packet
+                // instead of an MP4 edit that skips it. Count effective audio,
+                // recognizing only the exact native encoder delay, never the
+                // broader mux tolerance.
+                let expected_start = target
+                    .audio_start_seconds
+                    .ok_or_else(|| failed("目标音频起点缺失"))?;
+                let delay = (expected_start - seconds(a.start_pts, a.time_base)) * 48000.0;
+                if a.start_pts >= 0 && (delay - 1024.0).abs() <= 1.0 {
+                    actual -= 1024.0;
+                }
                 if !actual.is_finite() || (actual - samples as f64).abs() > 1.0 + 1e-8 {
                     return Err(failed("音频有效采样数与目标不一致"));
                 }
@@ -270,4 +281,26 @@ fn as_validation(e: AppError) -> AppError {
         };
         failed("输出校验未通过").detail(details)
     }
+}
+
+fn frame_rate_matches_timeline(video: &VideoInfo) -> bool {
+    if video.frame_rate.num <= 0
+        || video.frame_rate.den == 0
+        || video.time_base.num <= 0
+        || video.time_base.den == 0
+        || video.duration_ticks <= 0
+    {
+        return false;
+    }
+    fn reduce(mut a: u128, mut b: u128) -> (u128, u128) {
+        let (n, d) = (a, b);
+        while b != 0 {
+            (a, b) = (b, a % b);
+        }
+        (n / a, d / a)
+    }
+    reduce(
+        video.frame_count as u128 * video.time_base.den as u128,
+        video.duration_ticks as u128 * video.time_base.num as u128,
+    ) == reduce(video.frame_rate.num as u128, video.frame_rate.den as u128)
 }
