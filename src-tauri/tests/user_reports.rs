@@ -321,7 +321,7 @@ async fn custom_levels_are_saved_without_runtime_parameters_in_reports_or_record
     let saved: serde_json::Value =
         serde_json::from_slice(&std::fs::read(settings_path).unwrap()).unwrap();
     assert_eq!(saved.as_object().unwrap().len(), 15);
-    assert_eq!(saved["foregroundScale"], 2);
+    assert_eq!(saved["foregroundScale"], 1);
     let id = service
         .start_job(StartJobRequest {
             input_path: input.to_str().unwrap().into(),

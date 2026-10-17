@@ -29,7 +29,10 @@ export function ProcessingView({api}: {api: DesktopApi}) {
   const restoredBatch = p.queue.running && !p.preset;
   const presetLabel = restoredBatch ? '批次设置已冻结' : p.preset ? p.preset.title : '加载处理预设';
   const previousResult = p.previousResult;
-  const percent = (item:QueueItem) => item.snapshot?.progress == null ? null : item.snapshot.state === 'succeeded' ? 100 : Math.min(99, Math.floor(item.snapshot.progress * 100));
+  const percent = (item:QueueItem) => {
+    if (item.snapshot?.progress == null) return item.state === 'waiting' ? 0 : null;
+    return item.snapshot.state === 'succeeded' ? 100 : Math.min(99, Math.floor(item.snapshot.progress * 100));
+  };
   const status = (item:QueueItem) => item.snapshot ? labels[item.snapshot.state] : item.state === 'canceled' ? '已取消' : '待处理';
   const canCancel = (item:QueueItem) => item.state === 'waiting' || Boolean(item.snapshot && !['succeeded','failed','canceled','canceling','committing'].includes(item.snapshot.state));
   function openDetails(itemId:string,kind:'media'|'logs') {
@@ -67,7 +70,14 @@ export function ProcessingView({api}: {api: DesktopApi}) {
                 <button className="queue-select" aria-label={`查看 ${fileName}`} aria-pressed={item.itemId === p.selectedItem?.itemId} onClick={() => p.selectItem(item.itemId)}><span className="file-symbol"><Icon name="film"/></span><span className="queue-name"><strong>{fileName}</strong><span className="queue-path" title={item.inputPath}>{item.inputPath}</span></span></button>
                 <div className="queue-status"><span className={`phase phase-${item.snapshot?.state ?? item.state}`}>{status(item)}</span>{value !== null && <strong>{value}%</strong>}</div>
                 <div className="progress-track" role="progressbar" aria-label={`${fileName} 处理进度`} aria-valuemin={0} aria-valuemax={100} aria-valuenow={value ?? undefined} aria-valuetext={status(item)}><span style={{transform:`scaleX(${value === null ? 0 : value / 100})`}}/></div>
-                <div className="queue-actions">{canCancel(item) && <button className="btn quiet" aria-label={`取消 ${fileName}`} onClick={() => void p.cancelItem(item.itemId)}>取消</button>}{item.snapshot?.state === 'succeeded' && <button className="btn quiet" aria-label={`显示 ${fileName} 的结果`} onClick={() => void p.reveal(item.itemId)}><Icon name="folder"/>显示结果</button>}<button className="btn quiet" aria-label={`查看 ${fileName} 的视频信息`} onClick={() => openDetails(item.itemId,'media')}><Icon name="film"/>视频信息</button><button className="btn quiet" aria-label={`查看 ${fileName} 的日志`} onClick={() => openDetails(item.itemId,'logs')}><Icon name="report"/>查看日志</button><button className="btn quiet" aria-label={`移除 ${fileName}`} disabled={p.busy || p.importing} onClick={() => void p.removeItem(item.itemId)}>移除</button></div>
+                <div className="queue-actions">
+                  {item.snapshot?.state === 'succeeded' && <button className="btn quiet" aria-label={`重置 ${fileName}`} disabled={p.busy || p.importing} onClick={() => void p.resetItem(item.itemId)}>重置</button>}
+                  {canCancel(item) && <button className="btn quiet" aria-label={`取消 ${fileName}`} disabled={p.importing} onClick={() => void p.cancelItem(item.itemId)}>取消</button>}
+                  {item.snapshot?.state === 'succeeded' && <button className="btn quiet" aria-label={`显示 ${fileName} 的结果`} onClick={() => void p.reveal(item.itemId)}><Icon name="folder"/>显示结果</button>}
+                  <button className="btn quiet" aria-label={`查看 ${fileName} 的视频信息`} onClick={() => openDetails(item.itemId,'media')}><Icon name="film"/>视频信息</button>
+                  <button className="btn quiet" aria-label={`查看 ${fileName} 的日志`} onClick={() => openDetails(item.itemId,'logs')}><Icon name="report"/>查看日志</button>
+                  <button className="btn quiet" aria-label={`移除 ${fileName}`} disabled={p.busy || p.importing} onClick={() => void p.removeItem(item.itemId)}>移除</button>
+                </div>
               </li>;
             })}</ul> : <div className="empty"><Icon name="upload"/><h3>添加需要处理的视频</h3><p>支持 MP4、MOV、M4V、MKV、WebM，也可选择文件夹批量添加。</p></div>}
           </section>

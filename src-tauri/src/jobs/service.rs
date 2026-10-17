@@ -234,6 +234,42 @@ impl JobService {
         (self.emit_queue)(snapshot.clone());
         Ok(snapshot)
     }
+    pub async fn reset_item(&self, item_id: &str) -> Result<QueueSnapshot, AppError> {
+        let snapshot = {
+            let mut state = self.state.lock().await;
+            ensure_idle(&state)?;
+            let index = state
+                .queue
+                .iter()
+                .position(|entry| entry.item.item_id == item_id)
+                .ok_or_else(unknown_job)?;
+            let succeeded = state.queue[index]
+                .item
+                .job_id
+                .as_ref()
+                .and_then(|id| state.jobs.get(id))
+                .is_some_and(|job| job.snapshot.state == JobState::Succeeded);
+            if !succeeded {
+                return Err(AppError::new(
+                    ErrorCode::UnsupportedInput,
+                    "只有处理完成的文件可以重置",
+                ));
+            }
+            let entry = &mut state.queue[index];
+            entry.item = QueueItem {
+                item_id: uuid::Uuid::new_v4().to_string(),
+                input_path: entry.item.input_path.clone(),
+                state: QueueItemState::Waiting,
+                job_id: None,
+                snapshot: None,
+                media: None,
+            };
+            state.queue_version += 1;
+            queue_snapshot(&state)
+        };
+        (self.emit_queue)(snapshot.clone());
+        Ok(snapshot)
+    }
     pub async fn start_batch(&self, settings: BatchSettings) -> Result<QueueSnapshot, AppError> {
         let (snapshot, launches) = {
             let mut state = self.state.lock().await;

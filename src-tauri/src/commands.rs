@@ -58,6 +58,13 @@ pub async fn remove_item(
     state.jobs.remove_item(&item_id).await
 }
 #[tauri::command]
+pub async fn reset_item(
+    state: State<'_, DesktopState>,
+    item_id: String,
+) -> Result<QueueSnapshot, AppError> {
+    state.jobs.reset_item(&item_id).await
+}
+#[tauri::command]
 pub async fn start_batch(
     state: State<'_, DesktopState>,
     settings: serde_json::Value,

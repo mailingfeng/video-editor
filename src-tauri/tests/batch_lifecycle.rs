@@ -67,6 +67,84 @@ async fn end(rx: &mut mpsc::UnboundedReceiver<JobSnapshot>) -> JobSnapshot {
 }
 
 #[tokio::test]
+async fn reset_success_keeps_position_and_outputs_and_reruns_only_the_reset_item() {
+    let (_dir, _runner, service, mut rx, settings, paths) = setup(BlockAt::None, 2);
+    let imported = service.import_paths(paths.clone()).await.unwrap();
+    service.start_batch(settings.clone()).await.unwrap();
+    end(&mut rx).await;
+    end(&mut rx).await;
+    let complete = service.queue_snapshot().await;
+    let old = complete.items[1].snapshot.as_ref().unwrap();
+    let output = old.output_path.as_ref().unwrap();
+    let bytes = std::fs::read(output).unwrap();
+    let reset = service
+        .reset_item(&imported.items[1].item_id)
+        .await
+        .unwrap();
+    assert!(!reset.running);
+    assert!(reset.version > complete.version);
+    assert_eq!(reset.items.len(), 2);
+    assert_eq!(reset.items[0].job_id, complete.items[0].job_id);
+    let item = &reset.items[1];
+    assert_eq!(item.input_path, complete.items[1].input_path);
+    assert_ne!(item.item_id, imported.items[1].item_id);
+    assert_eq!(item.state, QueueItemState::Waiting);
+    assert!(item.job_id.is_none() && item.snapshot.is_none() && item.media.is_none());
+    assert_eq!(
+        service.snapshot(&old.job_id).await.unwrap().state,
+        JobState::Succeeded
+    );
+    assert!(service
+        .read_log(&old.job_id)
+        .await
+        .unwrap()
+        .text
+        .contains("完成"));
+    assert!(service
+        .reset_item(&imported.items[1].item_id)
+        .await
+        .is_err());
+    assert!(service.reset_item(&item.item_id).await.is_err());
+    assert_eq!(service.import_paths(paths).await.unwrap().items.len(), 2);
+    service.start_batch(settings).await.unwrap();
+    let rerun = end(&mut rx).await;
+    assert_eq!(rerun.state, JobState::Succeeded);
+    assert_ne!(rerun.job_id, old.job_id);
+    assert_ne!(rerun.output_path, old.output_path);
+    assert_eq!(std::fs::read(output).unwrap(), bytes);
+    assert_eq!(
+        service.queue_snapshot().await.items[0].job_id,
+        complete.items[0].job_id
+    );
+}
+
+#[tokio::test]
+async fn reset_rejects_running_waiting_canceled_failed_and_unknown_items() {
+    let (dir, runner, service, mut rx, settings, paths) = setup(BlockAt::Probe, 1);
+    let imported = service.import_paths(paths).await.unwrap();
+    let id = &imported.items[0].item_id;
+    assert!(service.reset_item(id).await.is_err());
+    assert!(service.reset_item("missing").await.is_err());
+    service.start_batch(settings.clone()).await.unwrap();
+    entered(&runner).await;
+    assert_eq!(
+        service.reset_item(id).await.unwrap_err().code,
+        ErrorCode::Busy
+    );
+    service.cancel_item(id).await.unwrap();
+    assert_eq!(end(&mut rx).await.state, JobState::Canceled);
+    assert!(service.reset_item(id).await.is_err());
+    let missing = dir.path().join("missing.mp4").to_str().unwrap().to_owned();
+    let imported = service.import_paths(vec![missing]).await.unwrap();
+    service.start_batch(settings).await.unwrap();
+    assert_eq!(end(&mut rx).await.state, JobState::Failed);
+    assert!(service
+        .reset_item(&imported.items[1].item_id)
+        .await
+        .is_err());
+}
+
+#[tokio::test]
 async fn two_overlap_third_waits_and_completion_refills_without_restarting_terminal_rows() {
     let (_dir, runner, service, mut rx, settings, paths) = setup(BlockAt::Probe, 4);
     let imported = service.import_paths(paths.clone()).await.unwrap();

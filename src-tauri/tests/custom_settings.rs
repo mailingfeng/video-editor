@@ -6,16 +6,22 @@ fn recommended_and_untrusted_settings() {
     let settings = CustomVariationSettings::recommended();
     assert_eq!(
         (settings.foreground_scale, settings.background_blur),
-        (2, 2)
+        (1, 1)
     );
     assert_eq!(
         (settings.crop_scale, settings.softness, settings.speed),
         (0, 0, 0)
     );
     assert_eq!(
-        (settings.pitch, settings.encoding, settings.dynamic_offset),
-        (5, 5, 5)
+        (
+            settings.pitch,
+            settings.timbre,
+            settings.volume,
+            settings.dynamic_offset
+        ),
+        (3, 3, 3, 3)
     );
+    assert_eq!(settings.encoding, 5);
     let valid: Value =
         serde_json::from_str(include_str!("../../tests/fixtures/custom-settings.json")).unwrap();
     assert_eq!(decode_custom_settings(valid.clone()).unwrap(), settings);

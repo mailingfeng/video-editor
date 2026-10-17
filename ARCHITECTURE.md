@@ -1,6 +1,7 @@
 # 帧序 · 架构上下文
 
 > 2026-10-16 核对，功能基线 `e8f5620`，含本轮自定义变化验收修正。这是当前实现的导航与约束，历史计划中的目标不能替代实现证据。
+> 2026-10-17 补入工作区的 `reset_item` 契约与身份隔离规则。
 
 ## 系统边界
 
@@ -46,13 +47,15 @@ Rust 数据定义位于 [contracts](src-tauri/src/contracts/mod.rs)，TypeScript
 
 | 对象 | 身份、寿命与用途 |
 | --- | --- |
-| `QueueItem` | `itemId` 在导入时生成；`waiting / started / canceled` 是队列层状态，不是实际任务阶段 |
+| `QueueItem` | `itemId` 在导入或成功条目重置时生成；`waiting / started / canceled` 是队列层状态，不是实际任务阶段 |
 | `JobSnapshot` | `jobId` 在预留执行时生成；携带实际阶段、进度、错误、结果路径及 `cleanupPending` |
 | `QueueSnapshot` | `version` 管结构变化与关联，`running` 来源于是否存在冻结批次设置 |
 | `JobSnapshot.version` | 只比较同一 `jobId` 的更新；不能与队列版本或另一个任务的版本比较 |
 | `BatchSettings` | 输出目录、预设、元数据及可选公开自定义档位；开始后冻结并用于后续补位任务 |
 | `ProcessingPlan` | 完整输入信息、参数、工作区与校验策略；任务内存使用，当前不写入恢复／历史 JSON |
 | `FileIdentity` | 规范路径、字节数、修改时间与 SHA256；`modifiedNs` 在 wire 中用字符串表达 |
+
+输出目录是界面偏好，由 `useProcessing` 以 `frameshift.outputDirectory.v1` 键保存到应用 WebView 的 `localStorage`，桌面启动时同步恢复；浏览器预览不恢复桌面偏好。只在有效目录选择回包且仍挂载、未开始批次时保存，取消／迟到回包不覆盖原值。读取失败回到未选择，写入失败保留本次可用值并提示；恢复路径仍经现有原生输出校验，不赋予额外文件权限。
 
 修改 IPC 时同步核对 [job fixture](tests/fixtures/job-snapshot.json)、[queue fixture](tests/fixtures/queue-snapshot.json) 与 [wire_contract.rs](src-tauri/tests/wire_contract.rs)。兼容的 `start_job`、独立探测及最近任务查询入口仍存在，不能只根据 UI 不调用就删除。
 
@@ -66,6 +69,8 @@ Rust 数据定义位于 [contracts](src-tauri/src/contracts/mod.rs)，TypeScript
 6. **提交与收尾。** 进入不可取消的 `committing` 后排他保存；完成清理、记录终态和保存历史，再释放活动名额、预留下一个等待项。队列与任务事件在服务锁外发送。
 
 并发上限约束的是任务完整生命周期，不是仅两个 FFmpeg 转码进程。校验、取消收尾及工作区清理结束前都不能提前补位。单项失败仍会收尾并继续调度其他等待项；没有自动重试。相关行为由 [batch_lifecycle.rs](src-tauri/tests/batch_lifecycle.rs) 验证。
+
+`reset_item(itemId)` 在服务同一互斥锁内检查空闲和真实任务成功状态，保持去重键、路径与队列顺序，原位替换为新 `itemId` 的 waiting 项，清除 job／快照／媒体关联并提升队列版本，随后广播快照。原任务终态、报告、历史及输出文件均保留；再次开始使用当前共享设置和新 `jobId`。运行中、失败、取消、等待、未知或过期身份均拒绝重置。
 
 ## 状态机、取消与关闭
 
@@ -112,7 +117,7 @@ probing → preparing → running → validating → committing → succeeded
 
 `useProcessing` 先订阅两个快照事件，再查询全量队列，避免查询与订阅间漏更新。未知 `jobId` 的事件暂存于 `pending` 并触发查询，关联到达后按任务版本合并；队列结构采用较新结构版本，不能让较旧全量回包覆盖更新的任务快照。
 
-`queueState.newest` 保护终态与较新任务版本。移除再导入同一路径得到新身份，旧任务事件不得进入新行。选中项日志用 `jobId + detailGeneration + epoch` 校验异步响应归属；卸载或切换选择后，旧回包不得替换当前详情。订阅异步完成时若已卸载，仍须立即执行 disposer。
+`queueState.newest` 保护终态与较新任务版本。移除再导入或重置同一路径得到新身份，旧任务事件不得进入新行；重置保留路径对应的选中行，同时清空日志并提升详情请求代次。选中项日志用 `jobId + detailGeneration + epoch` 校验异步响应归属；卸载、切换选择或重置后，旧回包不得替换当前详情。订阅异步完成时若已卸载，仍须立即执行 disposer。
 
 开始与导入另有 ref 锁，防止 React 下一次渲染前的双击。原生 `ensure_idle` 是最终互斥边界，前端 disabled 只是交互反馈。相关测试见 [queueState.test.ts](src/features/processing/queueState.test.ts)、[useProcessing.test.tsx](src/features/processing/useProcessing.test.tsx)。
 

@@ -9,7 +9,7 @@ fn missing_file_uses_recommendation() {
     let store = SettingsStore::load(path.clone());
     let snapshot = store.snapshot();
     assert_eq!(snapshot.source, CustomSettingsSource::Default);
-    assert_eq!(snapshot.settings.foreground_scale, 2);
+    assert_eq!(snapshot.settings.foreground_scale, 1);
     assert!(snapshot.notice.is_none());
     assert!(!path.exists());
 }
@@ -32,7 +32,7 @@ fn save_survives_reload() {
     assert_eq!(value.as_object().unwrap().len(), 15);
     assert_eq!(value["speed"], 9);
     assert_eq!(fs::read_dir(root.path()).unwrap().count(), 1);
-    settings.pitch = 3;
+    settings.pitch = 4;
     store.save(settings.clone()).unwrap();
     assert_eq!(SettingsStore::load(path).snapshot().settings, settings);
 }
@@ -52,7 +52,7 @@ fn unsafe_or_future_settings_recover_without_rewrite() {
         let snapshot = SettingsStore::load(path.clone()).snapshot();
         assert_eq!(snapshot.source, CustomSettingsSource::Recovered);
         assert!(snapshot.notice.is_some());
-        assert_eq!(snapshot.settings.foreground_scale, 2);
+        assert_eq!(snapshot.settings.foreground_scale, 1);
         assert_eq!(fs::read(&path).unwrap(), bytes);
     }
     fs::remove_file(&path).unwrap();

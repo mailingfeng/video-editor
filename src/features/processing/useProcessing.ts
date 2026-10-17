@@ -5,6 +5,8 @@ import {emptyQueueState,mergeJob,mergeQueue,terminal,type QueueState} from './qu
 import {useLicense} from './useLicense';
 import {useCustomSettings} from './useCustomSettings';
 
+const outputDirectoryStorageKey='frameshift.outputDirectory.v1';
+
 function message(error:unknown):string {
   if (typeof error==='object' && error!==null && 'message' in error) return String(error.message);
   return typeof error==='string'?error:'操作未完成，请查看日志后重试。';
@@ -16,7 +18,11 @@ export function useProcessing(api:DesktopApi) {
   const stateRef=useRef(state);
   const [presets,setPresets]=useState<PresetSummary[]>([]);
   const [presetId,setPresetId]=useState<string|null>(null);
-  const [outputDirectory,setOutputDirectory]=useState('');
+  const [outputDirectory,setOutputDirectory]=useState(()=>{
+    if(!api.available)return '';
+    try{return localStorage.getItem(outputDirectoryStorageKey)??'';}
+    catch{return '';}
+  });
   const [selectedId,setSelectedId]=useState<string|null>(null);
   const selectedRef=useRef<string|null>(null);
   const [historical,setHistorical]=useState<JobSnapshot|null>(null);
@@ -33,9 +39,11 @@ export function useProcessing(api:DesktopApi) {
   const startLock=useRef(false);
 
   const update=useCallback((next:QueueState)=>{
+    const previousQueue=stateRef.current.queue;
     stateRef.current=next;setState(next);
     if (!next.queue.items.some(i=>i.itemId===selectedRef.current)) {
-      selectedRef.current=next.queue.items[0]?.itemId??null;
+      const previous=previousQueue.items.find(i=>i.itemId===selectedRef.current);
+      selectedRef.current=next.queue.items.find(i=>i.inputPath===previous?.inputPath)?.itemId??next.queue.items[0]?.itemId??null;
       setSelectedId(selectedRef.current);setLog(null);setLogLoading(false);setLogError(null);++detailGeneration.current;
     }
   },[]);
@@ -131,7 +139,13 @@ export function useProcessing(api:DesktopApi) {
   }
   async function selectOutput(){
     if(busy)return;const attempt=epoch.current;
-    try{const path=await api.pickOutputDirectory();if(path && mounted.current && attempt===epoch.current && !stateRef.current.queue.running && !startLock.current)setOutputDirectory(path);}
+    try{
+      const path=await api.pickOutputDirectory();
+      if(!path || !mounted.current || attempt!==epoch.current || stateRef.current.queue.running || startLock.current)return;
+      setOutputDirectory(path);
+      try{localStorage.setItem(outputDirectoryStorageKey,path);setError(null);}
+      catch{setError('输出目录已选择，但无法记住此设置，下次启动需重新选择。');}
+    }
     catch(e){if(mounted.current && attempt===epoch.current)setError(message(e));}
   }
   async function start(){
@@ -147,7 +161,17 @@ export function useProcessing(api:DesktopApi) {
     }}
     finally{if(attempt===epoch.current){startLock.current=false;if(mounted.current)setStarting(false);}}
   }
+  async function resetItem(id:string){
+    if(stateRef.current.queue.running || startLock.current || importLock.current)return;
+    const item=stateRef.current.queue.items.find(i=>i.itemId===id);
+    if(item?.snapshot?.state!=='succeeded')return;
+    importLock.current=true;setImporting(true);setError(null);const attempt=epoch.current;
+    try{const next=await api.resetItem(id);if(mounted.current && attempt===epoch.current)accept(next);}
+    catch(e){if(mounted.current && attempt===epoch.current)setError(message(e));}
+    finally{if(attempt===epoch.current){importLock.current=false;if(mounted.current)setImporting(false);}}
+  }
   async function itemAction(id:string,action:'remove'|'cancel'){
+    if(action==='remove' && (stateRef.current.queue.running || startLock.current || importLock.current))return;
     const attempt=epoch.current;
     try{const next=await (action==='remove'?api.removeItem(id):api.cancelItem(id));if(mounted.current && attempt===epoch.current)accept(next);}
     catch(e){if(mounted.current && attempt===epoch.current)setError(message(e));}
@@ -167,5 +191,5 @@ export function useProcessing(api:DesktopApi) {
     try{await api.revealOutput(snap.jobId);}catch(e){if(mounted.current && attempt===epoch.current)setError(message(e));}
   }
   return {...license,custom,queue:state.queue,selectedItem,media:selectedItem?.media??null,snapshot,previousResult,presets,preset,outputDirectory,log,logLoading,logError,error,importing,starting,busy,
-    selectItem,selectPreset,selectInput,selectFolder,selectOutput,start,removeItem:(id:string)=>itemAction(id,'remove'),cancelItem:(id:string)=>itemAction(id,'cancel'),refreshLog,reveal};
+    selectItem,selectPreset,selectInput,selectFolder,selectOutput,start,resetItem,removeItem:(id:string)=>itemAction(id,'remove'),cancelItem:(id:string)=>itemAction(id,'cancel'),refreshLog,reveal};
 }

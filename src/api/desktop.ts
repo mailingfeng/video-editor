@@ -26,6 +26,7 @@ export interface DesktopApi {
   importFolder(path:string): Promise<QueueSnapshot>;
   importPaths(paths:string[]): Promise<QueueSnapshot>;
   removeItem(itemId:string): Promise<QueueSnapshot>;
+  resetItem(itemId:string): Promise<QueueSnapshot>;
   startBatch(settings:BatchSettings): Promise<QueueSnapshot>;
   cancelItem(itemId:string): Promise<QueueSnapshot>;
   subscribeQueue(listener:(snapshot:QueueSnapshot)=>void): Promise<() => void>;
@@ -53,6 +54,7 @@ export const desktopApi: DesktopApi = {
   importFolder:(path)=>invoke('import_folder',{path}),
   importPaths:(paths)=>invoke('import_paths',{paths}),
   removeItem:(itemId)=>invoke('remove_item',{itemId}),
+  resetItem:(itemId)=>invoke('reset_item',{itemId}),
   startBatch:(settings)=>invoke('start_batch',{settings}),
   cancelItem:(itemId)=>invoke('cancel_item',{itemId}),
   subscribeQueue:(listener)=>listen<QueueSnapshot>('queue_snapshot',(event)=>listener(event.payload)),

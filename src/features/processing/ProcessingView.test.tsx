@@ -5,7 +5,7 @@ import fixture from '../../../tests/fixtures/custom-settings.json';
 import type {DesktopApi} from '../../api/desktop';
 import type {JobSnapshot,MediaInfo,QueueItem,QueueSnapshot} from '../../api/contracts';
 import {ProcessingView} from './ProcessingView';
-afterEach(cleanup);
+afterEach(()=>{cleanup();localStorage.clear();});
 // jsdom does not implement the browser's native dialog lifecycle.
 beforeAll(()=>{
   HTMLDialogElement.prototype.showModal=function(){this.open=true;};
@@ -24,6 +24,7 @@ function fakeApi(initial:QueueItem[]=[]){
     getQueueSnapshot:vi.fn(async()=>q),importPaths:vi.fn(async(paths:string[])=>{q={...q,version:q.version+1,items:[...q.items,...paths.filter(path=>!q.items.some(i=>i.inputPath===path)).map((path,index)=>waiting(`added-${q.version}-${index}`,path))]};return q;}),
     importFolder:vi.fn(async()=>{q={...q,version:q.version+1,items:[waiting('a'),waiting('b','/input/b.mp4'),waiting('c','/input/c.mp4')]};return q;}),
     removeItem:vi.fn(async(id)=>{q={...q,version:q.version+1,items:q.items.filter(i=>i.itemId!==id)};return q;}),
+    resetItem:vi.fn(),
     startBatch:vi.fn(async()=>{q={...q,version:q.version+1,running:true,items:q.items.map((i,index)=>index<2?{...i,state:'started',jobId:`job-${i.itemId}`,snapshot:snapshot(`job-${i.itemId}`)}:i)};return q;}),
     cancelItem:vi.fn(async(id)=>{q={...q,version:q.version+1,items:q.items.map(i=>i.itemId===id?{...i,state:i.jobId?'started':'canceled',snapshot:i.jobId?snapshot(i.jobId,'canceling',5):null}:i)};return q;}),
     getJobLog:vi.fn(async(id)=>({text:`log ${id}`,truncated:false})),revealOutput:vi.fn(async()=>undefined),
@@ -33,6 +34,33 @@ function fakeApi(initial:QueueItem[]=[]){
 async function ready(api:DesktopApi){render(<ProcessingView api={api}/>);const user=userEvent.setup();await screen.findByRole('button',{name:'选择文件夹'});await user.click(screen.getByRole('button',{name:'选择输出目录'}));return user;}
 const row=(name:string)=>screen.getByRole('listitem',{name});
 describe('batch desktop interface',()=>{
+  it('resets a completed row from the leftmost action to zero and enables a new batch',async()=>{
+    const complete:QueueItem={...waiting('a'),state:'started',jobId:'job-a',snapshot:{...snapshot('job-a','succeeded'),progress:1,outputPath:'/output/old.mp4'}};
+    const {api}=fakeApi([complete]);
+    vi.mocked(api.resetItem).mockResolvedValue({version:2,running:false,items:[waiting('new-a')]});
+    const user=await ready(api);
+    const actions=within(row('原 视频.mp4')).getAllByRole('button');
+    expect(actions[1]).toHaveAccessibleName('重置 原 视频.mp4');
+    expect(actions[2]).toHaveAccessibleName('显示 原 视频.mp4 的结果');
+    expect(within(row('原 视频.mp4')).getByRole('progressbar')).toHaveAttribute('aria-valuenow','100');
+    await user.click(actions[1]);
+    await waitFor(()=>expect(within(row('原 视频.mp4')).getByText('待处理')).toBeVisible());
+    expect(within(row('原 视频.mp4')).getByRole('progressbar')).toHaveAttribute('aria-valuenow','0');
+    expect(within(row('原 视频.mp4')).queryByRole('button',{name:'显示 原 视频.mp4 的结果'})).not.toBeInTheDocument();
+    expect(screen.getByRole('button',{name:'开始处理'})).toBeEnabled();
+    await user.click(screen.getByRole('button',{name:'开始处理'}));
+    expect(api.startBatch).toHaveBeenCalledOnce();
+  });
+  it('disables reset during a running batch and hides it for unsuccessful rows',async()=>{
+    const complete:QueueItem={...waiting('a'),state:'started',jobId:'job-a',snapshot:snapshot('job-a','succeeded')};
+    const failed:QueueItem={...waiting('b','/input/b.mp4'),state:'started',jobId:'job-b',snapshot:snapshot('job-b','failed')};
+    const {api,emitQueue}=fakeApi([complete,failed,waiting('c','/input/c.mp4')]);
+    emitQueue({version:2,running:true,items:[complete,failed,waiting('c','/input/c.mp4')]});
+    render(<ProcessingView api={api}/>);
+    expect(await screen.findByRole('button',{name:'重置 原 视频.mp4'})).toBeDisabled();
+    expect(screen.queryByRole('button',{name:'重置 b.mp4'})).not.toBeInTheDocument();
+    expect(screen.queryByRole('button',{name:'重置 c.mp4'})).not.toBeInTheDocument();
+  });
   it('immediately disables processing when the backend detects a newer expired clock',async()=>{
     const {api}=fakeApi([waiting('a')]);
     vi.mocked(api.startBatch).mockRejectedValue({code:'license_expired',message:'使用许可已于 2026-12-31 到期，请联系软件提供方更新许可。'});
@@ -244,6 +272,6 @@ it('only_custom_exposes_settings',async()=>{
  await user.selectOptions(screen.getByRole('combobox',{name:'处理预设'}),'custom-variation-v1');await user.click(screen.getByRole('button',{name:'设置'}));
  expect(screen.getAllByRole('slider')).toHaveLength(14);expect(screen.getByRole('button',{name:'开始处理'})).toBeDisabled();
  fireEvent.change(screen.getByRole('slider',{name:'前景缩放'}),{target:{value:'9'}});await user.click(screen.getByRole('button',{name:'恢复推荐'}));
- expect(screen.getByRole('slider',{name:'前景缩放'})).toHaveValue('2');expect(api.saveCustomSettings).not.toHaveBeenCalled();
+ expect(screen.getByRole('slider',{name:'前景缩放'})).toHaveValue('1');expect(api.saveCustomSettings).not.toHaveBeenCalled();
  await user.click(screen.getByRole('button',{name:'保存设置'}));await waitFor(()=>expect(screen.queryByRole('dialog')).not.toBeInTheDocument());expect(api.saveCustomSettings).toHaveBeenCalledOnce();
 });

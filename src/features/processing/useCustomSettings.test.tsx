@@ -13,8 +13,8 @@ it('cancel_does_not_save',async()=>{
  const native=api();const {result}=renderHook(()=>useCustomSettings(native,false));
  await waitFor(()=>expect(result.current.loading).toBe(false));
  act(()=>result.current.openDialog());act(()=>result.current.setLevel('foregroundScale',9));
- expect(result.current.status?.settings.foregroundScale).toBe(2);
- act(()=>result.current.restoreRecommended());expect(result.current.draft?.foregroundScale).toBe(2);
+ expect(result.current.status?.settings.foregroundScale).toBe(1);
+ act(()=>result.current.restoreRecommended());expect(result.current.draft?.foregroundScale).toBe(1);
  act(()=>result.current.cancel());expect(result.current.open).toBe(false);expect(native.saveCustomSettings).not.toHaveBeenCalled();
 });
 it('failed_save_keeps_draft',async()=>{

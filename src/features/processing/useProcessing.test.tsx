@@ -5,7 +5,7 @@ import fixture from '../../../tests/fixtures/custom-settings.json';
 import type {CustomSettingsStatus, JobSnapshot, QueueSnapshot} from '../../api/contracts';
 import {useProcessing} from './useProcessing';
 
-afterEach(cleanup);
+afterEach(()=>{cleanup();vi.restoreAllMocks();localStorage.clear();});
 function deferred<T>() {let resolve!:(v:T)=>void;let reject!:(e:unknown)=>void;const promise=new Promise<T>((r,j)=>{resolve=r;reject=j;});return {promise,resolve,reject};}
 const snap=(jobId:string):JobSnapshot=>({jobId,version:1,state:'running',progress:null,startedAtMs:1,endedAtMs:null,outputPath:null,error:null,cleanupPending:false});
 const q:QueueSnapshot={version:1,running:true,items:['a','b'].map(id=>({itemId:id,inputPath:`/${id}.mp4`,state:'started',jobId:id,snapshot:snap(id),media:null}))};
@@ -16,12 +16,82 @@ function fakeApi() {
     probeInput:vi.fn(),cancelProbe:vi.fn(),startJob:vi.fn(),getJobSnapshot:vi.fn(),cancelJob:vi.fn(),
     getLicenseStatus:vi.fn(async()=>({expiresAtMs:1798732800000,effectiveTimeMs:1791630000000,expired:false,ntpAvailable:true})),
     listPresets:vi.fn(async()=>[{presetId:'basic-transcode-v1',version:1,title:'基础转换',evidenceStatus:'checked'}]),
-    getCurrentJobSnapshot:vi.fn(async()=>null),getQueueSnapshot:vi.fn(async()=>q),importFolder:vi.fn(),importPaths:vi.fn(),removeItem:vi.fn(),startBatch:vi.fn(),cancelItem:vi.fn(),
+    getCurrentJobSnapshot:vi.fn(async()=>null),getQueueSnapshot:vi.fn(async()=>q),importFolder:vi.fn(),importPaths:vi.fn(),removeItem:vi.fn(),resetItem:vi.fn(),startBatch:vi.fn(),cancelItem:vi.fn(),
     getJobLog:vi.fn(async(id)=>({text:`log ${id}`,truncated:false})),revealOutput:vi.fn(async()=>undefined),
     subscribeSnapshots:vi.fn(async(fn)=>{jobs.add(fn);return ()=>{jobs.delete(fn);};}),
     subscribeQueue:vi.fn(async(fn)=>{queues.add(fn);return ()=>{queues.delete(fn);};}),subscribeFileDrop:vi.fn(async()=>()=>undefined)};
   return {api,jobs,queues};
 }
+it('remembers the last chosen output directory across remounts and uses it for the next batch',async()=>{
+  const {api}=fakeApi();
+  vi.mocked(api.getQueueSnapshot).mockResolvedValue({version:1,running:false,items:[{...q.items[0],state:'waiting',jobId:null,snapshot:null}]});
+  vi.mocked(api.pickOutputDirectory).mockResolvedValueOnce('/输出目录/旧位置').mockResolvedValueOnce('/输出目录/新 位置').mockResolvedValueOnce(null);
+  const first=renderHook(()=>useProcessing(api));
+  await waitFor(()=>expect(first.result.current.queue.version).toBe(1));
+  await act(()=>first.result.current.selectOutput());await act(()=>first.result.current.selectOutput());
+  await act(()=>first.result.current.selectOutput());first.unmount();
+  const next=renderHook(()=>useProcessing(api));
+  expect(next.result.current.outputDirectory).toBe('/输出目录/新 位置');
+  await waitFor(()=>expect(next.result.current.licenseAllowed&&next.result.current.preset!==null).toBe(true));
+  vi.mocked(api.startBatch).mockResolvedValue(q);
+  await act(()=>next.result.current.start());
+  expect(api.startBatch).toHaveBeenCalledWith({outputDirectory:'/输出目录/新 位置',presetId:'basic-transcode-v1',metadata:{mode:'preserve'}});
+});
+it('does not persist a directory picker response that arrives after unmount',async()=>{
+  const {api}=fakeApi();vi.mocked(api.getQueueSnapshot).mockResolvedValue({...q,running:false});
+  const pending=deferred<string|null>();
+  vi.mocked(api.pickOutputDirectory).mockResolvedValueOnce('/output/kept').mockReturnValueOnce(pending.promise);
+  const first=renderHook(()=>useProcessing(api));await waitFor(()=>expect(first.result.current.queue.version).toBe(1));
+  await act(()=>first.result.current.selectOutput());
+  let selecting:Promise<void>;act(()=>{selecting=first.result.current.selectOutput();});first.unmount();
+  await act(async()=>{pending.resolve('/output/late');await selecting;});
+  const next=renderHook(()=>useProcessing(api));expect(next.result.current.outputDirectory).toBe('/output/kept');
+});
+it('keeps the chosen directory usable and explains when local storage cannot save it',async()=>{
+  const {api}=fakeApi();vi.mocked(api.getQueueSnapshot).mockResolvedValue({...q,running:false});
+  vi.spyOn(Storage.prototype,'getItem').mockImplementation(()=>{throw new Error('storage unavailable');});
+  vi.spyOn(Storage.prototype,'setItem').mockImplementation(()=>{throw new Error('storage unavailable');});
+  const hook=renderHook(()=>useProcessing(api));await waitFor(()=>expect(hook.result.current.queue.version).toBe(1));
+  expect(hook.result.current.outputDirectory).toBe('');
+  await act(()=>hook.result.current.selectOutput());
+  expect(hook.result.current.outputDirectory).toBe('/out');expect(hook.result.current.error).toContain('下次启动需重新选择');
+});
+it('keeps selection after reset and ignores old logs, job events and queue responses',async()=>{
+  const {api,jobs,queues}=fakeApi();
+  const complete:QueueSnapshot={...q,running:false,items:q.items.map(i=>({...i,snapshot:{...i.snapshot!,state:'succeeded',progress:1}}))};
+  vi.mocked(api.getQueueSnapshot).mockResolvedValue(complete);
+  const pending=deferred<{text:string;truncated:boolean}>();
+  vi.mocked(api.getJobLog).mockReturnValue(pending.promise);
+  const hook=renderHook(()=>useProcessing(api));
+  await waitFor(()=>expect(hook.result.current.queue.items).toHaveLength(2));
+  act(()=>hook.result.current.selectItem('b'));
+  let loading:Promise<void>;act(()=>{loading=hook.result.current.refreshLog();});
+  const reset:QueueSnapshot={...complete,version:2,items:[complete.items[0],{...complete.items[1],itemId:'new-b',state:'waiting',jobId:null,snapshot:null,media:null}]};
+  vi.mocked(api.resetItem).mockImplementation(async()=>{queues.forEach(fn=>fn(reset));return reset;});
+  await act(()=>hook.result.current.resetItem('b'));
+  await act(async()=>{pending.resolve({text:'old b log',truncated:false});await loading;});
+  act(()=>{jobs.forEach(fn=>fn({...snap('b'),state:'succeeded',version:99}));queues.forEach(fn=>fn(complete));});
+  expect(hook.result.current.selectedItem?.itemId).toBe('new-b');
+  expect(hook.result.current.selectedItem?.snapshot).toBeNull();
+  expect(hook.result.current.log).toBeNull();
+  expect(hook.result.current.logLoading).toBe(false);
+});
+it('blocks duplicate reset and start while pending and keeps the completed row on failure',async()=>{
+  const {api}=fakeApi();
+  const complete:QueueSnapshot={...q,running:false,items:[{...q.items[0],snapshot:{...snap('a'),state:'succeeded',progress:1}}]};
+  vi.mocked(api.getQueueSnapshot).mockResolvedValue(complete);
+  const pending=deferred<QueueSnapshot>();vi.mocked(api.resetItem).mockReturnValue(pending.promise);
+  const hook=renderHook(()=>useProcessing(api));
+  await waitFor(()=>expect(hook.result.current.selectedItem?.snapshot?.state).toBe('succeeded'));
+  await act(()=>hook.result.current.selectOutput());
+  let resetting:Promise<void>;
+  act(()=>{resetting=hook.result.current.resetItem('a');void hook.result.current.resetItem('a');void hook.result.current.start();});
+  expect(hook.result.current.importing).toBe(true);
+  expect(api.resetItem).toHaveBeenCalledOnce();expect(api.startBatch).not.toHaveBeenCalled();
+  await act(async()=>{pending.reject({message:'暂时无法重置'});await resetting;});
+  expect(hook.result.current.selectedItem?.snapshot?.state).toBe('succeeded');
+  expect(hook.result.current.error).toBe('暂时无法重置');expect(hook.result.current.importing).toBe(false);
+});
 it('subscribes before query, restores queue on remount and releases both listeners',async()=>{
   const {api,jobs,queues}=fakeApi(); const hook=renderHook(()=>useProcessing(api));
   await waitFor(()=>expect(hook.result.current.queue.items).toHaveLength(2));

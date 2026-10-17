@@ -18,7 +18,7 @@ function setup(busy=false,saving=false){
 it('all_fourteen_levels_are_accessible',()=>{
  setup();expect(screen.getByRole('dialog',{name:'自定义变化设置'})).toBeInTheDocument();
  expect(screen.getAllByRole('slider')).toHaveLength(14);
- expect(screen.getByRole('slider',{name:'前景缩放'})).toHaveValue('2');expect(screen.getByRole('slider',{name:'背景模糊'})).toHaveValue('2');expect(screen.getByRole('slider',{name:'变速'})).toHaveValue('0');
+ expect(screen.getByRole('slider',{name:'前景缩放'})).toHaveValue('1');expect(screen.getByRole('slider',{name:'背景模糊'})).toHaveValue('1');expect(screen.getByRole('slider',{name:'变速'})).toHaveValue('0');
  for(const slider of screen.getAllByRole('slider')){expect(slider).toHaveAttribute('min','0');expect(slider).toHaveAttribute('max','9');expect(slider).toHaveAttribute('step','1');}
  expect(screen.getByText(/可能裁掉边缘字幕/)).toBeInTheDocument();
 });

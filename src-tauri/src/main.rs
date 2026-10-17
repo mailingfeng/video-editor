@@ -94,6 +94,7 @@ fn main() {
             commands::import_folder,
             commands::import_paths,
             commands::remove_item,
+            commands::reset_item,
             commands::start_batch,
             commands::cancel_item
         ])

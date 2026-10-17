@@ -1,0 +1,29 @@
+{
+  "date": "2026-10-17",
+  "applicationVersion": "0.0.1-beta.7",
+  "sourceBaseCommit": "6914535dfad2aef8b89ab82f62cc1aae0cfff983",
+  "scope": "Release delta: recommended levels, successful-row reset, output-directory persistence, version metadata and acceptance documentation. Earlier custom-variation implementation review is recorded separately.",
+  "review": {
+    "status": "self-review complete",
+    "execution": "Sequential main-thread review as required by AGENTS.md; no independent reviewer or cross-model review claimed.",
+    "critical": [],
+    "important": [],
+    "minorDeferred": [],
+    "checks": [
+      "Reset checks native idle and actual success under the service mutex; retains old job/history/output and deduplication key, creates new item/job identity and preserves position.",
+      "New queue structure cannot be replaced by stale responses; reset selection invalidates old log generations and late job events do not bind to the new row.",
+      "Frontend reset ref lock prevents same-event duplicate reset/start; native validation remains authoritative.",
+      "Output-directory persistence stores only a local preference, catches storage failures and ignores canceled/unmounted/late-batch picker responses; native output checks remain unchanged.",
+      "Rust recommendations, frontend fixtures and assertions match the six requested levels; existing saved custom levels are not migrated or overwritten.",
+      "New reset command is registered and mirrored in DesktopApi; it accepts only an item identity and does not expose filesystem or shell privileges.",
+      "Version entries agree across the five application manifests/lockfiles; no media, credentials or generated build products are included in the release delta."
+    ]
+  },
+  "priorReview": "docs/evidence/custom-variation-20261016.json#review",
+  "coverageLimits": [
+    "Local browser checks use an isolated test DesktopApi; they are not native dialog or installed application acceptance.",
+    "Output-directory restart is covered through frontend remount and real localStorage; installed native restart remains a manual acceptance step.",
+    "Same-commit dual-platform CI build, installed-resource and installed-media evidence must pass before publication.",
+    "Signing, notarization and full clean-machine desktop acceptance remain NOT VERIFIED."
+  ]
+}

@@ -150,9 +150,9 @@ mod tests {
         let v = video(1280, 720);
         let a = mild.geometry(&v).unwrap();
         let b = strong.geometry(&v).unwrap();
-        assert!((0.92..=0.944).contains(&a.ratio));
+        assert!((0.96..=0.972).contains(&a.ratio));
         assert!(a.foreground_w > b.foreground_w && a.foreground_h > b.foreground_h);
-        assert!((a.sigma / b.sigma - 0.4).abs() < 1e-12);
+        assert!((a.sigma / b.sigma - 0.2).abs() < 1e-12);
         assert_eq!(a.crop_w, 1280);
         assert_eq!(a.crop_h, 720);
     }
