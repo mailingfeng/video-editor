@@ -1,0 +1,32 @@
+{
+  "date": "2026-10-19",
+  "applicationVersion": "0.0.1-beta.8",
+  "sourceBaseCommit": "3e7e1eccf1e81943b75813e60a6c962ea9383087",
+  "implementationCommits": ["90f8ba3", "46e8910"],
+  "scope": "Validation advisories with continued safe publication, remembered processing mode and saved custom levels, readable Windows paths, version metadata and release documentation.",
+  "review": {
+    "status": "self-review complete",
+    "execution": "Sequential main-thread review as required by AGENTS.md; no independent or cross-model review claimed.",
+    "critical": [],
+    "important": [],
+    "checks": [
+      "Only post-conversion validation problems become advisories. Cancellation and conversion failures still stop processing; exclusive publication and workspace ownership checks remain authoritative.",
+      "Failed validation remains null in stored history; success is recorded only after publication. Advisory logs retain safe reasons without tool commands or processing expressions.",
+      "Existing history reloads without losing advisory logs or successful output paths; missing output cannot be reported as saved.",
+      "Mode persistence stores the selected preset only; active batch settings take priority, unknown presets fall back, and storage errors preserve the current choice.",
+      "Saved custom levels continue using the native settings store; canceled drafts do not replace saved values.",
+      "Windows path formatting affects display only, including drive and UNC forms; IPC, file identities and native file access retain original paths."
+    ]
+  },
+  "localVerification": {
+    "frontend": "73 tests passed; production build and TypeScript checks passed before the version metadata update.",
+    "backend": "Full non-ignored Rust suite, format checks and desktop-feature clippy passed with CARGO_INCREMENTAL=0 after an external-volume incremental-cache failure.",
+    "reportedSample": "The supplied read-only video passed the new real-media regression: custom recommended settings, speed disabled, audio validation warning recorded, output saved, source identity unchanged. Sample media and processing parameters are not included in the release."
+  },
+  "coverageLimits": [
+    "Mode restart behavior is covered by frontend remount with persisted localStorage; custom levels are covered by native settings-store reload. Full installed-app restart remains a manual acceptance step.",
+    "Local reported-sample regression ran on macOS Intel; the private original is not uploaded to Windows CI.",
+    "Final same-commit dual-platform build, installed-resource checks and installed-media evidence must pass before publication.",
+    "Signing, notarization and complete clean-machine desktop acceptance remain NOT VERIFIED."
+  ]
+}

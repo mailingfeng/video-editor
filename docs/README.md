@@ -21,6 +21,7 @@
 | [macOS Intel 桌面验收](macos-intel-desktop-acceptance.md) | 安装后界面与媒体检查步骤 |
 | [早期发行验证](release-verification.md) | 开发包安装与验证历史，不代表最新提交的发行状态 |
 | [第三方材料](third-party-notices.md) | 打包材料现状与尚缺范围；不是正式发行完成证明 |
+| [beta.8 发布说明](releases/0.0.1-beta.8.md) | 校验提醒后保存、处理模式记忆、Windows 路径显示及双平台验证限制 |
 | [beta.7 发布说明](releases/0.0.1-beta.7.md) | 自定义变化、重置、输出目录记忆及双平台验证限制 |
 | [beta.6 发布说明](releases/0.0.1-beta.6.md) | 上一版本的更新、下载命名、验证限制 |
 
@@ -44,6 +45,7 @@
 
 - [beta.6 本地验证](evidence/beta6-validation-20261012.json)：版本调整后的本地检查与限制。
 - [beta.7 本地审查](evidence/beta7-local-review-20261017.json)：本轮增量的顺序自审、回归边界与未验范围；双平台构建证据随 Release 提供。
+- [beta.8 本地审查](evidence/beta8-local-review-20261019.json)：校验提醒、模式记忆与 Windows 路径显示的顺序自审和原片回归范围；最终双平台证据随 Release 提供。
 - [处理加固验证](evidence/processing-hardening-20261012.json)：绑定提交的本地、Windows、macOS 原生范围。
 - [Windows 安装升级验证](evidence/windows-installer-upgrade-20261012.json)：升级、修复、降级及运行中拒绝场景。
 - 其他 `docs/evidence/` JSON 保存早期平台和版本的证据；测试计数、资源校验、人工桌面验收、签名／公证与正式发行状态须分别解读。
