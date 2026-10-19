@@ -15,6 +15,7 @@ use video_editor::{
 struct DiagnosticRunner {
     inner: Arc<ControlledRunner>,
     fail: bool,
+    validation_failure: bool,
 }
 #[async_trait]
 impl MediaRunner for DiagnosticRunner {
@@ -50,11 +51,20 @@ impl MediaRunner for DiagnosticRunner {
                 });
             }
         }
-        self.inner.run(spec, cancel, events).await
+        let invalid_output = self.validation_failure
+            && spec.args.iter().any(|a| a == "-show_streams")
+            && spec.args.last().is_some_and(|a| a.ends_with("output.mp4"));
+        let mut result = self.inner.run(spec, cancel, events).await?;
+        if invalid_output {
+            let mut metadata: serde_json::Value = serde_json::from_str(&result.stdout).unwrap();
+            metadata["streams"][0]["width"] = 718.into();
+            result.stdout = metadata.to_string();
+        }
+        Ok(result)
     }
 }
 
-async fn run(fail: bool) -> (tempfile::TempDir, JobService, JobSnapshot) {
+async fn run(fail: bool, validation_failure: bool) -> (tempfile::TempDir, JobService, JobSnapshot) {
     let root = tempfile::tempdir().unwrap();
     let input = root.path().join("source.mp4");
     std::fs::write(&input, b"input").unwrap();
@@ -63,6 +73,7 @@ async fn run(fail: bool) -> (tempfile::TempDir, JobService, JobSnapshot) {
         Arc::new(DiagnosticRunner {
             inner: ControlledRunner::new(BlockAt::None, false),
             fail,
+            validation_failure,
         }),
         root.path().join("records"),
         Arc::new(move |snapshot| {
@@ -110,7 +121,7 @@ fn assert_no_diagnostics(text: &str) {
 
 #[tokio::test]
 async fn report_keeps_timed_stages_and_coarse_progress_without_tool_output() {
-    let (root, service, end) = run(false).await;
+    let (root, service, end) = run(false, false).await;
     assert_eq!(end.state, JobState::Succeeded);
     let report = service.read_log(&end.job_id).await.unwrap().text;
     assert_no_diagnostics(&report);
@@ -145,7 +156,7 @@ async fn report_keeps_timed_stages_and_coarse_progress_without_tool_output() {
 
 #[tokio::test]
 async fn report_and_snapshot_keep_disk_full_advice_without_raw_failure_details() {
-    let (_root, service, end) = run(true).await;
+    let (_root, service, end) = run(true, false).await;
     assert_eq!(end.state, JobState::Failed);
     let error = end.error.unwrap();
     assert_eq!(error.code, ErrorCode::DiskFull);
@@ -154,6 +165,57 @@ async fn report_and_snapshot_keep_disk_full_advice_without_raw_failure_details()
     let report = service.read_log(&end.job_id).await.unwrap().text;
     assert_no_diagnostics(&report);
     assert!(report.contains("释放空间"));
+}
+
+#[tokio::test]
+async fn validation_reason_reaches_snapshot_log_and_restored_history_without_tool_details() {
+    let (root, service, end) = run(false, true).await;
+    assert_eq!(end.state, JobState::Failed);
+    assert!(end.output_path.is_none());
+    let error = end.error.as_ref().unwrap();
+    assert!(
+        error.message.contains("视频尺寸与处理计划不一致"),
+        "{}",
+        error.message
+    );
+    assert!(error.details.is_none());
+    let report = service.read_log(&end.job_id).await.unwrap().text;
+    assert!(report.contains(&error.message));
+    assert_no_diagnostics(&report);
+    let restored = JobService::new(
+        ControlledRunner::new(BlockAt::None, false),
+        root.path().join("records"),
+        Arc::new(|_| {}),
+    );
+    assert_eq!(restored.read_log(&end.job_id).await.unwrap().text, report);
+    assert_eq!(
+        restored
+            .current_snapshot()
+            .await
+            .unwrap()
+            .unwrap()
+            .error
+            .unwrap()
+            .message,
+        error.message
+    );
+}
+
+#[test]
+fn unknown_validation_errors_do_not_expose_raw_messages_or_details() {
+    for message in [
+        "ffmpeg -vf rotate=0.01",
+        "视频帧数与处理计划不一致 -vf rotate=0.01",
+        "处理结果未通过完整性检查：ffmpeg -vf rotate=0.01。未保存新视频。",
+        "视频帧数与处理计划不一致",
+    ] {
+        let error = AppError::new(ErrorCode::ValidationFailed, message)
+            .detail("asetrate=47000")
+            .for_user();
+        assert_no_diagnostics(&error.message);
+        assert!(error.details.is_none());
+        assert_eq!(error.for_user().message, error.message);
+    }
 }
 
 #[tokio::test]
@@ -226,7 +288,7 @@ async fn time_only_history_gets_dates_from_the_saved_task_times() {
 
 #[tokio::test]
 async fn completed_history_does_not_persist_processing_arguments() {
-    let (root, _, end) = run(false).await;
+    let (root, _, end) = run(false, false).await;
     let history = root.path().join("records/history");
     for name in [format!("{}.json", end.job_id), "latest.json".into()] {
         let value: serde_json::Value =
@@ -238,7 +300,7 @@ async fn completed_history_does_not_persist_processing_arguments() {
 
 #[tokio::test]
 async fn startup_scrubs_all_old_history_plans_and_keeps_user_reports() {
-    let (root, service, end) = run(false).await;
+    let (root, service, end) = run(false, false).await;
     let report = service.read_log(&end.job_id).await.unwrap().text;
     let history = root.path().join("records/history");
     let latest = history.join("latest.json");

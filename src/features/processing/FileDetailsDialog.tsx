@@ -1,5 +1,6 @@
 import {useEffect,useId,useRef} from 'react';
 import type {LogExcerpt,QueueItem} from '../../api/contracts';
+import {displayPath} from './displayPath';
 
 interface FileDetailsDialogProps {
   kind:'media'|'logs';
@@ -37,7 +38,7 @@ export function FileDetailsDialog({kind,item,status,log,logLoading,logError,onCl
       {kind==='logs' && <button className="btn" disabled={!item.jobId || logLoading} onClick={onRefresh}>{logLoading?'正在读取':'刷新日志'}</button>}
       <button className="btn quiet" onClick={close}>关闭</button>
     </div></div>
-    <div className="dialog-file"><h3>{item.inputPath.split(/[\\/]/).pop()||item.inputPath}</h3><p id={pathId} className="small muted">{item.inputPath}</p></div>
+    <div className="dialog-file"><h3>{item.inputPath.split(/[\\/]/).pop()||item.inputPath}</h3><p id={pathId} className="small muted">{displayPath(item.inputPath)}</p></div>
     {kind==='media'?<div className="panel-body source-info">
       {media && video?<>
         <dl className="media-grid">
@@ -52,7 +53,7 @@ export function FileDetailsDialog({kind,item,status,log,logLoading,logError,onCl
         </dl><p className="helper">{colorSummary}</p>
       </>:<p className="helper">{item.snapshot?.state==='failed'?'未读取到视频源信息，请查看日志了解详情。':'待检查 · 完整媒体检查在任务开始后进行。'}</p>}
     </div>:<>
-      <div className="report-summary"><div><span>状态</span><strong>{status}</strong></div><div><span>结果路径</span><strong>{item.snapshot?.outputPath??'—'}</strong></div></div>
+      <div className="report-summary"><div><span>状态</span><strong>{status}</strong></div><div><span>结果路径</span><strong>{displayPath(item.snapshot?.outputPath??'—')}</strong></div></div>
       {item.snapshot?.error && <div className="error-detail dialog-notice" role="alert"><strong>{item.snapshot.error.message}</strong></div>}
       {item.snapshot?.cleanupPending && <div className="notice warning dialog-notice">临时文件尚未完全清理，应用下次启动时会重试。</div>}
       {logError && <div className="notice error dialog-notice" role="alert">{logError}</div>}

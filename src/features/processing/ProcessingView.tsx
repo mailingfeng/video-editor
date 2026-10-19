@@ -4,6 +4,7 @@ import type { JobState, QueueItem } from '../../api/contracts';
 import { useProcessing } from './useProcessing';
 import { FileDetailsDialog } from './FileDetailsDialog';
 import {CustomSettingsDialog} from './CustomSettingsDialog';
+import {displayPath} from './displayPath';
 import './processing.css';
 
 const labels: Record<JobState, string> = {probing:'检查视频', preparing:'准备任务', running:'处理中', validating:'校验结果', committing:'保存结果', succeeded:'处理完成', failed:'处理失败', canceling:'正在取消', canceled:'已取消'};
@@ -50,7 +51,7 @@ export function ProcessingView({api}: {api: DesktopApi}) {
     </header>
     <main className="content">
       {tab === 'logs' && <div className="page-heading"><div><h1>日志报告</h1><p className="subtitle">查看选中文件的处理记录与结果。</p></div><span className={`ready ${p.busy ? 'active' : ''}`}><i/>{p.busy ? '任务进行中' : '准备就绪'}</span></div>}
-      {tab === 'processing' && <div className="launch-bar"><div className="toolbar-output"><span className="muted">输出目录</span><button className="btn output-selector" disabled={!api.available || p.busy} onClick={() => void p.selectOutput()} aria-label="选择输出目录" title={p.outputDirectory}><Icon name="folder"/><span>{p.outputDirectory || '选择保存位置'}</span></button></div><span className="toolbar-preset muted">{presetLabel}</span><span className={`ready ${p.busy ? 'active' : ''}`} role="status"><i/>{p.busy ? '任务进行中' : '准备就绪'}</span>
+      {tab === 'processing' && <div className="launch-bar"><div className="toolbar-output"><span className="muted">输出目录</span><button className="btn output-selector" disabled={!api.available || p.busy} onClick={() => void p.selectOutput()} aria-label="选择输出目录" title={displayPath(p.outputDirectory)}><Icon name="folder"/><span>{displayPath(p.outputDirectory) || '选择保存位置'}</span></button></div><span className="toolbar-preset muted">{presetLabel}</span><span className={`ready ${p.busy ? 'active' : ''}`} role="status"><i/>{p.busy ? '任务进行中' : '准备就绪'}</span>
         <div className="start-action" role="group" aria-label="开始处理" tabIndex={startHint ? 0 : undefined} aria-describedby={startHintVisible ? startHintId : undefined} onMouseEnter={() => setShowStartHint(true)} onMouseLeave={() => setShowStartHint(false)} onFocus={() => setShowStartHint(true)} onBlur={() => setShowStartHint(false)} onKeyDown={event => {if(event.key === 'Escape')setShowStartHint(false);}}>
           <button className="btn primary" disabled={startDisabled} aria-describedby={startHintVisible ? startHintId : undefined} onClick={() => void p.start()}><Icon name="play"/>{p.starting ? '正在启动' : '开始处理'}</button>
           {startHintVisible && <span className="start-tooltip" id={startHintId} role="tooltip">{startHint}</span>}
@@ -67,7 +68,7 @@ export function ProcessingView({api}: {api: DesktopApi}) {
               const fileName = item.inputPath.split(/[\\/]/).pop() || item.inputPath;
               const value = percent(item);
               return <li key={item.itemId} className={`queue-row ${item.itemId === p.selectedItem?.itemId ? 'selected' : ''}`} aria-label={fileName}>
-                <button className="queue-select" aria-label={`查看 ${fileName}`} aria-pressed={item.itemId === p.selectedItem?.itemId} onClick={() => p.selectItem(item.itemId)}><span className="file-symbol"><Icon name="film"/></span><span className="queue-name"><strong>{fileName}</strong><span className="queue-path" title={item.inputPath}>{item.inputPath}</span></span></button>
+                <button className="queue-select" aria-label={`查看 ${fileName}`} aria-pressed={item.itemId === p.selectedItem?.itemId} onClick={() => p.selectItem(item.itemId)}><span className="file-symbol"><Icon name="film"/></span><span className="queue-name"><strong>{fileName}</strong><span className="queue-path" title={displayPath(item.inputPath)}>{displayPath(item.inputPath)}</span></span></button>
                 <div className="queue-status"><span className={`phase phase-${item.snapshot?.state ?? item.state}`}>{status(item)}</span>{value !== null && <strong>{value}%</strong>}</div>
                 <div className="progress-track" role="progressbar" aria-label={`${fileName} 处理进度`} aria-valuemin={0} aria-valuemax={100} aria-valuenow={value ?? undefined} aria-valuetext={status(item)}><span style={{transform:`scaleX(${value === null ? 0 : value / 100})`}}/></div>
                 <div className="queue-actions">
@@ -92,7 +93,7 @@ export function ProcessingView({api}: {api: DesktopApi}) {
             <p className="helper">本批视频共用所选设置。处理完成后自动保存为新文件，不覆盖已有文件。</p>
           </div></section>
         </div>
-      </div> : <section className="panel"><div className="panel-head"><div><h2>任务记录</h2><small>{snap ? `任务 ${snap.jobId}` : '尚无任务记录'}</small></div><button className="btn" disabled={!snap || p.logLoading} onClick={() => void p.refreshLog()}>刷新日志</button></div>{previousResult && <div className="notice">上次结果</div>}<div className="report-summary"><div><span>状态</span><strong>{snap ? labels[snap.state] : p.selectedItem?.state === 'canceled' ? '已取消' : '等待开始'}</strong></div><div><span>结果路径</span><strong>{snap?.outputPath ?? '—'}</strong></div></div>{p.logError && <div className="notice error" role="alert">{p.logError}</div>}<pre className="log-body" aria-busy={p.logLoading}>{p.log?.text || (p.logLoading ? '正在读取日志…' : '开始处理后，此处显示各阶段进度、记录时间与结果提示。')}</pre>{p.log?.truncated && <p className="helper log-footer">仅显示最近 64 KiB 日志。</p>}</section>}
+      </div> : <section className="panel"><div className="panel-head"><div><h2>任务记录</h2><small>{snap ? `任务 ${snap.jobId}` : '尚无任务记录'}</small></div><button className="btn" disabled={!snap || p.logLoading} onClick={() => void p.refreshLog()}>刷新日志</button></div>{previousResult && <div className="notice">上次结果</div>}<div className="report-summary"><div><span>状态</span><strong>{snap ? labels[snap.state] : p.selectedItem?.state === 'canceled' ? '已取消' : '等待开始'}</strong></div><div><span>结果路径</span><strong>{displayPath(snap?.outputPath ?? '—')}</strong></div></div>{p.logError && <div className="notice error" role="alert">{p.logError}</div>}<pre className="log-body" aria-busy={p.logLoading}>{p.log?.text || (p.logLoading ? '正在读取日志…' : '开始处理后，此处显示各阶段进度、记录时间与结果提示。')}</pre>{p.log?.truncated && <p className="helper log-footer">仅显示最近 64 KiB 日志。</p>}</section>}
     </main>
     {p.custom.open&&p.custom.draft&&p.custom.status&&<CustomSettingsDialog draft={p.custom.draft} recommended={p.custom.status.recommended} busy={p.busy} saving={p.custom.saving} error={p.custom.error} onLevelChange={p.custom.setLevel} onRestore={p.custom.restoreRecommended} onCancel={p.custom.cancel} onSave={p.custom.save}/>}
     {details && detailsItem && <FileDetailsDialog key={`${details.itemId}-${details.kind}`} kind={details.kind} item={detailsItem} status={status(detailsItem)} log={p.log} logLoading={p.logLoading} logError={p.logError} onClose={() => setDetails(null)} onRefresh={() => void p.refreshLog()}/>}

@@ -202,23 +202,44 @@ async fn validate_fixture(name: &str) -> Result<ValidationResult, AppError> {
 }
 #[tokio::test]
 async fn zero_exit_with_decode_error_fails() {
-    assert_eq!(
-        validate_fixture("decode-error").await.unwrap_err().code,
-        ErrorCode::ValidationFailed
+    let error = validate_fixture("decode-error")
+        .await
+        .unwrap_err()
+        .for_user();
+    assert_eq!(error.code, ErrorCode::ValidationFailed);
+    assert!(
+        error.message.contains("输出完整解码失败"),
+        "{}",
+        error.message
     );
+    assert!(error.details.is_none());
 }
 #[tokio::test]
 async fn video_frame_count_must_match() {
-    assert_eq!(
-        validate_fixture("wrong-frames").await.unwrap_err().code,
-        ErrorCode::ValidationFailed
+    let error = validate_fixture("wrong-frames")
+        .await
+        .unwrap_err()
+        .for_user();
+    assert_eq!(error.code, ErrorCode::ValidationFailed);
+    assert!(
+        error.message.contains("视频帧数与处理计划不一致"),
+        "{}",
+        error.message
     );
+    assert_eq!(error.for_user().message, error.message);
+    assert!(error.details.is_none());
 }
 #[tokio::test]
 async fn audio_presence_and_48k_must_match() {
-    assert_eq!(
-        validate_fixture("wrong-audio").await.unwrap_err().code,
-        ErrorCode::ValidationFailed
+    let error = validate_fixture("wrong-audio")
+        .await
+        .unwrap_err()
+        .for_user();
+    assert_eq!(error.code, ErrorCode::ValidationFailed);
+    assert!(
+        error.message.contains("音频采样率与处理计划不一致"),
+        "{}",
+        error.message
     );
 }
 #[tokio::test]

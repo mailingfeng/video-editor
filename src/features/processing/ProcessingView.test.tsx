@@ -34,6 +34,39 @@ function fakeApi(initial:QueueItem[]=[]){
 async function ready(api:DesktopApi){render(<ProcessingView api={api}/>);const user=userEvent.setup();await screen.findByRole('button',{name:'选择文件夹'});await user.click(screen.getByRole('button',{name:'选择输出目录'}));return user;}
 const row=(name:string)=>screen.getByRole('listitem',{name});
 describe('batch desktop interface',()=>{
+  it.each([
+    [String.raw`\\?\D:\每天要剪辑的视频\原 视频.mp4`, String.raw`D:\每天要剪辑的视频\原 视频.mp4`],
+    [String.raw`\\?\UNC\server\share\原 视频.mp4`, String.raw`\\server\share\原 视频.mp4`],
+  ])('displays Windows paths in the queue and both dialogs without the extended prefix: %s',async(inputPath,displayPath)=>{
+    const {api}=fakeApi([waiting('a',inputPath)]);
+    const user=await ready(api);
+    expect(within(row('原 视频.mp4')).getByText(displayPath)).toHaveAttribute('title',displayPath);
+    for(const kind of ['视频信息','日志']) {
+      await user.click(within(row('原 视频.mp4')).getByRole('button',{name:`查看 原 视频.mp4 的${kind}`}));
+      const dialog=screen.getByRole('dialog');
+      expect(within(dialog).getByText(displayPath)).toBeVisible();
+      expect(within(dialog).queryByText(inputPath)).not.toBeInTheDocument();
+      await user.click(within(dialog).getByRole('button',{name:'关闭'}));
+    }
+  });
+  it('formats output paths while sending the original output directory to the backend',async()=>{
+    const outputDirectory=String.raw`\\?\D:\保存位置`;
+    const outputPath=String.raw`\\?\D:\保存位置\result.mp4`;
+    const {api,emit}=fakeApi([waiting('a')]);
+    vi.mocked(api.pickOutputDirectory).mockResolvedValue(outputDirectory);
+    const user=await ready(api);
+    const selector=screen.getByRole('button',{name:'选择输出目录'});
+    expect(selector).toHaveTextContent(String.raw`D:\保存位置`);
+    expect(selector).toHaveAttribute('title',String.raw`D:\保存位置`);
+    await user.click(screen.getByRole('button',{name:'开始处理'}));
+    expect(api.startBatch).toHaveBeenCalledWith(expect.objectContaining({outputDirectory}));
+    act(()=>emit({...snapshot('job-a','succeeded',8),progress:1,outputPath}));
+    await user.click(screen.getByRole('button',{name:'查看 原 视频.mp4 的日志'}));
+    expect(within(screen.getByRole('dialog')).getByText(String.raw`D:\保存位置\result.mp4`)).toBeVisible();
+    await user.click(within(screen.getByRole('dialog')).getByRole('button',{name:'关闭'}));
+    await user.click(screen.getByRole('button',{name:'日志报告'}));
+    expect(screen.getByText(String.raw`D:\保存位置\result.mp4`)).toBeVisible();
+  });
   it('resets a completed row from the leftmost action to zero and enables a new batch',async()=>{
     const complete:QueueItem={...waiting('a'),state:'started',jobId:'job-a',snapshot:{...snapshot('job-a','succeeded'),progress:1,outputPath:'/output/old.mp4'}};
     const {api}=fakeApi([complete]);

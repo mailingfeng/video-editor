@@ -45,6 +45,22 @@ impl AppError {
         Self::new(code, error.to_string())
     }
     pub fn for_user(&self) -> Self {
+        if self.code == ErrorCode::ValidationFailed {
+            // Only application-owned reasons may enter reports. Tool stderr and
+            // arbitrary details can contain private processing expressions.
+            // Accept the public form too: history loading sanitizes errors again.
+            let reason = self
+                .message
+                .strip_prefix("处理结果未通过完整性检查：")
+                .and_then(|text| text.strip_suffix("。未保存新视频。"))
+                .unwrap_or(&self.message);
+            if VALIDATION_REASONS.contains(&reason) {
+                return Self::new(
+                    self.code,
+                    format!("处理结果未通过完整性检查：{reason}。未保存新视频。"),
+                );
+            }
+        }
         let message = match self.code {
             ErrorCode::InvalidSettings => "处理设置无效，请恢复推荐设置后重试。",
             ErrorCode::UnsupportedInput => "该视频暂不支持处理，请尝试更换视频文件。",
@@ -70,6 +86,41 @@ impl AppError {
         Self::new(self.code, message)
     }
 }
+
+const VALIDATION_REASONS: &[&str] = &[
+    "输出不是普通文件",
+    "输出为空",
+    "无法读取临时输出",
+    "无法读取输出媒体信息",
+    "无法确认目标时间轴",
+    "输出完整解码失败",
+    "无法复核输出文件身份",
+    "校验期间输出发生变化",
+    "视频编码与处理计划不一致",
+    "视频像素格式与处理计划不一致",
+    "视频尺寸与处理计划不一致",
+    "视频帧率与处理计划不一致",
+    "视频帧数与处理计划不一致",
+    "视频规格或帧数与处理计划不一致",
+    "逐帧时间戳与输入不一致",
+    "视频时长超过允许偏差",
+    "视频起点发生变化",
+    "已知颜色标记与计划不一致",
+    "音频编码与处理计划不一致",
+    "音频采样率与处理计划不一致",
+    "音频声道数与处理计划不一致",
+    "音频时长超过允许偏差",
+    "音频规格或时长与处理计划不一致",
+    "音频声道布局发生变化",
+    "音频有效采样数无法确认",
+    "音频有效采样数与目标不一致",
+    "音视频相对起点发生变化",
+    "音轨存在性与计划不一致",
+    "目标音频时长缺失",
+    "目标音频起点缺失",
+    "变速校验缺少目标时间轴",
+    "待保存媒体无效",
+];
 impl std::fmt::Display for AppError {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         write!(f, "{}", self.message)

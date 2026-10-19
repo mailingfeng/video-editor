@@ -19,6 +19,7 @@
 | 输出目录记忆 | `useProcessing.ts` | `useProcessing.test.tsx`：选择后重挂载恢复、取消／迟到回包不覆盖、存储不可用；测试清理隔离的 localStorage |
 | IPC 字段／命令 | `contracts.ts`、`desktop.ts`、Rust `contracts/`、`commands.rs`、`main.rs` | wire fixture、前端类型、desktop clippy，真实 Tauri 调用 |
 | 文件夹收集、路径去重 | `media/inputs.rs`、`JobService` 导入方法 | `input_collection`、批次测试；Windows 大小写／别名、中文空格及晚到扫描 |
+| 路径显示、校验失败原因 | `displayPath.ts`、`contracts/error.rs`、`media/validate.rs` | `displayPath.test.ts`、`ProcessingView.test.tsx` 的盘符／UNC 弹窗显示；`output_validation`、`user_reports` 的具体原因、工具信息隔离与历史重载 |
 | 并发、取消、重置、退出 | `jobs/service.rs`、`jobs/state.rs`、`native/process.rs` | `batch_lifecycle`、`job_lifecycle`、`native_process`；重置同时检查视图／hook 的归零、重复操作、旧日志／事件隔离；再按媒体改动范围跑真实 lifecycle / batch |
 | 预设或编码参数 | `presets/basic.rs`、相关预设、`media/validate.rs` | `basic_plan`、生成媒体、相关实样；保持时间轴、布局及画面／声音变化证据 |
 | 探测、时间轴、色彩、音频兼容性 | `media/probe.rs`、`timeline.rs`、`validate.rs` | `input_probe`、`output_validation`、`pipeline_real`，覆盖对应边界样本 |

@@ -37,14 +37,14 @@ pub async fn validate_output(
     }
     let output = probe_input(runner, path, cancel.clone())
         .await
-        .map_err(as_validation)?;
+        .map_err(|e| validation_stage(e, "无法读取输出媒体信息"))?;
     if output.identity.size_bytes == 0 {
         return Err(failed("输出为空"));
     }
     let expected =
         super::timing::expected_timeline(runner, &plan.source, &plan.timing, cancel.clone())
             .await
-            .map_err(as_validation)?;
+            .map_err(|e| validation_stage(e, "无法确认目标时间轴"))?;
     verify_specifications_against(plan, &output, expected.as_ref())?;
     let args = ["-v", "error", "-xerror", "-i"]
         .into_iter()
@@ -78,10 +78,14 @@ pub async fn validate_output(
         cancel.clone(),
     )
     .await
-    .map_err(as_validation)?;
-    check_exit(&decoded).map_err(as_validation)?;
+    .map_err(|e| validation_stage(e, "输出完整解码失败"))?;
+    check_exit(&decoded).map_err(|e| validation_stage(e, "输出完整解码失败"))?;
     verify_input_identity(plan, &cancel).await?;
-    if file_identity(path, &cancel).await.map_err(as_validation)? != output.identity {
+    if file_identity(path, &cancel)
+        .await
+        .map_err(|e| validation_stage(e, "无法复核输出文件身份"))?
+        != output.identity
+    {
         return Err(failed("校验期间输出发生变化"));
     }
     Ok(ValidationResult {
@@ -161,15 +165,22 @@ pub fn verify_specifications_against(
             && v.bit_depth == 8
             && v.color_range.as_deref() == Some("pc")
             && plan.source.video.color_range.as_deref() == Some("pc"));
-    if v.codec != "h264"
-        || !pixel_matches
-        || v.width != p.width
-        || v.height != p.height
-        || (expected.is_none() && v.frame_rate != target.frame_rate)
+    if v.codec != "h264" {
+        return Err(failed("视频编码与处理计划不一致"));
+    }
+    if !pixel_matches {
+        return Err(failed("视频像素格式与处理计划不一致"));
+    }
+    if v.width != p.width || v.height != p.height {
+        return Err(failed("视频尺寸与处理计划不一致"));
+    }
+    if (expected.is_none() && v.frame_rate != target.frame_rate)
         || (!matches!(plan.timing, TimingPolicy::Preserve) && !frame_rate_matches_timeline(v))
-        || v.frame_count != p.frame_count
     {
-        return Err(failed("视频规格或帧数与处理计划不一致"));
+        return Err(failed("视频帧率与处理计划不一致"));
+    }
+    if v.frame_count != p.frame_count {
+        return Err(failed("视频帧数与处理计划不一致"));
     }
     if let Some(source) = expected {
         if v.timeline
@@ -210,18 +221,23 @@ pub fn verify_specifications_against(
     ) {
         (None, None, None, None) => {}
         (Some(a), Some(channels), Some(_duration), Some(source)) => {
-            if a.codec != "aac"
-                || a.sample_rate != 48000
-                || a.channels != channels
-                || exceeds(
-                    seconds(a.duration_ticks, a.time_base)
-                        - target
-                            .audio_duration_seconds
-                            .ok_or_else(|| failed("目标音频时长缺失"))?,
-                    p.audio_tolerance_seconds,
-                )
-            {
-                return Err(failed("音频规格或时长与处理计划不一致"));
+            if a.codec != "aac" {
+                return Err(failed("音频编码与处理计划不一致"));
+            }
+            if a.sample_rate != 48000 {
+                return Err(failed("音频采样率与处理计划不一致"));
+            }
+            if a.channels != channels {
+                return Err(failed("音频声道数与处理计划不一致"));
+            }
+            if exceeds(
+                seconds(a.duration_ticks, a.time_base)
+                    - target
+                        .audio_duration_seconds
+                        .ok_or_else(|| failed("目标音频时长缺失"))?,
+                p.audio_tolerance_seconds,
+            ) {
+                return Err(failed("音频时长超过允许偏差"));
             }
             if source.channel_layout.is_some() && source.channel_layout != a.channel_layout {
                 return Err(failed("音频声道布局发生变化"));
@@ -272,6 +288,9 @@ fn validation_io(e: std::io::Error) -> AppError {
     failed("无法读取临时输出").detail(e.to_string())
 }
 fn as_validation(e: AppError) -> AppError {
+    validation_stage(e, "输出校验未通过")
+}
+fn validation_stage(e: AppError, reason: &str) -> AppError {
     if matches!(e.code, ErrorCode::Canceled | ErrorCode::ToolMissing) {
         e
     } else {
@@ -279,7 +298,7 @@ fn as_validation(e: AppError) -> AppError {
             Some(detail) => format!("{}：{detail}", e.message),
             None => e.message,
         };
-        failed("输出校验未通过").detail(details)
+        failed(reason).detail(details)
     }
 }
 
