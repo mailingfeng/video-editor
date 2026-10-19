@@ -6,6 +6,7 @@ import {useLicense} from './useLicense';
 import {useCustomSettings} from './useCustomSettings';
 
 const outputDirectoryStorageKey='frameshift.outputDirectory.v1';
+const presetStorageKey='frameshift.presetId.v1';
 
 function message(error:unknown):string {
   if (typeof error==='object' && error!==null && 'message' in error) return String(error.message);
@@ -17,7 +18,11 @@ export function useProcessing(api:DesktopApi) {
   const [state,setState]=useState(emptyQueueState);
   const stateRef=useRef(state);
   const [presets,setPresets]=useState<PresetSummary[]>([]);
-  const [presetId,setPresetId]=useState<string|null>(null);
+  const [presetId,setPresetId]=useState<string|null>(()=>{
+    if(!api.available)return null;
+    try{return localStorage.getItem(presetStorageKey);}
+    catch{return null;}
+  });
   const [outputDirectory,setOutputDirectory]=useState(()=>{
     if(!api.available)return '';
     try{return localStorage.getItem(outputDirectoryStorageKey)??'';}
@@ -111,6 +116,8 @@ export function useProcessing(api:DesktopApi) {
   function selectPreset(id:string){
     if(startLock.current || busy || importing || !presets.some(p=>p.presetId===id))return;
     setPresetId(id);
+    try{localStorage.setItem(presetStorageKey,id);}
+    catch{setError('处理模式已选择，但无法记住此设置，下次启动需重新选择。');}
   }
   const selectedItem=state.queue.items.find(i=>i.itemId===selectedId)??null;
   const snapshot=selectedItem?.snapshot??(state.queue.items.length===0?historical:null);

@@ -49,12 +49,7 @@ impl AppError {
             // Only application-owned reasons may enter reports. Tool stderr and
             // arbitrary details can contain private processing expressions.
             // Accept the public form too: history loading sanitizes errors again.
-            let reason = self
-                .message
-                .strip_prefix("处理结果未通过完整性检查：")
-                .and_then(|text| text.strip_suffix("。未保存新视频。"))
-                .unwrap_or(&self.message);
-            if VALIDATION_REASONS.contains(&reason) {
+            if let Some(reason) = self.validation_reason() {
                 return Self::new(
                     self.code,
                     format!("处理结果未通过完整性检查：{reason}。未保存新视频。"),
@@ -84,6 +79,27 @@ impl AppError {
             }
         };
         Self::new(self.code, message)
+    }
+    pub fn validation_warning(&self) -> String {
+        let reason = if self.code == ErrorCode::ValidationFailed {
+            self.validation_reason()
+                .unwrap_or("处理结果未通过完整性检查")
+                .to_owned()
+        } else {
+            self.for_user().message
+        };
+        format!(
+            "校验提醒：{}；将继续保存新视频。",
+            reason.trim_end_matches('。')
+        )
+    }
+    fn validation_reason(&self) -> Option<&str> {
+        let reason = self
+            .message
+            .strip_prefix("处理结果未通过完整性检查：")
+            .and_then(|text| text.strip_suffix("。未保存新视频。"))
+            .unwrap_or(&self.message);
+        VALIDATION_REASONS.contains(&reason).then_some(reason)
     }
 }
 

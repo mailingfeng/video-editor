@@ -22,6 +22,47 @@ function fakeApi() {
     subscribeQueue:vi.fn(async(fn)=>{queues.add(fn);return ()=>{queues.delete(fn);};}),subscribeFileDrop:vi.fn(async()=>()=>undefined)};
   return {api,jobs,queues};
 }
+const modePresets=['content-variation-v1','repeat-combined-v2','custom-variation-v1'].map(presetId=>({presetId,version:1,title:presetId,evidenceStatus:''}));
+it.each(['repeat-combined-v2','custom-variation-v1'])('remembers the chosen mode %s and saved parameters across a fresh mount',async(presetId)=>{
+  const {api}=fakeApi();
+  const idle={version:1,running:false,items:[{...q.items[0],state:'waiting' as const,jobId:null,snapshot:null}]};
+  vi.mocked(api.getQueueSnapshot).mockResolvedValue(idle);
+  vi.mocked(api.listPresets).mockResolvedValue(modePresets);
+  let saved:CustomSettingsStatus={settings:{...fixture,schemaVersion:1},recommended:{...fixture,schemaVersion:1},source:'default',notice:null};
+  vi.mocked(api.getCustomSettings).mockImplementation(async()=>saved);
+  vi.mocked(api.saveCustomSettings).mockImplementation(async(settings)=>saved={...saved,settings,source:'saved'});
+  const first=renderHook(()=>useProcessing(api));
+  await waitFor(()=>expect(first.result.current.preset?.presetId).toBe('content-variation-v1'));
+  await waitFor(()=>expect(first.result.current.custom.loading).toBe(false));
+  await act(()=>first.result.current.selectOutput());
+  act(()=>first.result.current.selectPreset('custom-variation-v1'));
+  act(()=>first.result.current.custom.openDialog());
+  act(()=>first.result.current.custom.setLevel('pitch',7));
+  await act(()=>first.result.current.custom.save());
+  act(()=>first.result.current.custom.openDialog());
+  act(()=>first.result.current.custom.setLevel('pitch',9));
+  act(()=>first.result.current.custom.cancel());
+  act(()=>first.result.current.selectPreset(presetId));
+  first.unmount();
+  const next=renderHook(()=>useProcessing(api));
+  await waitFor(()=>expect(next.result.current.preset?.presetId).toBe(presetId));
+  await waitFor(()=>expect(next.result.current.custom.status?.settings.pitch).toBe(7));
+  await waitFor(()=>expect(next.result.current.licenseAllowed).toBe(true));
+  vi.mocked(api.startBatch).mockResolvedValue(q);
+  await act(()=>next.result.current.start());
+  expect(api.startBatch).toHaveBeenCalledWith({outputDirectory:'/out',presetId,metadata:{mode:'preserve'},...(presetId==='custom-variation-v1'?{customSettings:{...fixture,pitch:7}}:{})});
+});
+it('falls back from an unavailable stored mode and keeps the selected mode usable if storage fails',async()=>{
+  localStorage.setItem('frameshift.presetId.v1','removed-mode');
+  const {api}=fakeApi();vi.mocked(api.listPresets).mockResolvedValue(modePresets);
+  vi.mocked(api.getQueueSnapshot).mockResolvedValue({...q,running:false});
+  const hook=renderHook(()=>useProcessing(api));
+  await waitFor(()=>expect(hook.result.current.preset?.presetId).toBe('content-variation-v1'));
+  vi.spyOn(Storage.prototype,'setItem').mockImplementation(()=>{throw new Error('storage unavailable');});
+  act(()=>hook.result.current.selectPreset('custom-variation-v1'));
+  expect(hook.result.current.preset?.presetId).toBe('custom-variation-v1');
+  expect(hook.result.current.error).toContain('下次启动需重新选择');
+});
 it('remembers the last chosen output directory across remounts and uses it for the next batch',async()=>{
   const {api}=fakeApi();
   vi.mocked(api.getQueueSnapshot).mockResolvedValue({version:1,running:false,items:[{...q.items[0],state:'waiting',jobId:null,snapshot:null}]});
@@ -147,6 +188,7 @@ it('ignores a late import response after unmount',async()=>{
 });
 
 it('late_settings_do_not_override_active_batch',async()=>{
+ localStorage.setItem('frameshift.presetId.v1','content-variation-v1');
  const {api,queues}=fakeApi();const pending=deferred<CustomSettingsStatus>();vi.mocked(api.getCustomSettings).mockReturnValue(pending.promise);
  const active={presetId:'custom-variation-v1',customSettings:{...fixture,schemaVersion:1 as const,speed:9}};
  vi.mocked(api.listPresets).mockResolvedValue([{presetId:'custom-variation-v1',version:1,title:'自定义变化',evidenceStatus:''},{presetId:'content-variation-v1',version:1,title:'内容变化',evidenceStatus:''}]);
@@ -177,6 +219,7 @@ it('custom_uses_saved_levels_and_blocks_start_while_draft_is_open',async()=>{
  expect(hook.result.current.custom.status?.settings).toEqual(fixture);
 });
 it('unknown_active_preset_never_falls_back_to_a_remembered_mode',async()=>{
+ localStorage.setItem('frameshift.presetId.v1','basic-transcode-v1');
  const {api}=fakeApi();vi.mocked(api.getQueueSnapshot).mockResolvedValue({...q,activeSettings:{presetId:'future-mode'}});
  const hook=renderHook(()=>useProcessing(api));await waitFor(()=>expect(hook.result.current.queue.activeSettings?.presetId).toBe('future-mode'));
  await waitFor(()=>expect(hook.result.current.presets).toHaveLength(1));expect(hook.result.current.preset).toBeNull();

@@ -14,8 +14,15 @@ use video_editor::{
 
 struct DiagnosticRunner {
     inner: Arc<ControlledRunner>,
-    fail: bool,
-    validation_failure: bool,
+    scenario: Scenario,
+}
+#[derive(Clone, Copy, PartialEq)]
+enum Scenario {
+    Success,
+    TranscodeFailure,
+    InvalidDimensions,
+    DecodeFailure,
+    MissingOutput,
 }
 #[async_trait]
 impl MediaRunner for DiagnosticRunner {
@@ -42,7 +49,7 @@ impl MediaRunner for DiagnosticRunner {
                     .await
                     .unwrap();
             }
-            if self.fail {
+            if self.scenario == Scenario::TranscodeFailure {
                 return Ok(RunExit {
                     exit_code: Some(1),
                     stdout: String::new(),
@@ -51,10 +58,24 @@ impl MediaRunner for DiagnosticRunner {
                 });
             }
         }
-        let invalid_output = self.validation_failure
+        if self.scenario == Scenario::DecodeFailure && spec.args.iter().any(|a| a == "-xerror") {
+            return Ok(RunExit {
+                exit_code: Some(1),
+                stdout: String::new(),
+                stderr_tail: "ffmpeg -vf rotate=0.01: broken frame".into(),
+                canceled: false,
+            });
+        }
+        let invalid_output = self.scenario == Scenario::InvalidDimensions
             && spec.args.iter().any(|a| a == "-show_streams")
             && spec.args.last().is_some_and(|a| a.ends_with("output.mp4"));
+        let remove_output = (self.scenario == Scenario::MissingOutput
+            && spec.args.iter().any(|a| a == "-progress"))
+        .then(|| spec.args.last().unwrap().clone());
         let mut result = self.inner.run(spec, cancel, events).await?;
+        if let Some(path) = remove_output {
+            std::fs::remove_file(path).unwrap();
+        }
         if invalid_output {
             let mut metadata: serde_json::Value = serde_json::from_str(&result.stdout).unwrap();
             metadata["streams"][0]["width"] = 718.into();
@@ -64,7 +85,7 @@ impl MediaRunner for DiagnosticRunner {
     }
 }
 
-async fn run(fail: bool, validation_failure: bool) -> (tempfile::TempDir, JobService, JobSnapshot) {
+async fn run(scenario: Scenario) -> (tempfile::TempDir, JobService, JobSnapshot) {
     let root = tempfile::tempdir().unwrap();
     let input = root.path().join("source.mp4");
     std::fs::write(&input, b"input").unwrap();
@@ -72,8 +93,7 @@ async fn run(fail: bool, validation_failure: bool) -> (tempfile::TempDir, JobSer
     let service = JobService::new(
         Arc::new(DiagnosticRunner {
             inner: ControlledRunner::new(BlockAt::None, false),
-            fail,
-            validation_failure,
+            scenario,
         }),
         root.path().join("records"),
         Arc::new(move |snapshot| {
@@ -121,7 +141,7 @@ fn assert_no_diagnostics(text: &str) {
 
 #[tokio::test]
 async fn report_keeps_timed_stages_and_coarse_progress_without_tool_output() {
-    let (root, service, end) = run(false, false).await;
+    let (root, service, end) = run(Scenario::Success).await;
     assert_eq!(end.state, JobState::Succeeded);
     let report = service.read_log(&end.job_id).await.unwrap().text;
     assert_no_diagnostics(&report);
@@ -156,7 +176,7 @@ async fn report_keeps_timed_stages_and_coarse_progress_without_tool_output() {
 
 #[tokio::test]
 async fn report_and_snapshot_keep_disk_full_advice_without_raw_failure_details() {
-    let (_root, service, end) = run(true, false).await;
+    let (_root, service, end) = run(Scenario::TranscodeFailure).await;
     assert_eq!(end.state, JobState::Failed);
     let error = end.error.unwrap();
     assert_eq!(error.code, ErrorCode::DiskFull);
@@ -168,37 +188,58 @@ async fn report_and_snapshot_keep_disk_full_advice_without_raw_failure_details()
 }
 
 #[tokio::test]
-async fn validation_reason_reaches_snapshot_log_and_restored_history_without_tool_details() {
-    let (root, service, end) = run(false, true).await;
+async fn validation_mismatch_or_decode_failure_is_logged_but_output_is_saved_and_history_restores()
+{
+    for (scenario, reason) in [
+        (Scenario::InvalidDimensions, "视频尺寸与处理计划不一致"),
+        (Scenario::DecodeFailure, "输出完整解码失败"),
+    ] {
+        let (root, service, end) = run(scenario).await;
+        assert_eq!(end.state, JobState::Succeeded);
+        assert_eq!(end.progress, Some(1.0));
+        assert!(end.error.is_none());
+        assert_eq!(
+            std::fs::read(end.output_path.as_ref().unwrap()).unwrap(),
+            b"converted"
+        );
+        let report = service.read_log(&end.job_id).await.unwrap().text;
+        assert!(report.contains(reason), "{report}");
+        assert!(
+            report.contains("校验提醒")
+                && report.contains("将继续保存新视频")
+                && report.contains("结果已保存")
+        );
+        assert!(!report.contains("未保存新视频"));
+        assert_no_diagnostics(&report);
+        let restored = JobService::new(
+            ControlledRunner::new(BlockAt::None, false),
+            root.path().join("records"),
+            Arc::new(|_| {}),
+        );
+        assert_eq!(restored.read_log(&end.job_id).await.unwrap().text, report);
+        let snapshot = restored.current_snapshot().await.unwrap().unwrap();
+        assert_eq!(snapshot.state, JobState::Succeeded);
+        assert!(snapshot.error.is_none());
+        assert_eq!(snapshot.output_path, end.output_path);
+        let stored: serde_json::Value = serde_json::from_slice(
+            &std::fs::read(root.path().join("records/history/latest.json")).unwrap(),
+        )
+        .unwrap();
+        assert!(
+            stored["validation"].is_null(),
+            "failed validation must not be stored as passed"
+        );
+    }
+}
+
+#[tokio::test]
+async fn missing_output_still_fails_publication_after_validation_warning() {
+    let (_root, service, end) = run(Scenario::MissingOutput).await;
     assert_eq!(end.state, JobState::Failed);
     assert!(end.output_path.is_none());
-    let error = end.error.as_ref().unwrap();
-    assert!(
-        error.message.contains("视频尺寸与处理计划不一致"),
-        "{}",
-        error.message
-    );
-    assert!(error.details.is_none());
     let report = service.read_log(&end.job_id).await.unwrap().text;
-    assert!(report.contains(&error.message));
-    assert_no_diagnostics(&report);
-    let restored = JobService::new(
-        ControlledRunner::new(BlockAt::None, false),
-        root.path().join("records"),
-        Arc::new(|_| {}),
-    );
-    assert_eq!(restored.read_log(&end.job_id).await.unwrap().text, report);
-    assert_eq!(
-        restored
-            .current_snapshot()
-            .await
-            .unwrap()
-            .unwrap()
-            .error
-            .unwrap()
-            .message,
-        error.message
-    );
+    assert!(report.contains("校验提醒"));
+    assert!(!report.contains("结果已保存"));
 }
 
 #[test]
@@ -215,6 +256,12 @@ fn unknown_validation_errors_do_not_expose_raw_messages_or_details() {
         assert_no_diagnostics(&error.message);
         assert!(error.details.is_none());
         assert_eq!(error.for_user().message, error.message);
+        let warning = AppError::new(ErrorCode::ValidationFailed, message)
+            .detail("asetrate=47000")
+            .validation_warning();
+        assert_no_diagnostics(&warning);
+        assert!(warning.contains("将继续保存新视频"));
+        assert!(!warning.contains("未保存新视频"));
     }
 }
 
@@ -288,7 +335,7 @@ async fn time_only_history_gets_dates_from_the_saved_task_times() {
 
 #[tokio::test]
 async fn completed_history_does_not_persist_processing_arguments() {
-    let (root, _, end) = run(false, false).await;
+    let (root, _, end) = run(Scenario::Success).await;
     let history = root.path().join("records/history");
     for name in [format!("{}.json", end.job_id), "latest.json".into()] {
         let value: serde_json::Value =
@@ -300,7 +347,7 @@ async fn completed_history_does_not_persist_processing_arguments() {
 
 #[tokio::test]
 async fn startup_scrubs_all_old_history_plans_and_keeps_user_reports() {
-    let (root, service, end) = run(false, false).await;
+    let (root, service, end) = run(Scenario::Success).await;
     let report = service.read_log(&end.job_id).await.unwrap().text;
     let history = root.path().join("records/history");
     let latest = history.join("latest.json");

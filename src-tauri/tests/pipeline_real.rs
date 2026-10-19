@@ -78,6 +78,9 @@ async fn process_with_preset(
     );
     let mut request = request(input, &output);
     request.preset_id = preset_id.into();
+    if preset_id == "custom-variation-v1" {
+        request.custom_settings = Some(CustomVariationSettings::recommended());
+    }
     let id = service.start_job(request).await.unwrap();
     let mut states = vec![];
     let snapshot = tokio::time::timeout(std::time::Duration::from_secs(300), async {
@@ -849,6 +852,39 @@ async fn generated_phase_preset_changes_each_channel_after_aac_encoding() {
         }
     }
 }
+#[tokio::test]
+#[ignore = "requires explicitly supplied sample that produces a custom audio validation warning"]
+async fn provided_custom_sample_saves_with_audio_validation_warning() {
+    let source = PathBuf::from(
+        std::env::var_os("VIDEO_EDITOR_ADVISORY_SAMPLE").expect("supply sample path"),
+    );
+    let before = file_identity(&source, &CancellationToken::new())
+        .await
+        .unwrap();
+    let (result, dir, states) = process_with_preset(&source, false, "custom-variation-v1").await;
+    assert_eq!(result.state, JobState::Succeeded, "{:?}", result.error);
+    assert!(result.error.is_none());
+    assert!(Path::new(result.output_path.as_ref().unwrap()).is_file());
+    assert!(states.contains(&JobState::Validating) && states.contains(&JobState::Committing));
+    let stored: serde_json::Value = serde_json::from_slice(
+        &std::fs::read(dir.path().join("records/history/latest.json")).unwrap(),
+    )
+    .unwrap();
+    let report = stored["log"]["text"].as_str().unwrap();
+    assert!(
+        report.contains("校验提醒") && report.contains("音频") && report.contains("结果已保存"),
+        "{report}"
+    );
+    assert!(!report.contains("未保存新视频"));
+    assert!(stored["validation"].is_null());
+    assert_eq!(
+        file_identity(&source, &CancellationToken::new())
+            .await
+            .unwrap(),
+        before
+    );
+}
+
 #[tokio::test]
 #[ignore = "requires an explicitly supplied compatibility sample"]
 async fn provided_compatible_media_end_to_end() {

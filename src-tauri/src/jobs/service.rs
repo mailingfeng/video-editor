@@ -495,7 +495,7 @@ impl JobService {
     }
     async fn execute(&self, id: &str, request: StartJobRequest, cancel: CancellationToken) {
         let mut workspace = None;
-        let result: Result<ValidationResult, AppError> = async {
+        let result: Result<(String, Option<ValidationResult>), AppError> = async {
             if cancel.is_cancelled() {
                 return Err(canceled());
             }
@@ -575,13 +575,27 @@ impl JobService {
             }
             self.set_phase(id, JobState::Validating, &cancel).await?;
             let mut validation =
-                validate_output(self.runner.as_ref(), &plan, cancel.clone()).await?;
+                match validate_output(self.runner.as_ref(), &plan, cancel.clone()).await {
+                    Ok(validation) => Some(validation),
+                    Err(error) => {
+                        if error.code == ErrorCode::Canceled || cancel.is_cancelled() {
+                            return Err(canceled());
+                        }
+                        let mut state = self.state.lock().await;
+                        let job = state.jobs.get_mut(id).ok_or_else(unknown_job)?;
+                        job.log.append(&error.validation_warning());
+                        None
+                    }
+                };
             self.set_phase(id, JobState::Committing, &cancel).await?;
-            validation.output_path = publish_no_replace(&plan.workspace)?
+            let output_path = publish_no_replace(&plan.workspace)?
                 .to_str()
                 .ok_or_else(|| AppError::new(ErrorCode::OutputPermission, "输出路径无法表示"))?
                 .to_owned();
-            Ok(validation)
+            if let Some(validation) = &mut validation {
+                validation.output_path = output_path.clone();
+            }
+            Ok((output_path, validation))
         }
         .await;
         let cleanup = workspace.as_ref().map(cleanup_workspace).transpose();
@@ -591,11 +605,11 @@ impl JobService {
                 return;
             };
             match result {
-                Ok(validation) => {
+                Ok((output_path, validation)) => {
                     transition(&mut job.snapshot, JobState::Succeeded);
                     job.snapshot.progress = Some(1.0);
-                    job.snapshot.output_path = Some(validation.output_path.clone());
-                    job.validation = Some(validation);
+                    job.snapshot.output_path = Some(output_path);
+                    job.validation = validation;
                     job.log.append(phase_message(JobState::Succeeded));
                 }
                 Err(error) => {

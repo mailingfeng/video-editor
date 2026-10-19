@@ -17,6 +17,7 @@
 | 工作台布局、按钮、详情 | `ProcessingView.tsx`、`FileDetailsDialog.tsx`、`processing.css`、[DESIGN.md](../DESIGN.md) | 前端视图测试、类型检查、浏览器布局；文件选择与结果定位另做桌面验证 |
 | 事件、重挂载、日志串行归属 | `useProcessing.ts`、`queueState.ts` | hook 和状态合并测试；乱序回包、旧 job 事件、切换选择、卸载 disposer |
 | 输出目录记忆 | `useProcessing.ts` | `useProcessing.test.tsx`：选择后重挂载恢复、取消／迟到回包不覆盖、存储不可用；测试清理隔离的 localStorage |
+| 模式与参数记忆 | `useProcessing.ts`、`useCustomSettings.ts`、原生 `SettingsStore` | `useProcessing.test.tsx`：模式／参数重挂载恢复、未知模式回退、存储失败、运行批次优先；`custom_settings_store`：重新加载已保存档位、损坏配置回退 |
 | IPC 字段／命令 | `contracts.ts`、`desktop.ts`、Rust `contracts/`、`commands.rs`、`main.rs` | wire fixture、前端类型、desktop clippy，真实 Tauri 调用 |
 | 文件夹收集、路径去重 | `media/inputs.rs`、`JobService` 导入方法 | `input_collection`、批次测试；Windows 大小写／别名、中文空格及晚到扫描 |
 | 路径显示、校验失败原因 | `displayPath.ts`、`contracts/error.rs`、`media/validate.rs` | `displayPath.test.ts`、`ProcessingView.test.tsx` 的盘符／UNC 弹窗显示；`output_validation`、`user_reports` 的具体原因、工具信息隔离与历史重载 |
@@ -77,6 +78,7 @@ VIDEO_EDITOR_COMPAT_SAMPLE="$PWD/docs/requirements/20261002-research/h264.mp4" \
 | `VIDEO_EDITOR_FIXTURE_DIR` | 已生成媒体目录；完整脚本自动设置 |
 | `VIDEO_EDITOR_SAMPLE_DIR` | 含研究原片的目录；脚本查找后传入 |
 | `VIDEO_EDITOR_COMPAT_SAMPLE` | 指定兼容性视频文件，只读 |
+| `VIDEO_EDITOR_ADVISORY_SAMPLE` | 指定会触发自定义音频校验提醒的原片，只读；`pipeline_real::provided_custom_sample_saves_with_audio_validation_warning` 验证仍保存且历史保留提醒 |
 | `VIDEO_EDITOR_INSTALLED_EXE` | 使用安装应用旁的工具执行原生回归；不是给应用 IPC 注入任意工具路径 |
 
 环境配置参考 [development.md](development.md)。若共享 npm 缓存出现权限问题，使用 `npm ci --cache .superpowers/npm-cache`，不修改全局缓存权限。Apple Silicon 的 sidecar 缺失不能靠忽略校验或换成 PATH 工具来掩盖。
@@ -88,7 +90,7 @@ VIDEO_EDITOR_COMPAT_SAMPLE="$PWD/docs/requirements/20261002-research/h264.mp4" \
 - 两项活动、一项等待；转换结束但校验仍在执行时不能补位。取消收尾期间同样不能提前补位。
 - 一项损坏或失败不影响其他项；取消 waiting 不调用媒体 runner；关闭后不再启动新项，保存中的项等待完成。
 - `job_snapshot` 先于映射到达、查询旧回包晚于进度到达、移除再导入、快速切换日志选择，都不串任务。
-- VFR、无音轨、5.1／7.1、已知全范围、缺失颜色标记、不同音画起点及损坏容器得到明确结果；不放宽策略“让测试变绿”。
+- VFR、无音轨、5.1／7.1、已知全范围、缺失颜色标记、不同音画起点及损坏容器得到明确结果；转码后的校验偏差／解码失败只写公开提醒并继续保存，不改变检查标准。取消、转码失败或输出保存安全检查失败仍不得声称已保存。
 - 输入 SHA 不变；输出冲突不覆盖；陌生工作区文件不删除；临时脚本权限失败时停止任务。
 - 用户报告不暴露命令、stderr 和完整参数；新版历史不持久化计划，旧记录保留真实时间和结果。
 
